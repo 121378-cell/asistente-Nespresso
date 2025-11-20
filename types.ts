@@ -11,13 +11,13 @@ export interface FileAttachment {
 
 export interface GroundingChunk {
   web?: {
-    uri: string;
-    title: string;
+    uri?: string;
+    title?: string;
   };
 }
 
 export interface GroundingMetadata {
-  groundingChunks: GroundingChunk[];
+  groundingChunks?: GroundingChunk[];
 }
 
 

@@ -18,6 +18,7 @@ import SavedRepairsModal from './components/SavedRepairsModal';
 import Checklist from './components/Checklist';
 import CameraIcon from './components/icons/CameraIcon';
 import CameraIdentificationModal from './components/CameraIdentificationModal';
+import DatabaseDashboard from './components/DatabaseDashboard';
 
 
 const App: React.FC = () => {
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showVeoModal, setShowVeoModal] = useState(false);
   const [showSavedRepairsModal, setShowSavedRepairsModal] = useState(false);
+  const [showDatabaseDashboard, setShowDatabaseDashboard] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // State to manage the machine model conversation flow
@@ -275,12 +277,20 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowDatabaseDashboard(true)}
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Base de Datos"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+              </svg>
+            </button>
+            <button
               onClick={() => setShowSavedRepairsModal(true)}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 font-semibold rounded-full hover:bg-gray-200 transition-colors shadow-sm"
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Reparaciones Guardadas"
             >
-              <BookmarkIcon className="w-5 h-5" />
-              <span className="hidden md:inline">Reparaciones</span>
+              <BookmarkIcon className="w-6 h-6" />
             </button>
             <button
               onClick={() => setShowVeoModal(true)}
@@ -339,9 +349,13 @@ const App: React.FC = () => {
         <SavedRepairsModal
           onClose={() => setShowSavedRepairsModal(false)}
           onSave={handleSaveRepair}
-          onLoad={handleLoadRepair}
+          onLoadRepair={handleLoadRepair}
           isSaveDisabled={messages.length < 3}
         />
+      )}
+
+      {showDatabaseDashboard && (
+        <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
       )}
     </div>
   );

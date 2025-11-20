@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import repairsRouter from './routes/repairsRouter.js';
+import analyticsRouter from './routes/analyticsRouter.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Routes
 app.use('/api/repairs', repairsRouter);
+app.use('/api/analytics', analyticsRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

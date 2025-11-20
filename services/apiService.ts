@@ -95,6 +95,33 @@ class ApiService {
             return false;
         }
     }
+
+    // Analytics & Data Export methods
+    async getStats(): Promise<any> {
+        const response = await this.api.get('/analytics/stats');
+        return response.data;
+    }
+
+    async searchRepairs(params: any): Promise<any> {
+        const response = await this.api.get('/analytics/search', { params });
+        return response.data;
+    }
+
+    async getModels(): Promise<any> {
+        const response = await this.api.get('/analytics/models');
+        return response.data;
+    }
+
+    exportData(format: 'json' | 'csv', params?: any): void {
+        const queryString = new URLSearchParams({ format, ...params }).toString();
+        window.open(`${API_BASE_URL}/analytics/export?${queryString}`, '_blank');
+    }
+
+    // Custom Query (Dev only)
+    async runCustomQuery(query: string): Promise<any> {
+        const response = await this.api.post('/analytics/query', { query });
+        return response.data;
+    }
 }
 
 // Export a singleton instance
