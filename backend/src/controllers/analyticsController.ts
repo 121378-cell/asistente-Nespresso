@@ -31,16 +31,26 @@ export const getStats = async (req: Request, res: Response) => {
             },
         });
 
-        // Reparaciones por mes
-        const repairsByMonth = await prisma.$queryRaw`
-      SELECT 
-        DATE_TRUNC('month', timestamp) as month,
-        COUNT(*) as count
-      FROM "SavedRepair"
-      GROUP BY month
-      ORDER BY month DESC
-      LIMIT 12
-    `;
+        // Reparaciones por mes (Procesado en JS para evitar errores de SQL raw)
+        const allRepairs = await prisma.savedRepair.findMany({
+            select: { timestamp: true }
+        });
+
+        const repairsByMonthMap = new Map<string, number>();
+        allRepairs.forEach((r: any) => {
+            try {
+                const date = new Date(r.timestamp);
+                const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
+                repairsByMonthMap.set(month, (repairsByMonthMap.get(month) || 0) + 1);
+            } catch (e) {
+                console.warn('Invalid date in repair:', r);
+            }
+        });
+
+        const repairsByMonth = Array.from(repairsByMonthMap.entries())
+            .map(([month, count]) => ({ month, count }))
+            .sort((a, b) => b.month.localeCompare(a.month))
+            .slice(0, 12);
 
         res.json({
             totalRepairs,
