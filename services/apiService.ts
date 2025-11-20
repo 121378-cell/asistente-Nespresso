@@ -98,28 +98,28 @@ class ApiService {
 
     // Analytics & Data Export methods
     async getStats(): Promise<any> {
-        const response = await this.api.get('/analytics/stats');
+        const response = await this.api.get('/api/analytics/stats');
         return response.data;
     }
 
     async searchRepairs(params: any): Promise<any> {
-        const response = await this.api.get('/analytics/search', { params });
+        const response = await this.api.get('/api/analytics/search', { params });
         return response.data;
     }
 
     async getModels(): Promise<any> {
-        const response = await this.api.get('/analytics/models');
+        const response = await this.api.get('/api/analytics/models');
         return response.data;
     }
 
     exportData(format: 'json' | 'csv', params?: any): void {
         const queryString = new URLSearchParams({ format, ...params }).toString();
-        window.open(`${API_BASE_URL}/analytics/export?${queryString}`, '_blank');
+        window.open(`${API_BASE_URL}/api/analytics/export?${queryString}`, '_blank');
     }
 
     // Custom Query (Dev only)
     async runCustomQuery(query: string): Promise<any> {
-        const response = await this.api.post('/analytics/query', { query });
+        const response = await this.api.post('/api/analytics/query', { query });
         return response.data;
     }
 }
