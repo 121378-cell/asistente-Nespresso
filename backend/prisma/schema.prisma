@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODEL
+}
+
+model SavedRepair {
+  id            String    @id @default(uuid())
+  name          String
+  machineModel  String?
+  serialNumber  String?
+  timestamp     DateTime  @default(now())
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([timestamp])
+}
+
+model Message {
+  id                String       @id @default(uuid())
+  role              Role
+  text              String       @db.Text
+  groundingMetadata Json?
+  repairId          String
+  repair            SavedRepair  @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  attachment        Attachment?
+  createdAt         DateTime     @default(now())
+
+  @@index([repairId])
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  url       String   @db.Text // Data URL can be very long
+  type      String   // MIME type
+  messageId String   @unique
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}

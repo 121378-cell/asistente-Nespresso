@@ -1,0 +1,8 @@
+{
+  "name": "Asistente de Reparación Nespresso",
+  "description": "Un asistente de IA experto en electromecánica para guiar en la reparación de cafeteras Nespresso Profesional, diseñado para ser de apoyo para personas con discapacidad psicológica.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
