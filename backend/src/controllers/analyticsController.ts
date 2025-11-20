@@ -63,8 +63,12 @@ export const getStats = async (req: Request, res: Response) => {
             repairsByMonth,
         });
     } catch (error) {
-        console.error('Error fetching stats:', error);
-        res.status(500).json({ error: 'Failed to fetch statistics' });
+        console.error('Error fetching stats:', JSON.stringify(error, null, 2));
+        if (error instanceof Error) {
+            console.error('Stack:', error.stack);
+            console.error('Message:', error.message);
+        }
+        res.status(500).json({ error: 'Failed to fetch statistics', details: error instanceof Error ? error.message : String(error) });
     }
 };
 
@@ -216,8 +220,12 @@ export const getModels = async (req: Request, res: Response) => {
 
         res.json(models.map((m: any) => m.machineModel));
     } catch (error) {
-        console.error('Error fetching models:', error);
-        res.status(500).json({ error: 'Failed to fetch models' });
+        console.error('Error fetching models:', JSON.stringify(error, null, 2));
+        if (error instanceof Error) {
+            console.error('Stack:', error.stack);
+            console.error('Message:', error.message);
+        }
+        res.status(500).json({ error: 'Failed to fetch models', details: error instanceof Error ? error.message : String(error) });
     }
 };
 
