@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
+import chatRouter from './routes/chatRouter.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Routes
 app.use('/api/repairs', repairsRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/chat', chatRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

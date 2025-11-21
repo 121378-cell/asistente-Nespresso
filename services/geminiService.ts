@@ -1,184 +1,127 @@
+import axios from 'axios';
+import { Message, Role } from '../types';
 
-import { GoogleGenAI, GenerateContentResponse, Part, Content, Type, Modality } from "@google/genai";
-import { SYSTEM_INSTRUCTION } from '../constants';
-import { fileToBase64 } from "../utils/fileUtils";
-import { Message, Role } from "../types";
+const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001';
 
-function mapMessagesToContent(messages: Message[]): Content[] {
-    return messages.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.text }] // Simplified for now, attachments are handled in the new message
-    }));
+interface GenerateContentResponse {
+  text: string;
+  groundingMetadata?: any;
 }
 
+interface FileData {
+  mimeType: string;
+  data: string; // base64
+}
+
+/**
+ * Convert File to base64 data
+ */
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
+}
+
+/**
+ * Generate AI response using backend API
+ */
 export async function generateResponse(
   history: Message[],
-  message: string, 
+  message: string,
   file?: File,
   useGoogleSearch?: boolean,
   machineModel?: string | null
 ): Promise<GenerateContentResponse> {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    // Determine model based on task complexity and inputs
-    const modelName = useGoogleSearch ? 'gemini-2.5-flash'
-      : file?.type.startsWith('image/') ? 'gemini-2.5-flash'
-      : file?.type.startsWith('video/') ? 'gemini-2.5-pro'
-      : 'gemini-2.5-pro'; 
-
-    const parts: Part[] = [{ text: message }];
-
+    // Prepare file data if present
+    let fileData: FileData | undefined;
     if (file) {
-      const base64Data = await fileToBase64(file);
-      parts.unshift({
-        inlineData: {
-          mimeType: file.type,
-          data: base64Data,
-        },
-      });
+      const base64 = await fileToBase64(file);
+      fileData = {
+        mimeType: file.type,
+        data: base64
+      };
     }
 
-    const contents = [...mapMessagesToContent(history), { role: 'user', parts }];
+    // Map history to backend format
+    const historyData = history.map(msg => ({
+      role: msg.role,
+      text: msg.text
+    }));
 
-    let finalSystemInstruction = SYSTEM_INSTRUCTION;
-    if (machineModel) {
-      finalSystemInstruction += `\n\nIMPORTANTE: El usuario está trabajando con una cafetera modelo "${machineModel}". Asegúrate de que todas tus respuestas, diagnósticos y pasos de reparación sean específicos para este modelo. Si no conoces el modelo, dilo honestamente, pero intenta dar una respuesta general basada en principios comunes de las Nespresso Profesional.`;
-    }
-
-    // Configurar herramientas
-    const tools: any[] = [];
-    if (useGoogleSearch) {
-        tools.push({ googleSearch: {} });
-    }
-
-    const config: any = {
-        systemInstruction: finalSystemInstruction,
-    };
-
-    if (tools.length > 0) {
-        config.tools = tools;
-    }
-
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: contents,
-      config: config
+    // Call backend API
+    const response = await axios.post(`${API_BASE_URL}/api/chat`, {
+      history: historyData,
+      message,
+      file: fileData,
+      useGoogleSearch,
+      machineModel
+    }, {
+      timeout: 60000 // 60 seconds for AI responses
     });
 
-    return response;
+    return {
+      text: response.data.text,
+      groundingMetadata: response.data.groundingMetadata
+    };
 
-  } catch (error) {
-    console.error("Error sending message to Gemini:", error);
-    throw new Error("Lo siento, ha ocurrido un error al contactar con Gemini. Por favor, inténtalo de nuevo.");
+  } catch (error: any) {
+    console.error('Error calling chat API:', error);
+
+    if (error.response) {
+      // Backend returned an error
+      throw new Error(error.response.data?.error || 'Error al contactar con el servidor');
+    } else if (error.request) {
+      // Request was made but no response
+      throw new Error('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.');
+    } else {
+      // Something else happened
+      throw new Error('Error inesperado al procesar la solicitud');
+    }
   }
 }
 
-export async function generateSpeech(text: string): Promise<string> {
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-preview-tts',
-            contents: [{ parts: [{ text: text }] }],
-            config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Kore' }, // Voice tailored for calm guidance
-                    },
-                },
-            },
-        });
-        
-        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!base64Audio) {
-            throw new Error("No audio data received");
-        }
-        return base64Audio;
-    } catch (error) {
-        console.error("Error generating speech:", error);
-        throw error;
+/**
+ * Identify machine model from image using backend API
+ */
+export async function identifyMachineFromImage(base64Image: string): Promise<{ model: string; serialNumber: string }> {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/chat/identify-machine`, {
+      image: base64Image
+    }, {
+      timeout: 30000 // 30 seconds
+    });
+
+    return response.data;
+
+  } catch (error: any) {
+    console.error('Error identifying machine:', error);
+
+    if (error.response) {
+      throw new Error(error.response.data?.error || 'Error al identificar la máquina');
+    } else if (error.request) {
+      throw new Error('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.');
+    } else {
+      throw new Error('Error inesperado al identificar la máquina');
     }
+  }
+}
+
+// Note: Speech generation and transcription features are not yet implemented in backend
+// These functions are kept for future implementation
+
+export async function generateSpeech(text: string): Promise<string> {
+  throw new Error('Speech generation not yet implemented in backend');
 }
 
 export async function transcribeAudio(audioFile: File): Promise<string> {
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const base64Data = await fileToBase64(audioFile);
-        const audioPart: Part = {
-            inlineData: {
-                mimeType: audioFile.type,
-                data: base64Data,
-            },
-        };
-
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [{ role: 'user', parts: [audioPart, { text: "Transcribe el siguiente audio:" }] }],
-        });
-
-        return response.text ?? "";
-    } catch (error) {
-        console.error("Error transcribing audio:", error);
-        return "No se pudo transcribir el audio. Inténtalo de nuevo.";
-    }
-}
-
-export async function identifyMachineFromImage(base64Image: string): Promise<{ model: string; serialNumber: string }> {
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const imagePart: Part = {
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: base64Image,
-      },
-    };
-
-    const textPart: Part = {
-      text: `Analiza esta imagen de una cafetera. Identifica el modelo exacto y el número de serie. El número de serie suele estar en una pegatina con un código de barras. Responde con un JSON que se ajuste al esquema proporcionado. Si no encuentras uno de los campos, déjalo como un string vacío.`,
-    };
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [{ role: 'user', parts: [imagePart, textPart] }],
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            model: {
-              type: Type.STRING,
-              description: 'El nombre del modelo de la cafetera. Por ejemplo: "Zenius ZN 100 PRO".'
-            },
-            serialNumber: {
-              type: Type.STRING,
-              description: 'El número de serie completo de la cafetera.'
-            },
-          },
-          required: ['model', 'serialNumber'],
-        },
-      },
-    });
-
-    const jsonText = response.text?.trim();
-    if (!jsonText) throw new Error("Empty response");
-
-    let result;
-    try {
-        result = JSON.parse(jsonText);
-    } catch (e) {
-        console.error("Failed to parse JSON response from Gemini:", jsonText);
-        throw new Error("La respuesta de la IA no es un JSON válido.");
-    }
-    
-    if (result && typeof result.model === 'string' && typeof result.serialNumber === 'string') {
-        return result;
-    } else {
-        throw new Error("La respuesta de la IA no tiene el formato esperado.");
-    }
-
-  } catch (error) {
-    console.error("Error identifying machine from image:", error);
-    throw new Error("No se pudo identificar la máquina desde la imagen. Inténtalo de nuevo con una foto más clara.");
-  }
+  throw new Error('Audio transcription not yet implemented in backend');
 }

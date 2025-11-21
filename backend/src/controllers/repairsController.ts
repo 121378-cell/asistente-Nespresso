@@ -97,7 +97,7 @@ export const getRepairById = async (req: Request, res: Response) => {
                     },
                 }),
                 ...(msg.groundingMetadata && {
-                    groundingMetadata: msg.groundingMetadata,
+                    groundingMetadata: msg.groundingMetadata as any,
                 }),
             })),
         };
@@ -130,7 +130,7 @@ export const createRepair = async (req: Request, res: Response) => {
                     create: messages.map(msg => ({
                         role: msg.role,
                         text: msg.text,
-                        groundingMetadata: msg.groundingMetadata || undefined,
+                        groundingMetadata: (msg.groundingMetadata as any) || undefined,
                         ...(msg.attachment && {
                             attachment: {
                                 create: {
@@ -149,7 +149,7 @@ export const createRepair = async (req: Request, res: Response) => {
                     },
                 },
             },
-        });
+        }) as any; // Type assertion needed due to Prisma complex types
 
         // Transform to match frontend format
         const formattedRepair = {
@@ -158,7 +158,7 @@ export const createRepair = async (req: Request, res: Response) => {
             machineModel: repair.machineModel,
             serialNumber: repair.serialNumber,
             timestamp: repair.timestamp.getTime(),
-            messages: repair.messages.map(msg => ({
+            messages: repair.messages.map((msg: any) => ({
                 role: msg.role,
                 text: msg.text,
                 ...(msg.attachment && {
@@ -168,7 +168,7 @@ export const createRepair = async (req: Request, res: Response) => {
                     },
                 }),
                 ...(msg.groundingMetadata && {
-                    groundingMetadata: msg.groundingMetadata,
+                    groundingMetadata: msg.groundingMetadata as any,
                 }),
             })),
         };
