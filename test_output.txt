@@ -1,0 +1,4 @@
+Attempting to save repair to http://localhost:3001/api/repairs...
+ÔØî Failed to save repair: Error: HTTP error! status: 500, body: {"error":"Failed to create repair"}
+    at testSave (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\test_db_save.ts:30:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

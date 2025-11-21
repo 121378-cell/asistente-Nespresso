@@ -1,0 +1,4 @@
+DATABASE_URL=postgresql://postgres:nespresso-assistant@db.vzmvylfqebkqozycytdx.supabase.co:5432/postgres
+PORT=3001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000

@@ -1,0 +1,15 @@
+Attempting to save repair to http://localhost:3001/api/repairs...
+Ô£à Repair saved successfully!
+Response data: {
+  "id": "25d0922c-dbec-44bd-982f-a1322252bc38",
+  "name": "Test Repair Automated",
+  "machineModel": "Vertuo Next Test",
+  "serialNumber": "TEST-123456",
+  "timestamp": 1763717432695,
+  "messages": [
+    {
+      "role": "USER",
+      "text": "This is a test message from the automated test script."
+    }
+  ]
+}
