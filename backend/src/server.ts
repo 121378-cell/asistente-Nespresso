@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
+import videoRouter from './routes/videoRouter.js';
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/repairs', repairsRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/video', videoRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

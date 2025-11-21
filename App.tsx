@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GenerateContentResponse } from '@google/genai';
 import { Message, Role, FileAttachment, SavedRepair } from './types';
 import { generateResponse } from './services/geminiService';
 import { fileToDataURL } from './utils/fileUtils';
@@ -116,7 +115,7 @@ const App: React.FC = () => {
 
       const cleanHistory = messages.filter(m => m.role === Role.MODEL).slice(0, 1);
 
-      const response: GenerateContentResponse = await generateResponse(
+      const response = await generateResponse(
         cleanHistory,
         initialUserQuery.message,
         initialUserQuery.file,
@@ -124,11 +123,10 @@ const App: React.FC = () => {
         model
       );
 
-      const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
       const newModelMessage: Message = {
         role: Role.MODEL,
         text: response.text ?? '',
-        ...(groundingMetadata && { groundingMetadata }),
+        ...(response.groundingMetadata && { groundingMetadata: response.groundingMetadata }),
       };
       setMessages((prevMessages) => [...prevMessages, newModelMessage]);
 
@@ -193,7 +191,7 @@ const App: React.FC = () => {
 
     // Standard conversation flow
     try {
-      const response: GenerateContentResponse = await generateResponse(
+      const response = await generateResponse(
         messages,
         userMessage,
         file,
@@ -201,12 +199,10 @@ const App: React.FC = () => {
         machineModel
       );
 
-      const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
-
       const newModelMessage: Message = {
         role: Role.MODEL,
         text: response.text ?? '',
-        ...(groundingMetadata && { groundingMetadata }),
+        ...(response.groundingMetadata && { groundingMetadata: response.groundingMetadata }),
       };
 
       setMessages((prevMessages) => [...prevMessages, newModelMessage]);

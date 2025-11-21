@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GenerateVideosOperation } from '@google/genai';
 import { generateVideo, checkVideoStatus, checkApiKey, requestApiKey } from '../services/videoGenerationService';
 import { fileToBase64 } from '../utils/fileUtils';
 import CloseIcon from './icons/CloseIcon';
@@ -43,7 +42,7 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     }
   };
 
-  const pollOperation = async (operation: GenerateVideosOperation) => {
+  const pollOperation = async (operation: any) => {
     while (!operation.done) {
       await new Promise(resolve => setTimeout(resolve, 10000));
       try {
@@ -74,12 +73,12 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
       const base64Image = await fileToBase64(imageFile);
       setLoadingMessage('Iniciando la generación de vídeo... Esto puede tardar varios minutos.');
       let operation = await generateVideo(prompt, { imageBytes: base64Image, mimeType: imageFile.type }, aspectRatio);
-      
+
       setLoadingMessage('Procesando el vídeo en los servidores de Google... Mantén esta ventana abierta.');
       const finalOperation = await pollOperation(operation);
 
       if (finalOperation?.response?.generatedVideos?.[0]?.video?.uri) {
-        const downloadLink = `${finalOperation.response.generatedVideos[0].video.uri}&key=${process.env.API_KEY}`;
+        const downloadLink = finalOperation.response.generatedVideos[0].video.uri;
         const response = await fetch(downloadLink);
         const videoBlob = await response.blob();
         setGeneratedVideoUrl(URL.createObjectURL(videoBlob));
@@ -103,16 +102,16 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     if (!hasApiKey) {
       return (
         <div className="p-8 text-center">
-            <h2 className="text-xl font-bold mb-4">Se requiere una API Key</h2>
-            <p className="text-gray-600 mb-6">Para usar la generación de vídeo, necesitas seleccionar una API Key de tu proyecto. El uso de esta función puede incurrir en costes. Consulta la <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">documentación de facturación</a>.</p>
-            <button onClick={handleSelectKey} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700">Seleccionar API Key</button>
-            <button onClick={onClose} className="mt-2 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300">Cancelar</button>
+          <h2 className="text-xl font-bold mb-4">Se requiere una API Key</h2>
+          <p className="text-gray-600 mb-6">Para usar la generación de vídeo, necesitas seleccionar una API Key de tu proyecto. El uso de esta función puede incurrir en costes. Consulta la <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">documentación de facturación</a>.</p>
+          <button onClick={handleSelectKey} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700">Seleccionar API Key</button>
+          <button onClick={onClose} className="mt-2 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300">Cancelar</button>
         </div>
       );
     }
-    
+
     if (error) {
-       // Reset button for errors
+      // Reset button for errors
     }
 
     if (isLoading) {
@@ -127,10 +126,10 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     if (generatedVideoUrl) {
       return (
         <div className="text-center p-6">
-            <h3 className="text-lg font-semibold mb-2">¡Tu vídeo está listo!</h3>
-            <video src={generatedVideoUrl} controls autoPlay loop className="w-full rounded-md shadow-md"></video>
-            <a href={generatedVideoUrl} download="generated_video.mp4" className="mt-4 inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600">Descargar Vídeo</a>
-            <button onClick={() => setGeneratedVideoUrl(null)} className="mt-4 ml-2 inline-block px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300">Crear otro</button>
+          <h3 className="text-lg font-semibold mb-2">¡Tu vídeo está listo!</h3>
+          <video src={generatedVideoUrl} controls autoPlay loop className="w-full rounded-md shadow-md"></video>
+          <a href={generatedVideoUrl} download="generated_video.mp4" className="mt-4 inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600">Descargar Vídeo</a>
+          <button onClick={() => setGeneratedVideoUrl(null)} className="mt-4 ml-2 inline-block px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300">Crear otro</button>
         </div>
       );
     }
@@ -139,7 +138,7 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
       <div className="p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Generar Vídeo con Veo</h2>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded-md mb-4">{error}</p>}
-        
+
         {/* Tabla de Contenidos / Navegación Rápida */}
         <nav className="mb-6 p-3 bg-gray-50 border border-gray-200 rounded-md">
           <h3 className="text-sm font-semibold text-gray-600 mb-2">Contenido</h3>

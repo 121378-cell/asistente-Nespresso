@@ -200,3 +200,62 @@ export async function identifyMachineFromImage(base64Image: string): Promise<{ m
         throw new Error('Failed to identify machine from image');
     }
 }
+
+/**
+ * Generate video from image and prompt using Veo
+ */
+export async function generateVideo(
+    prompt: string,
+    image: { imageBytes: string; mimeType: string },
+    aspectRatio: '16:9' | '9:16'
+): Promise<any> {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error('GEMINI_API_KEY not configured in backend');
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+
+        const operation = await ai.models.generateVideos({
+            model: 'veo-3.1-fast-generate-preview',
+            prompt,
+            image,
+            config: {
+                numberOfVideos: 1,
+                resolution: '720p',
+                aspectRatio,
+            }
+        });
+
+        return operation;
+
+    } catch (error) {
+        console.error('Error generating video:', error);
+        throw new Error('Failed to generate video');
+    }
+}
+
+/**
+ * Check status of video generation operation
+ */
+export async function checkVideoStatus(operationData: any): Promise<any> {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error('GEMINI_API_KEY not configured in backend');
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+
+        const operation = await ai.operations.getVideosOperation({
+            operation: operationData
+        });
+
+        return operation;
+
+    } catch (error) {
+        console.error('Error checking video status:', error);
+        throw new Error('Failed to check video status');
+    }
+}
