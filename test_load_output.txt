@@ -1,0 +1,19 @@
+Attempting to fetch repairs from http://localhost:3001/api/repairs...
+Ô£à Successfully fetched 1 repairs.
+Latest repair: {
+  "id": "25d0922c-dbec-44bd-982f-a1322252bc38",
+  "name": "Test Repair Automated",
+  "machineModel": "Vertuo Next Test",
+  "serialNumber": "TEST-123456",
+  "timestamp": "2025-11-21T09:30:32.695Z",
+  "createdAt": "2025-11-21T09:30:32.697Z",
+  "updatedAt": "2025-11-21T09:30:32.697Z",
+  "messages": [
+    {
+      "id": "25679ced-cb96-45aa-afac-6abf321fd76b",
+      "role": "USER",
+      "text": "This is a test message from the automated test script."
+    }
+  ]
+}
+ÔÜá´©Å Model "Vertuo Next Test" is NOT in the known checklists. Valid models are: Zenius ZN 100 PRO, Gemini CS 203/223, Nespresso Momento
