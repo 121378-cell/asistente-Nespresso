@@ -259,26 +259,143 @@ export const getFullRepair = async (req: Request, res: Response) => {
     }
 };
 
-// POST /api/analytics/query - Consulta SQL personalizada (solo para desarrollo)
+// POST /api/analytics/query - Consultas predefinidas seguras
 export const customQuery = async (req: Request, res: Response) => {
     try {
-        // Solo permitir en desarrollo
-        if (process.env.NODE_ENV === 'production') {
-            return res.status(403).json({ error: 'Custom queries not allowed in production' });
+        const { queryType, params } = req.body;
+
+        if (!queryType) {
+            return res.status(400).json({ error: 'Query type is required' });
         }
 
-        const { query } = req.body;
+        let result;
 
-        if (!query) {
-            return res.status(400).json({ error: 'Query is required' });
+        // Solo permitir consultas predefinidas y seguras
+        switch (queryType) {
+            case 'repairs_by_date_range':
+                // Consulta: Reparaciones en un rango de fechas
+                const { startDate, endDate } = params || {};
+                result = await prisma.savedRepair.findMany({
+                    where: {
+                        timestamp: {
+                            gte: startDate ? new Date(startDate) : undefined,
+                            lte: endDate ? new Date(endDate) : undefined,
+                        }
+                    },
+                    include: {
+                        messages: {
+                            select: {
+                                id: true,
+                                role: true,
+                                text: true,
+                            }
+                        }
+                    },
+                    orderBy: { timestamp: 'desc' }
+                });
+                break;
+
+            case 'repairs_by_model':
+                // Consulta: Reparaciones por modelo de máquina
+                const { model } = params || {};
+                result = await prisma.savedRepair.findMany({
+                    where: {
+                        machineModel: model || undefined
+                    },
+                    include: {
+                        messages: {
+                            select: {
+                                id: true,
+                                role: true,
+                            }
+                        }
+                    }
+                });
+                break;
+
+            case 'message_count_by_repair':
+                // Consulta: Conteo de mensajes por reparación
+                result = await prisma.savedRepair.findMany({
+                    select: {
+                        id: true,
+                        name: true,
+                        machineModel: true,
+                        _count: {
+                            select: {
+                                messages: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        messages: {
+                            _count: 'desc'
+                        }
+                    }
+                });
+                break;
+
+            case 'recent_repairs':
+                // Consulta: Últimas N reparaciones
+                const { limit } = params || {};
+                result = await prisma.savedRepair.findMany({
+                    take: limit || 10,
+                    orderBy: { timestamp: 'desc' },
+                    include: {
+                        messages: {
+                            select: {
+                                id: true,
+                                role: true,
+                                text: true,
+                            },
+                            take: 1
+                        }
+                    }
+                });
+                break;
+
+            case 'repairs_with_attachments':
+                // Consulta: Reparaciones que tienen adjuntos
+                result = await prisma.savedRepair.findMany({
+                    where: {
+                        messages: {
+                            some: {
+                                attachment: {
+                                    isNot: null
+                                }
+                            }
+                        }
+                    },
+                    include: {
+                        messages: {
+                            where: {
+                                attachment: {
+                                    isNot: null
+                                }
+                            },
+                            include: {
+                                attachment: true
+                            }
+                        }
+                    }
+                });
+                break;
+
+            default:
+                return res.status(400).json({
+                    error: 'Invalid query type',
+                    availableQueries: [
+                        'repairs_by_date_range',
+                        'repairs_by_model',
+                        'message_count_by_repair',
+                        'recent_repairs',
+                        'repairs_with_attachments'
+                    ]
+                });
         }
-
-        // Ejecutar query (PELIGROSO - solo para desarrollo)
-        const result = await prisma.$queryRawUnsafe(query);
 
         res.json({ result });
     } catch (error: any) {
-        console.error('Error executing custom query:', error);
+        console.error('Error executing predefined query:', error);
         res.status(500).json({ error: error.message });
     }
 };

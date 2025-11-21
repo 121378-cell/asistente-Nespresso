@@ -1,115 +1,97 @@
 import axios, { AxiosInstance } from 'axios';
 import { SavedRepair } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001';
 
 class ApiService {
-    private api: AxiosInstance;
+    private axiosInstance: AxiosInstance;
 
     constructor() {
-        this.api = axios.create({
-            baseURL: API_BASE_URL,
+        this.axiosInstance = axios.create({
+            baseURL: `${API_BASE_URL}/api`,
             headers: {
                 'Content-Type': 'application/json',
             },
-            timeout: 30000, // 30 seconds timeout for large attachments
+            timeout: 30000,
         });
-
-        // Request interceptor for logging
-        this.api.interceptors.request.use(
-            (config) => {
-                console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
-                return config;
-            },
-            (error) => {
-                console.error('API Request Error:', error);
-                return Promise.reject(error);
-            }
-        );
-
-        // Response interceptor for error handling
-        this.api.interceptors.response.use(
-            (response) => response,
-            (error) => {
-                console.error('API Response Error:', error.response?.data || error.message);
-                return Promise.reject(error);
-            }
-        );
     }
 
-    // Get all saved repairs
+    private handleError(error: any): never {
+        const message = error.response?.data?.error || error.message || 'An error occurred';
+        throw new Error(message);
+    }
+
+    // Repairs
     async getAllRepairs(): Promise<SavedRepair[]> {
         try {
-            const response = await this.api.get('/api/repairs');
+            const response = await this.axiosInstance.get('/repairs');
             return response.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Failed to fetch repairs');
+        } catch (error) {
+            this.handleError(error);
         }
     }
 
-    // Get a specific repair by ID
     async getRepairById(id: string): Promise<SavedRepair> {
         try {
-            const response = await this.api.get(`/api/repairs/${id}`);
+            const response = await this.axiosInstance.get(`/repairs/${id}`);
             return response.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Failed to fetch repair');
+        } catch (error) {
+            this.handleError(error);
         }
     }
 
-    // Create a new repair
     async createRepair(repair: Omit<SavedRepair, 'id'>): Promise<SavedRepair> {
         try {
-            const response = await this.api.post('/api/repairs', repair);
+            const response = await this.axiosInstance.post('/repairs', repair);
             return response.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Failed to create repair');
+        } catch (error) {
+            this.handleError(error);
         }
     }
 
-    // Update a repair
     async updateRepair(id: string, updates: Partial<SavedRepair>): Promise<SavedRepair> {
         try {
-            const response = await this.api.put(`/api/repairs/${id}`, updates);
+            const response = await this.axiosInstance.put(`/repairs/${id}`, updates);
             return response.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Failed to update repair');
+        } catch (error) {
+            this.handleError(error);
         }
     }
 
-    // Delete a repair
     async deleteRepair(id: string): Promise<void> {
         try {
-            await this.api.delete(`/api/repairs/${id}`);
-        } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Failed to delete repair');
-        }
-    }
-
-    // Health check
-    async healthCheck(): Promise<boolean> {
-        try {
-            const response = await this.api.get('/health');
-            return response.data.status === 'ok';
+            await this.axiosInstance.delete(`/repairs/${id}`);
         } catch (error) {
-            return false;
+            this.handleError(error);
         }
     }
 
-    // Analytics & Data Export methods
+    // Analytics
     async getStats(): Promise<any> {
-        const response = await this.api.get('/api/analytics/stats');
-        return response.data;
+        try {
+            const response = await this.axiosInstance.get('/analytics/stats');
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
     }
 
     async searchRepairs(params: any): Promise<any> {
-        const response = await this.api.get('/api/analytics/search', { params });
-        return response.data;
+        try {
+            const response = await this.axiosInstance.get('/analytics/search', { params });
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
     }
 
-    async getModels(): Promise<any> {
-        const response = await this.api.get('/api/analytics/models');
-        return response.data;
+    async getModels(): Promise<string[]> {
+        try {
+            const response = await this.axiosInstance.get('/analytics/models');
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
     }
 
     exportData(format: 'json' | 'csv', params?: any): void {
@@ -117,13 +99,31 @@ class ApiService {
         window.open(`${API_BASE_URL}/api/analytics/export?${queryString}`, '_blank');
     }
 
-    // Custom Query (Dev only)
-    async runCustomQuery(query: string): Promise<any> {
-        const response = await this.api.post('/api/analytics/query', { query });
-        return response.data;
+    /**
+     * Run a predefined safe query
+     */
+    async runPredefinedQuery(queryType: string, params?: any): Promise<any> {
+        try {
+            const response = await this.axiosInstance.post('/analytics/query', {
+                queryType,
+                params
+            });
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    // Health check
+    async healthCheck(): Promise<boolean> {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/health`);
+            return response.data.status === 'ok';
+        } catch (error) {
+            return false;
+        }
     }
 }
 
-// Export a singleton instance
 export const apiService = new ApiService();
 export default apiService;

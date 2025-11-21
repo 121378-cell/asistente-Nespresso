@@ -76,7 +76,8 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const handleRunQuery = async () => {
         try {
             setLoading(true);
-            const data = await apiService.runCustomQuery(customQuery);
+            // Usar consulta predefinida segura en lugar de SQL arbitrario
+            const data = await apiService.runPredefinedQuery('recent_repairs', { limit: 10 });
             setQueryResult(data.result);
         } catch (err: any) {
             setQueryResult({ error: err.message });
@@ -261,69 +262,23 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {repair.name}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {repair.machineModel || '-'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {repair.serialNumber || '-'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {repair.messages.length}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {searchResults.length === 0 && !loading && (
-                                            <tr>
-                                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                                                    No se encontraron resultados
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'query' && (
-                        <div className="space-y-6">
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-                                ⚠️ <strong>Precaución:</strong> Esta herramienta ejecuta consultas SQL directas a la base de datos. Úsala con cuidado.
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <textarea
-                                    className="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
-                                    placeholder="SELECT * FROM &quot;SavedRepair&quot; LIMIT 10;"
-                                    value={customQuery}
-                                    onChange={(e) => setCustomQuery(e.target.value)}
-                                />
-                                <button
-                                    onClick={handleRunQuery}
-                                    className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                                >
-                                    Ejecutar Consulta
-                                </button>
-                            </div>
-
-                            {queryResult && (
-                                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                    <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 font-medium text-gray-700">
-                                        Resultados
-                                    </div>
-                                    <div className="p-6 overflow-x-auto">
-                                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                            {JSON.stringify(queryResult, null, 2)}
-                                        </pre>
-                                    </div>
-                                </div>
+                                                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                                    <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 font-medium text-gray-700">
+                                                        Resultados
+                                                    </div>
+                                                    <div className="p-6 overflow-x-auto">
+                                                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                            {JSON.stringify(queryResult, null, 2)}
+                                                        </pre>
+                                                    </div>
+                                                </div>
                             )}
+                                            </div>
+                                        )}
+                                    </div>
+                            </div>
                         </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+                    );
 };
 
-export default DatabaseDashboard;
+                    export default DatabaseDashboard;
