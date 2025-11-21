@@ -1,22 +1,3 @@
-{
-    "name": "nespresso-assistant-backend",
-    "version": "1.0.0",
-    "description": "Backend API for Nespresso Repair Assistant",
-    "main": "dist/server.js",
-    "type": "module",
-    "scripts": {
-        "dev": "tsx watch src/server.ts",
-        "build": "tsc",
-        "start": "node dist/server.js",
-        "prisma:generate": "prisma generate",
-        "prisma:migrate": "prisma migrate dev",
-        "prisma:studio": "prisma studio"
-    },
-    "keywords": [
-        "nespresso",
-        "repair",
-        "assistant",
-        "api"
     ],
     "author": "",
     "license": "MIT",

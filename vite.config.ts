@@ -14,6 +14,15 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       }
-    }
+    },
+    test: {
+      globals: true,
+      environment: 'happy-dom',
+      setupFiles: './tests/setup.ts',
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json', 'html'],
+      },
+    },
   };
 });
