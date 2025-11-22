@@ -1,4 +1,15 @@
-    ],
+{
+    "name": "nespresso-assistant-backend",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "test": "vitest",
+        "test:watch": "vitest --watch",
+        "test:coverage": "vitest --coverage"
+    },
     "author": "",
     "license": "MIT",
     "dependencies": {
@@ -12,8 +23,12 @@
         "@types/cors": "^2.8.17",
         "@types/express": "^5.0.0",
         "@types/node": "^22.14.0",
+        "@types/supertest": "^6.0.2",
+        "@vitest/coverage-v8": "^4.0.13",
         "prisma": "^6.1.0",
+        "supertest": "^7.0.0",
         "tsx": "^4.19.2",
-        "typescript": "^5.8.2"
+        "typescript": "^5.8.2",
+        "vitest": "^4.0.13"
     }
 }
