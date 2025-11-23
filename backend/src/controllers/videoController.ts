@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { generateVideo, checkVideoStatus } from '../services/geminiService.js';
+import { logger } from '../config/logger.js';
 
 interface GenerateVideoRequest {
     prompt: string;
@@ -38,7 +39,7 @@ export const generate = async (req: Request, res: Response) => {
         res.json(operation);
 
     } catch (error: any) {
-        console.error('Error in generate video controller:', error);
+        logger.error({ err: error, prompt: req.body.prompt }, 'Failed to generate video');
         res.status(500).json({
             error: 'Failed to generate video',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -62,7 +63,7 @@ export const status = async (req: Request, res: Response) => {
         res.json(result);
 
     } catch (error: any) {
-        console.error('Error in check video status controller:', error);
+        logger.error({ err: error, operation: req.body.operation }, 'Failed to check video status');
         res.status(500).json({
             error: 'Failed to check video status',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { generateResponse, identifyMachineFromImage } from '../services/geminiService.js';
+import { logger } from '../config/logger.js';
 
 interface MessageInput {
     role: 'user' | 'model';
@@ -56,7 +57,7 @@ export const chat = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        console.error('Error in chat controller:', error);
+        logger.error({ err: error, message: req.body.message }, 'Failed to generate chat response');
         res.status(500).json({
             error: 'Failed to generate response',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -80,7 +81,7 @@ export const identifyMachine = async (req: Request, res: Response) => {
         res.json(result);
 
     } catch (error: any) {
-        console.error('Error in identifyMachine controller:', error);
+        logger.error({ err: error }, 'Failed to identify machine from image');
         res.status(500).json({
             error: 'Failed to identify machine',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined

@@ -6,6 +6,8 @@ import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
+import { logger } from './config/logger.js';
+import { httpLogger } from './middleware/httpLogger.js';
 
 // Load environment variables
 dotenv.config();
@@ -22,14 +24,11 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })); // Increased limit for image attachments
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Apply HTTP logging middleware (before routes)
+app.use(httpLogger);
+
 // Apply global rate limiting to all API routes
 app.use('/api/', globalLimiter);
-
-// Request logging middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
-});
 
 
 // Routes
@@ -50,7 +49,7 @@ app.use((req: Request, res: Response) => {
 
 // Global error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error('Error:', err);
+    logger.error({ err, path: req.path, method: req.method }, 'Unhandled error');
     res.status(500).json({
         error: 'Internal server error',
         message: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -59,9 +58,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 CORS enabled for: ${FRONTEND_URL}`);
+    logger.info({
+        port: PORT,
+        env: process.env.NODE_ENV || 'development',
+        corsOrigin: FRONTEND_URL
+    }, 'Server started successfully');
 });
 
 export default app;
