@@ -5,6 +5,7 @@ import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
+import { globalLimiter } from './middleware/rateLimiter.js';
 
 // Load environment variables
 dotenv.config();
@@ -21,11 +22,15 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })); // Increased limit for image attachments
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Apply global rate limiting to all API routes
+app.use('/api/', globalLimiter);
+
 // Request logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
+
 
 // Routes
 app.use('/api/repairs', repairsRouter);

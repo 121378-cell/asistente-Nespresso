@@ -8,6 +8,7 @@ import {
 } from '../controllers/repairsController.js';
 import { validateBody, validateParams } from '../middleware/validate.js';
 import { createRepairSchema, updateRepairSchema, repairIdSchema } from '../schemas/repairsSchemas.js';
+import { analyticsLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -18,12 +19,13 @@ router.get('/', getAllRepairs);
 router.get('/:id', validateParams(repairIdSchema), getRepairById);
 
 // POST /api/repairs - Create a new repair
-router.post('/', validateBody(createRepairSchema), createRepair);
+router.post('/', analyticsLimiter, validateBody(createRepairSchema), createRepair);
 
 // PUT /api/repairs/:id - Update a repair
-router.put('/:id', validateParams(repairIdSchema), validateBody(updateRepairSchema), updateRepair);
+router.put('/:id', analyticsLimiter, validateParams(repairIdSchema), validateBody(updateRepairSchema), updateRepair);
 
 // DELETE /api/repairs/:id - Delete a repair
-router.delete('/:id', validateParams(repairIdSchema), deleteRepair);
+router.delete('/:id', analyticsLimiter, validateParams(repairIdSchema), deleteRepair);
 
 export default router;
+
