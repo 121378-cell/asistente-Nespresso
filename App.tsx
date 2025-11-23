@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Message, Role, FileAttachment, SavedRepair } from './types';
-import { generateResponse } from './services/geminiService';
-import { fileToDataURL } from './utils/fileUtils';
-import { parseSerialNumber } from './utils/machineUtils';
+import React from 'react';
+import { useAppContext } from './context/AppContext';
+import { useChat } from './hooks/useChat';
+import { useMachineIdentification } from './hooks/useMachineIdentification';
+import { useModals } from './hooks/useModals';
+import { useRepairs } from './hooks/useRepairs';
 import { checklists } from './data/checklistData';
 import ChatMessage from './components/ChatMessage';
 import InputBar from './components/InputBar';
@@ -17,246 +18,77 @@ import SavedRepairsModal from './components/SavedRepairsModal';
 import Checklist from './components/Checklist';
 import CameraIcon from './components/icons/CameraIcon';
 import CameraIdentificationModal from './components/CameraIdentificationModal';
-import DatabaseDashboard from './components/DatabaseDashboard';
+import { DatabaseDashboard } from './components/DatabaseDashboard';
 
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showVeoModal, setShowVeoModal] = useState(false);
-  const [showSavedRepairsModal, setShowSavedRepairsModal] = useState(false);
-  const [showDatabaseDashboard, setShowDatabaseDashboard] = useState(false);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  // Context - Estado global
+  const {
+    messages,
+    isLoading,
+    machineModel,
+    serialNumber,
+    isWaitingForModel,
+    addMessage,
+    chatContainerRef,
+  } = useAppContext();
 
-  // State to manage the machine model conversation flow
-  const [machineModel, setMachineModel] = useState<string | null>(null);
-  const [serialNumber, setSerialNumber] = useState<string | null>(null);
-  const [showChecklist, setShowChecklist] = useState(false);
-  const [initialUserQuery, setInitialUserQuery] = useState<{
-    message: string;
-    file?: File;
-    useGoogleSearch?: boolean;
-  } | null>(null);
-  const [showCameraModal, setShowCameraModal] = useState(false);
-  const [isWaitingForModel, setIsWaitingForModel] = useState(false);
+  // Custom Hooks - Lógica separada
+  const { handleSendMessage } = useChat();
 
+  const {
+    showChecklist,
+    setShowChecklist,
+    onModelIdentified,
+    processUserIdentification,
+    requestModelIdentification,
+  } = useMachineIdentification();
 
-  useEffect(() => {
-    let isCancelled = false;
+  const {
+    showVeoModal,
+    showSavedRepairsModal,
+    showDatabaseDashboard,
+    showCameraModal,
+    setShowVeoModal,
+    setShowSavedRepairsModal,
+    setShowDatabaseDashboard,
+    setShowCameraModal,
+  } = useModals();
 
-    const initializeChat = async () => {
-      try {
-        const response = await generateResponse([], "Hola, preséntate.");
-        if (!isCancelled) {
-          setMessages([{ role: Role.MODEL, text: response.text ?? "" }]);
-        }
-      } catch (error: any) {
-        if (!isCancelled) {
-          const errorMessageText = error?.message || "Lo siento, no pude iniciar. Por favor, recarga la página.";
-          const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
-          setMessages([errorMessage]);
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
-      }
-    };
+  const { handleSaveRepair, handleLoadRepair, isSaveDisabled } = useRepairs();
 
-    initializeChat();
-
-    // Cleanup function to prevent state updates on an unmounted component
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
-
-  const onModelIdentified = async (model: string | null, serial: string | null) => {
-    if (!model && !serial) {
-      const noIdMessage: Message = {
-        role: Role.MODEL,
-        text: "No he podido identificar un modelo o número de serie. Por favor, ¿podrías intentarlo de nuevo o escribirlo manualmente?"
-      };
-      setMessages(prev => [...prev, noIdMessage]);
-      setIsLoading(false);
-      setShowCameraModal(false);
-      return;
-    }
-
-    setMachineModel(model);
-    setSerialNumber(serial);
-    setIsWaitingForModel(false);
-    setShowCameraModal(false);
-
-    if (model && checklists[model]) {
-      setShowChecklist(true);
-    }
-
-    const confirmationMessage: Message = {
-      role: Role.MODEL,
-      text: `¡Genial! He registrado el modelo **${model || 'Desconocido'}** (N/S: ${serial || 'No detectado'}). ${model && checklists[model] ? 'He abierto un checklist de revisión inicial para ti. ' : ''}Ahora, déjame procesar tu consulta original.`
-    };
-    setMessages(prev => [...prev, confirmationMessage]);
-
-    if (!initialUserQuery) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      // This is a new async operation, so set loading state.
-      setIsLoading(true);
-
-      const cleanHistory = messages.filter(m => m.role === Role.MODEL).slice(0, 1);
-
-      const response = await generateResponse(
-        cleanHistory,
-        initialUserQuery.message,
-        initialUserQuery.file,
-        initialUserQuery.useGoogleSearch,
-        model
-      );
-
-      const newModelMessage: Message = {
-        role: Role.MODEL,
-        text: response.text ?? '',
-        ...(response.groundingMetadata && { groundingMetadata: response.groundingMetadata }),
-      };
-      setMessages((prevMessages) => [...prevMessages, newModelMessage]);
-
-    } catch (error: any) {
-      const errorMessageText = error?.message || "Un error ha ocurrido.";
-      const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    } finally {
-      setInitialUserQuery(null);
-      setIsLoading(false);
-    }
-  };
-
-
-  const handleSendMessage = async (userMessage: string, file?: File, useGoogleSearch?: boolean) => {
+  // Manejador mejorado de envío de mensajes que integra identificación
+  const handleSendMessageWithIdentification = async (
+    userMessage: string,
+    file?: File,
+    useGoogleSearch?: boolean
+  ) => {
     if (isLoading || (!userMessage.trim() && !file)) return;
 
-    setIsLoading(true);
-
-    let attachment: FileAttachment | undefined;
-    if (file) {
-      const dataUrl = await fileToDataURL(file);
-      attachment = { url: dataUrl, type: file.type };
-    }
-
-    const newUserMessage: Message = { role: Role.USER, text: userMessage, attachment };
-    setMessages((prev) => [...prev, newUserMessage]);
-
-    // If we are waiting for a model name/serial from user text input
+    // Si estamos esperando identificación del modelo
     if (isWaitingForModel) {
-      const userInput = userMessage.trim();
-      const serialAttempt = parseSerialNumber(userInput);
+      // Agregar mensaje del usuario primero
+      const attachment = file ? { url: await import('./utils/fileUtils').then(m => m.fileToDataURL(file)), type: file.type } : undefined;
+      addMessage({ role: 'USER' as const, text: userMessage, attachment });
 
-      let identifiedModel: string | null = null;
-      let identifiedSerial: string | null = null;
-
-      if (serialAttempt) {
-        identifiedModel = serialAttempt.model;
-        identifiedSerial = serialAttempt.serial;
-      } else {
-        // Assume user typed the model name directly
-        identifiedModel = userInput;
-      }
-
-      onModelIdentified(identifiedModel, identifiedSerial || '');
+      // Procesar identificación
+      processUserIdentification(userMessage.trim());
       return;
     }
 
-    // If it's the first interaction, ask for the model/serial
+    // Si es la primera interacción, solicitar modelo
     if (!machineModel) {
-      setInitialUserQuery({ message: userMessage, file, useGoogleSearch });
-      const askForModelMessage: Message = {
-        role: Role.MODEL,
-        text: "¡Entendido! Antes de continuar, ¿podrías decirme el modelo exacto de la cafetera Nespresso Profesional? O, si lo prefieres, **introduce su número de serie** y yo intentaré identificarla. También puedes usar el botón de la cámara."
-      };
-      setMessages(prev => [...prev, askForModelMessage]);
-      setIsWaitingForModel(true);
-      setIsLoading(false);
+      // Agregar mensaje del usuario
+      const attachment = file ? { url: await import('./utils/fileUtils').then(m => m.fileToDataURL(file)), type: file.type } : undefined;
+      addMessage({ role: 'USER' as const, text: userMessage, attachment });
+
+      requestModelIdentification(userMessage, file, useGoogleSearch);
       return;
     }
 
-
-    // Standard conversation flow
-    try {
-      const response = await generateResponse(
-        messages,
-        userMessage,
-        file,
-        useGoogleSearch,
-        machineModel
-      );
-
-      const newModelMessage: Message = {
-        role: Role.MODEL,
-        text: response.text ?? '',
-        ...(response.groundingMetadata && { groundingMetadata: response.groundingMetadata }),
-      };
-
-      setMessages((prevMessages) => [...prevMessages, newModelMessage]);
-    } catch (error: any) {
-      const errorMessageText = error?.message || "Un error ha ocurrido.";
-      const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // Flujo normal de conversación
+    await handleSendMessage(userMessage, file, useGoogleSearch);
   };
-
-  const handleSaveRepair = async () => {
-    const defaultName = `${machineModel || 'General'} - ${messages[1]?.text.substring(0, 30) || 'Reparación'}...`;
-    const name = prompt("Dale un nombre a esta reparación:", defaultName);
-
-    if (name) {
-      const newRepair = {
-        name,
-        machineModel,
-        serialNumber,
-        messages,
-        timestamp: Date.now(),
-      };
-
-      try {
-        const { apiService } = await import('./services/apiService');
-        await apiService.createRepair(newRepair);
-        alert("¡Reparación guardada con éxito!");
-      } catch (error) {
-        console.error("Failed to save repair:", error);
-        alert("Hubo un error al guardar la reparación. Asegúrate de que el backend esté funcionando.");
-      }
-    }
-  };
-
-  const handleLoadRepair = (repair: SavedRepair) => {
-    if (!repair) return;
-
-    // Safety check to prevent undefined messages
-    const safeMessages = Array.isArray(repair.messages) ? repair.messages : [];
-    const isInitialState = messages.length <= 2 && messages.some(m => m.text && m.text.includes("Hola, preséntate."));
-
-    if (!isInitialState && !window.confirm("¿Seguro que quieres cargar esta reparación? Se perderá tu conversación actual no guardada.")) {
-      return;
-    }
-
-    setMessages(safeMessages);
-    setMachineModel(repair.machineModel);
-    setSerialNumber(repair.serialNumber);
-    setShowChecklist(!!(repair.machineModel && checklists[repair.machineModel]));
-    setShowSavedRepairsModal(false);
-  };
-
 
   return (
     <div className="flex flex-col h-screen font-sans">
@@ -311,7 +143,7 @@ const App: React.FC = () => {
             />
           )}
           {messages.length <= 1 && !isLoading && !showChecklist && (
-            <KnowledgeBase onProblemSelect={(problem, useGoogleSearch) => handleSendMessage(problem, undefined, useGoogleSearch)} />
+            <KnowledgeBase onProblemSelect={(problem, useGoogleSearch) => handleSendMessageWithIdentification(problem, undefined, useGoogleSearch)} />
           )}
           {messages.map((msg, index) => (
             <ChatMessage key={index} message={msg} />
@@ -332,8 +164,10 @@ const App: React.FC = () => {
       </main>
 
       <footer className="sticky bottom-0 left-0 right-0">
-        <InputBar onSendMessage={handleSendMessage} isLoading={isLoading} />
+        <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
       </footer>
+
+      {/* Modales */}
       {showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} />}
       {showCameraModal && (
         <CameraIdentificationModal
@@ -346,10 +180,9 @@ const App: React.FC = () => {
           onClose={() => setShowSavedRepairsModal(false)}
           onSave={handleSaveRepair}
           onLoadRepair={handleLoadRepair}
-          isSaveDisabled={messages.length < 3}
+          isSaveDisabled={isSaveDisabled}
         />
       )}
-
       {showDatabaseDashboard && (
         <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
       )}

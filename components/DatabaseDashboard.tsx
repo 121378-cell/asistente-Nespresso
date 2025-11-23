@@ -281,4 +281,5 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     );
 };
 
-                    export default DatabaseDashboard;
+                    export { DatabaseDashboard };`nexport default DatabaseDashboard;
+
