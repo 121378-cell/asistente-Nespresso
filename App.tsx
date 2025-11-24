@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppContext } from './context/AppContext';
-import { ThemeProvider } from './context/ThemeContext';
+
 import { useChat } from './hooks/useChat';
 import { useMachineIdentification } from './hooks/useMachineIdentification';
 import { useModals } from './hooks/useModals';
@@ -70,9 +70,9 @@ const App: React.FC = () => {
       // Agregar mensaje del usuario primero
       const attachment = file
         ? {
-            url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
-            type: file.type,
-          }
+          url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
+          type: file.type,
+        }
         : undefined;
       addMessage({ role: 'USER' as const, text: userMessage, attachment });
 
@@ -86,9 +86,9 @@ const App: React.FC = () => {
       // Agregar mensaje del usuario
       const attachment = file
         ? {
-            url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
-            type: file.type,
-          }
+          url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
+          type: file.type,
+        }
         : undefined;
       addMessage({ role: 'USER' as const, text: userMessage, attachment });
 
@@ -101,118 +101,116 @@ const App: React.FC = () => {
   };
 
   return (
-    <ThemeProvider>
-      <div className="flex flex-col h-screen font-sans bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-        <header className="bg-white dark:bg-gray-800 shadow-md p-4 z-10 transition-colors duration-200">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CoffeeIcon className="h-8 w-8 text-gray-700" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                  Asistente de Reparación Nespresso
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-300">
-                  {machineModel
-                    ? `Modelo: ${machineModel}${serialNumber ? ` (N/S: ${serialNumber})` : ''}`
-                    : 'Tu experto electromecánico de confianza'}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <button
-                onClick={() => setShowDatabaseDashboard(true)}
-                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Base de Datos"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={() => setShowSavedRepairsModal(true)}
-                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Reparaciones Guardadas"
-              >
-                <BookmarkIcon className="w-6 h-6" />
-              </button>
-              <button
-                onClick={() => setShowVeoModal(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 font-semibold rounded-full hover:bg-purple-200 transition-colors shadow-sm"
-                title="Generar vídeo con Veo"
-              >
-                <SparklesIcon className="w-5 h-5" />
-                <span className="hidden md:inline">Crear Vídeo</span>
-              </button>
+    <div className="flex flex-col h-screen font-sans bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <header className="bg-white dark:bg-gray-800 shadow-md p-4 z-10 transition-colors duration-200">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CoffeeIcon className="h-8 w-8 text-gray-700" />
+            <div>
+              <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Asistente de Reparación Nespresso
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-300">
+                {machineModel
+                  ? `Modelo: ${machineModel}${serialNumber ? ` (N/S: ${serialNumber})` : ''}`
+                  : 'Tu experto electromecánico de confianza'}
+              </p>
             </div>
           </div>
-        </header>
-
-        <main ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="max-w-4xl mx-auto">
-            {showChecklist && machineModel && checklists[machineModel] && (
-              <Checklist
-                machineModel={machineModel}
-                serialNumber={serialNumber || machineModel}
-                items={checklists[machineModel]}
-                onClose={() => setShowChecklist(false)}
-              />
-            )}
-            {messages.length <= 1 && !isLoading && !showChecklist && (
-              <KnowledgeBase
-                onProblemSelect={(problem, useGoogleSearch) =>
-                  handleSendMessageWithIdentification(problem, undefined, useGoogleSearch)
-                }
-              />
-            )}
-            {messages.map((msg, index) => (
-              <ChatMessage key={index} message={msg} />
-            ))}
-            {isWaitingForModel && !isLoading && (
-              <div className="flex justify-center items-center my-4 animate-fade-in">
-                <button
-                  onClick={() => setShowCameraModal(true)}
-                  className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-100 transition-colors shadow-md"
-                >
-                  <CameraIcon className="w-6 h-6 text-blue-500" />
-                  Usar cámara para identificar modelo
-                </button>
-              </div>
-            )}
-            {isLoading && <LoadingSpinner />}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setShowDatabaseDashboard(true)}
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Base de Datos"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => setShowSavedRepairsModal(true)}
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Reparaciones Guardadas"
+            >
+              <BookmarkIcon className="w-6 h-6" />
+            </button>
+            <button
+              onClick={() => setShowVeoModal(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 font-semibold rounded-full hover:bg-purple-200 transition-colors shadow-sm"
+              title="Generar vídeo con Veo"
+            >
+              <SparklesIcon className="w-5 h-5" />
+              <span className="hidden md:inline">Crear Vídeo</span>
+            </button>
           </div>
-        </main>
+        </div>
+      </header>
 
-        <footer className="sticky bottom-0 left-0 right-0">
-          <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
-        </footer>
+      <main ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="max-w-4xl mx-auto">
+          {showChecklist && machineModel && checklists[machineModel] && (
+            <Checklist
+              machineModel={machineModel}
+              serialNumber={serialNumber || machineModel}
+              items={checklists[machineModel]}
+              onClose={() => setShowChecklist(false)}
+            />
+          )}
+          {messages.length <= 1 && !isLoading && !showChecklist && (
+            <KnowledgeBase
+              onProblemSelect={(problem, useGoogleSearch) =>
+                handleSendMessageWithIdentification(problem, undefined, useGoogleSearch)
+              }
+            />
+          )}
+          {messages.map((msg, index) => (
+            <ChatMessage key={index} message={msg} />
+          ))}
+          {isWaitingForModel && !isLoading && (
+            <div className="flex justify-center items-center my-4 animate-fade-in">
+              <button
+                onClick={() => setShowCameraModal(true)}
+                className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-100 transition-colors shadow-md"
+              >
+                <CameraIcon className="w-6 h-6 text-blue-500" />
+                Usar cámara para identificar modelo
+              </button>
+            </div>
+          )}
+          {isLoading && <LoadingSpinner />}
+        </div>
+      </main>
 
-        {/* Modales */}
-        {showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} />}
-        {showCameraModal && (
-          <CameraIdentificationModal
-            onClose={() => setShowCameraModal(false)}
-            onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
-          />
-        )}
-        {showSavedRepairsModal && (
-          <SavedRepairsModal
-            onClose={() => setShowSavedRepairsModal(false)}
-            onSave={handleSaveRepair}
-            onLoadRepair={handleLoadRepair}
-            isSaveDisabled={isSaveDisabled}
-          />
-        )}
-        {showDatabaseDashboard && (
-          <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
-        )}
-      </div>
-    </ThemeProvider>
+      <footer className="sticky bottom-0 left-0 right-0">
+        <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
+      </footer>
+
+      {/* Modales */}
+      {showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} />}
+      {showCameraModal && (
+        <CameraIdentificationModal
+          onClose={() => setShowCameraModal(false)}
+          onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
+        />
+      )}
+      {showSavedRepairsModal && (
+        <SavedRepairsModal
+          onClose={() => setShowSavedRepairsModal(false)}
+          onSave={handleSaveRepair}
+          onLoadRepair={handleLoadRepair}
+          isSaveDisabled={isSaveDisabled}
+        />
+      )}
+      {showDatabaseDashboard && (
+        <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
+      )}
+    </div>
   );
 };
 
