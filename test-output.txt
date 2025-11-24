@@ -1,0 +1,679 @@
+
+> asistente-nespresso@0.0.0 test
+> vitest --run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.13 [39m[90mC:/Users/sergi/Desktop/proyectos/asistente Nespresso[39m
+
+ [32mÔ£ô[39m backend/tests/gemini.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [31mÔØ»[39m tests/apiService.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m19 failed[39m[2m)[22m[32m 88[2mms[22m[39m
+       [32mÔ£ô[39m should return true when server is healthy[32m 5[2mms[22m[39m
+       [32mÔ£ô[39m should return false when server is unhealthy[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should fetch all repairs[39m[32m 11[2mms[22m[39m
+[31m         [31m├ù[31m should handle errors when fetching repairs[39m[32m 17[2mms[22m[39m
+[31m         [31m├ù[31m should fetch specific repair by ID[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should handle not found errors[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should create new repair[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should handle validation errors[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should update existing repair[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should handle update errors[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should delete repair[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should handle deletion errors[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should fetch analytics stats[39m[32m 3[2mms[22m[39m
+[31m         [31m├ù[31m should search repairs with params[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should fetch available machine models[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should run predefined query with params[39m[32m 1[2mms[22m[39m
+[31m         [31m├ù[31m should run query without params[39m[32m 2[2mms[22m[39m
+[31m         [31m├ù[31m should handle invalid query types[39m[32m 3[2mms[22m[39m
+         [32mÔ£ô[39m should open export window with correct URL for CSV[32m 3[2mms[22m[39m
+         [32mÔ£ô[39m should open export window with correct URL for JSON[32m 1[2mms[22m[39m
+[31m       [31m├ù[31m should handle network errors[39m[32m 2[2mms[22m[39m
+[31m       [31m├ù[31m should handle API errors with custom messages[39m[32m 3[2mms[22m[39m
+[31m       [31m├ù[31m should handle errors without response data[39m[32m 3[2mms[22m[39m
+ [32mÔ£ô[39m backend/tests/api.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32mÔ£ô[39m backend/tests/videoController.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 196[2mms[22m[39m
+ [32mÔ£ô[39m backend/tests/security.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > PUT /api/repairs/:id > should successfully update repair name
+Error updating repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for an update.'
+  },
+  clientVersion: '6.19.0'
+}
+
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > PUT /api/repairs/:id > should return 404 if repair not found
+Error updating repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for an update.'
+  },
+  clientVersion: '6.19.0'
+}
+
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > PUT /api/repairs/:id > should handle update errors
+Error updating repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for an update.'
+  },
+  clientVersion: '6.19.0'
+}
+
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > DELETE /api/repairs/:id > should successfully delete repair
+Error deleting repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for a delete.'
+  },
+  clientVersion: '6.19.0'
+}
+
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > DELETE /api/repairs/:id > should return 404 if repair not found
+Error deleting repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for a delete.'
+  },
+  clientVersion: '6.19.0'
+}
+
+stderr | backend/tests/repairsController.test.ts > Repairs Controller > DELETE /api/repairs/:id > should handle deletion errors
+Error deleting repair: PrismaClientKnownRequestError: 
+Invalid `prisma.savedRepair.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.
+    at ei.handleRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at a (C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\node_modules\@prisma\client\runtime\library.js:130:9551) {
+  code: 'P2025',
+  meta: {
+    modelName: 'SavedRepair',
+    cause: 'No record was found for a delete.'
+  },
+  clientVersion: '6.19.0'
+}
+
+ [31mÔØ»[39m backend/tests/repairsController.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[33m 2314[2mms[22m[39m
+[31m       [31m├ù[31m should return all repairs with first message preview[39m[33m 524[2mms[22m[39m
+[31m       [31m├ù[31m should handle database errors[39m[32m 79[2mms[22m[39m
+[31m       [31m├ù[31m should return specific repair with all messages[39m[32m 72[2mms[22m[39m
+       [32mÔ£ô[39m should return 404 if repair not found[32m 38[2mms[22m[39m
+[31m       [31m├ù[31m should handle database errors[39m[32m 43[2mms[22m[39m
+       [32mÔ£ô[39m should return 400 if name is missing[32m 19[2mms[22m[39m
+       [32mÔ£ô[39m should return 400 if messages are missing[32m 7[2mms[22m[39m
+       [32mÔ£ô[39m should return 400 if messages array is empty[32m 6[2mms[22m[39m
+[31m       [31m├ù[31m should successfully create a repair[39m[33m 392[2mms[22m[39m
+       [33m[2mÔ£ô[22m[39m should create repair with attachments [33m 352[2mms[22m[39m
+[31m       [31m├ù[31m should handle creation errors[39m[32m 268[2mms[22m[39m
+[31m       [31m├ù[31m should successfully update repair name[39m[32m 133[2mms[22m[39m
+       [32mÔ£ô[39m should return 404 if repair not found[32m 101[2mms[22m[39m
+[31m       [31m├ù[31m should handle update errors[39m[32m 109[2mms[22m[39m
+[31m       [31m├ù[31m should successfully delete repair[39m[32m 79[2mms[22m[39m
+       [32mÔ£ô[39m should return 404 if repair not found[32m 44[2mms[22m[39m
+[31m       [31m├ù[31m should handle deletion errors[39m[32m 43[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Suites 6 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  e2e/01-navigation.spec.ts [ e2e/01-navigation.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ÔØ» TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:74:13
+ ÔØ» TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:114:24
+ ÔØ» Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ÔØ» e2e/01-navigation.spec.ts:5:6
+      3| import { selectors } from './fixtures/test-data';
+      4| 
+      5| test.describe('Navegaci├│n B├ísica', () => {
+       |      ^
+      6|     test('debe cargar la aplicaci├│n correctamente', async ({ page }) =ÔÇª
+      7|         await page.goto('/');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/35]ÔÄ»
+
+ FAIL  e2e/02-chat-flow.spec.ts [ e2e/02-chat-flow.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ÔØ» TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:74:13
+ ÔØ» TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:114:24
+ ÔØ» Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ÔØ» e2e/02-chat-flow.spec.ts:10:6
+      8| import { testData } from './fixtures/test-data';
+      9| 
+     10| test.describe('Flujo de Chat', () => {
+       |      ^
+     11|     test.beforeEach(async ({ page }) => {
+     12|         await page.goto('/');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/35]ÔÄ»
+
+ FAIL  e2e/03-modals.spec.ts [ e2e/03-modals.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ÔØ» TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:74:13
+ ÔØ» TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:114:24
+ ÔØ» Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ÔØ» e2e/03-modals.spec.ts:5:6
+      3| import { selectors } from './fixtures/test-data';
+      4| 
+      5| test.describe('Modales', () => {
+       |      ^
+      6|     test.beforeEach(async ({ page }) => {
+      7|         await page.goto('/');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/35]ÔÄ»
+
+ FAIL  e2e/04-repairs.spec.ts [ e2e/04-repairs.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ÔØ» TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:74:13
+ ÔØ» TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:114:24
+ ÔØ» Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ÔØ» e2e/04-repairs.spec.ts:5:6
+      3| import { testData, selectors } from './fixtures/test-data';
+      4| 
+      5| test.describe('Funcionalidad de Reparaciones', () => {
+       |      ^
+      6|     test.beforeEach(async ({ page }) => {
+      7|         await page.goto('/');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/35]ÔÄ»
+
+ FAIL  e2e/05-camera-identification.spec.ts [ e2e/05-camera-identification.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ÔØ» TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:74:13
+ ÔØ» TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:114:24
+ ÔØ» Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ÔØ» e2e/05-camera-identification.spec.ts:5:6
+      3| import { testData, selectors } from './fixtures/test-data';
+      4| 
+      5| test.describe('Identificaci├│n por C├ímara', () => {
+       |      ^
+      6|     test.beforeEach(async ({ page }) => {
+      7|         await page.goto('/');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/35]ÔÄ»
+
+ FAIL  backend/tests/chatController.test.ts [ backend/tests/chatController.test.ts ]
+ReferenceError: exports is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and 'C:\Users\sergi\Desktop\proyectos\asistente Nespresso\backend\package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+ ÔØ» ../asistente%20Nespresso/backend/src/services/geminiService.js:38:23
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/35]ÔÄ»
+
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 29 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > getAllRepairs > should fetch all repairs
+Error: Cannot read properties of undefined (reading 'get')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.getAllRepairs services/apiService.ts:30:18
+ ÔØ» tests/apiService.test.ts:57:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > getAllRepairs > should handle errors when fetching repairs
+AssertionError: expected [Function] to throw error including 'Database error' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Database error"
+Received: "Cannot read properties of undefined (reading 'get')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > getRepairById > should fetch specific repair by ID
+Error: Cannot read properties of undefined (reading 'get')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.getRepairById services/apiService.ts:39:18
+ ÔØ» tests/apiService.test.ts:85:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > getRepairById > should handle not found errors
+AssertionError: expected [Function] to throw error including 'Repair not found' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Repair not found"
+Received: "Cannot read properties of undefined (reading 'get')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > createRepair > should create new repair
+Error: Cannot read properties of undefined (reading 'post')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.createRepair services/apiService.ts:48:18
+ ÔØ» tests/apiService.test.ts:113:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > createRepair > should handle validation errors
+AssertionError: expected [Function] to throw error including 'Name is required' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Name is required"
+Received: "Cannot read properties of undefined (reading 'post')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[12/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > updateRepair > should update existing repair
+Error: Cannot read properties of undefined (reading 'put')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.updateRepair services/apiService.ts:57:18
+ ÔØ» tests/apiService.test.ts:150:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[13/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > updateRepair > should handle update errors
+AssertionError: expected [Function] to throw error including 'Repair not found' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Repair not found"
+Received: "Cannot read properties of undefined (reading 'put')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[14/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > deleteRepair > should delete repair
+Error: Cannot read properties of undefined (reading 'delete')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.deleteRepair services/apiService.ts:65:18
+ ÔØ» tests/apiService.test.ts:170:34
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[15/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Repairs API > deleteRepair > should handle deletion errors
+AssertionError: expected [Function] to throw error including 'Repair not found' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Repair not found"
+Received: "Cannot read properties of undefined (reading 'delete')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[16/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > getStats > should fetch analytics stats
+Error: Cannot read properties of undefined (reading 'get')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.getStats services/apiService.ts:75:18
+ ÔØ» tests/apiService.test.ts:195:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[17/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > searchRepairs > should search repairs with params
+Error: Cannot read properties of undefined (reading 'get')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.searchRepairs services/apiService.ts:84:18
+ ÔØ» tests/apiService.test.ts:209:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[18/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > getModels > should fetch available machine models
+Error: Cannot read properties of undefined (reading 'get')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.getModels services/apiService.ts:93:18
+ ÔØ» tests/apiService.test.ts:224:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[19/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > runPredefinedQuery > should run predefined query with params
+Error: Cannot read properties of undefined (reading 'post')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.runPredefinedQuery services/apiService.ts:113:18
+ ÔØ» tests/apiService.test.ts:236:49
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[20/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > runPredefinedQuery > should run query without params
+Error: Cannot read properties of undefined (reading 'post')
+ ÔØ» ApiService.handleError services/apiService.ts:21:15
+     19|     private handleError(error: any): never {
+     20|         const message = error.response?.data?.error || error.message |ÔÇª
+     21|         throw new Error(message);
+       |               ^
+     22|     }
+     23| 
+ ÔØ» ApiService.runPredefinedQuery services/apiService.ts:113:18
+ ÔØ» tests/apiService.test.ts:249:34
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[21/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Analytics API > runPredefinedQuery > should handle invalid query types
+AssertionError: expected [Function] to throw error including 'Invalid query type' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Invalid query type"
+Received: "Cannot read properties of undefined (reading 'post')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[22/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Error Handling > should handle network errors
+AssertionError: expected [Function] to throw error including 'Network error' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Network error"
+Received: "Cannot read properties of undefined (reading 'get')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[23/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Error Handling > should handle API errors with custom messages
+AssertionError: expected [Function] to throw error including 'Custom error message' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Custom error message"
+Received: "Cannot read properties of undefined (reading 'get')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[24/35]ÔÄ»
+
+ FAIL  tests/apiService.test.ts > API Service (Frontend) > Error Handling > should handle errors without response data
+AssertionError: expected [Function] to throw error including 'Request timeout' but got 'Cannot read properties of undefined (ÔÇª'
+
+Expected: "Request timeout"
+Received: "Cannot read properties of undefined (reading 'get')"
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[25/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > GET /api/repairs > should return all repairs with first message preview
+AssertionError: expected [ { ÔÇª(8) }, { ÔÇª(8) }, { ÔÇª(8) }, ÔÇª(49) ] to have a length of 2 but got 52
+
+- Expected
++ Received
+
+- 2
++ 52
+
+ ÔØ» backend/tests/repairsController.test.ts:90:35
+     88| 
+     89|             expect(response.status).toBe(200);
+     90|             expect(response.body).toHaveLength(2);
+       |                                   ^
+     91|             expect(response.body[0]).toHaveProperty('name', 'Repair 1'ÔÇª
+     92|             expect(mockFindMany).toHaveBeenCalledWith({
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[26/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > GET /api/repairs > should handle database errors
+AssertionError: expected 200 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 200
+
+ ÔØ» backend/tests/repairsController.test.ts:108:37
+    106|             const response = await request(app).get('/api/repairs');
+    107| 
+    108|             expect(response.status).toBe(500);
+       |                                     ^
+    109|             expect(response.body).toHaveProperty('error', 'Failed to fÔÇª
+    110|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[27/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > GET /api/repairs/:id > should return specific repair with all messages
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:143:37
+    141|             const response = await request(app).get('/api/repairs/1');
+    142| 
+    143|             expect(response.status).toBe(200);
+       |                                     ^
+    144|             expect(response.body).toHaveProperty('id', '1');
+    145|             expect(response.body).toHaveProperty('name', 'Test Repair'ÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[28/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > GET /api/repairs/:id > should handle database errors
+AssertionError: expected 404 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:165:37
+    163|             const response = await request(app).get('/api/repairs/1');
+    164| 
+    165|             expect(response.status).toBe(500);
+       |                                     ^
+    166|             expect(response.body).toHaveProperty('error', 'Failed to fÔÇª
+    167|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[29/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > POST /api/repairs > should successfully create a repair
+AssertionError: expected { ÔÇª(6) } to have property "id" with value 'new-id'
+
+Expected: "new-id"
+Received: "91cc4aa9-0018-4020-8122-96ce3fdcc62f"
+
+ ÔØ» backend/tests/repairsController.test.ts:229:35
+    227| 
+    228|             expect(response.status).toBe(201);
+    229|             expect(response.body).toHaveProperty('id', 'new-id');
+       |                                   ^
+    230|             expect(response.body).toHaveProperty('name', 'New Repair');
+    231|             expect(response.body.messages).toHaveLength(2);
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[30/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > POST /api/repairs > should handle creation errors
+AssertionError: expected 201 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 201
+
+ ÔØ» backend/tests/repairsController.test.ts:280:37
+    278|                 });
+    279| 
+    280|             expect(response.status).toBe(500);
+       |                                     ^
+    281|             expect(response.body).toHaveProperty('error', 'Failed to cÔÇª
+    282|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[31/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > PUT /api/repairs/:id > should successfully update repair name
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:302:37
+    300|                 .send({ name: 'Updated Name' });
+    301| 
+    302|             expect(response.status).toBe(200);
+       |                                     ^
+    303|             expect(response.body).toHaveProperty('name', 'Updated NameÔÇª
+    304|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[32/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > PUT /api/repairs/:id > should handle update errors
+AssertionError: expected 404 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:330:37
+    328|                 .send({ name: 'New Name' });
+    329| 
+    330|             expect(response.status).toBe(500);
+       |                                     ^
+    331|             expect(response.body).toHaveProperty('error', 'Failed to uÔÇª
+    332|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[33/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > DELETE /api/repairs/:id > should successfully delete repair
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:341:37
+    339|             const response = await request(app).delete('/api/repairs/1ÔÇª
+    340| 
+    341|             expect(response.status).toBe(200);
+       |                                     ^
+    342|             expect(response.body).toHaveProperty('message', 'Repair deÔÇª
+    343|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[34/35]ÔÄ»
+
+ FAIL  backend/tests/repairsController.test.ts > Repairs Controller > DELETE /api/repairs/:id > should handle deletion errors
+AssertionError: expected 404 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 404
+
+ ÔØ» backend/tests/repairsController.test.ts:365:37
+    363|             const response = await request(app).delete('/api/repairs/1ÔÇª
+    364| 
+    365|             expect(response.status).toBe(500);
+       |                                     ^
+    366|             expect(response.body).toHaveProperty('error', 'Failed to dÔÇª
+    367|         });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[35/35]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[31m29 failed[39m[22m[2m | [22m[1m[32m47 passed[39m[22m[90m (76)[39m
+[2m   Start at [22m 11:35:04
+[2m   Duration [22m 5.16s[2m (transform 1.66s, setup 3.24s, collect 3.14s, tests 2.74s, environment 13.70s, prepare 607ms)[22m
+
