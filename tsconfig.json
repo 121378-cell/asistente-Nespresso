@@ -13,6 +13,20 @@
     "types": [
       "node"
     ],
+    /* Gradual Strict Mode Adoption - Phase 1 */
+    "strict": false, // Will enable incrementally
+    "noImplicitAny": true, // ✅ Phase 1: Catch implicit any
+    "strictNullChecks": false, // TODO: Phase 2
+    "strictFunctionTypes": false, // TODO: Phase 3
+    "strictBindCallApply": false, // TODO: Phase 3
+    "strictPropertyInitialization": false, // TODO: Phase 4
+    "noImplicitThis": false, // TODO: Phase 4
+    "alwaysStrict": true, // ✅ Safe to enable
+    /* Additional Checks - Enabled */
+    "noUnusedLocals": false, // TODO: Enable after fixing types
+    "noUnusedParameters": false, // TODO: Enable after fixing types
+    "noImplicitReturns": false, // TODO: Phase 5
+    "noFallthroughCasesInSwitch": true, // ✅ Safe to enable
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",

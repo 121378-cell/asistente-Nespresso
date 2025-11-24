@@ -26,26 +26,20 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   });
 
   useEffect(() => {
-    console.log('Theme changed to:', theme);
     // Aplicar clase al documento
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      console.log('Added dark class to html');
     } else {
       document.documentElement.classList.remove('dark');
-      console.log('Removed dark class from html');
     }
 
     // Guardar en localStorage
     localStorage.setItem('theme', theme);
-    console.log('Saved theme to localStorage:', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    console.log('Toggle theme called, current theme:', theme);
     setTheme((prev) => {
       const newTheme = prev === 'light' ? 'dark' : 'light';
-      console.log('Changing theme to:', newTheme);
       return newTheme;
     });
   };

@@ -50,15 +50,15 @@ export default defineConfig(({ mode }) => {
         'backend/tests/gemini.test.ts',
         'backend/tests/api.test.ts',
         'backend/tests/videoController.test.ts',
-        'backend/tests/security.test.ts'
+        'backend/tests/security.test.ts',
       ],
       exclude: [
         'node_modules/**',
         'dist/**',
         'e2e/**',
-        'tests/apiService.test.ts',  // Temporarily exclude - needs axios mock
-        'backend/tests/repairsController.test.ts',  // Temporarily exclude - needs Prisma mock fix
-        'backend/tests/chatController.test.ts'  // Temporarily exclude - ES module issue
+        'tests/apiService.test.ts',  // TODO: Fix axios instance mocking
+        'backend/tests/repairsController.test.ts',  // TODO: Fix Prisma mock
+        'backend/tests/chatController.test.ts'  // TODO: Fix ES module issue
       ],
       coverage: {
         provider: 'v8',

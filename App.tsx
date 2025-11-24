@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppContext } from './context/AppContext';
+import { Role, Message } from './types';
 
 import { useChat } from './hooks/useChat';
 import { useMachineIdentification } from './hooks/useMachineIdentification';
@@ -74,7 +75,7 @@ const App: React.FC = () => {
           type: file.type,
         }
         : undefined;
-      addMessage({ role: 'USER' as const, text: userMessage, attachment });
+      addMessage({ role: Role.USER, text: userMessage, attachment });
 
       // Procesar identificación
       processUserIdentification(userMessage.trim());
@@ -90,7 +91,7 @@ const App: React.FC = () => {
           type: file.type,
         }
         : undefined;
-      addMessage({ role: 'USER' as const, text: userMessage, attachment });
+      addMessage({ role: Role.USER, text: userMessage, attachment });
 
       requestModelIdentification(userMessage, file, useGoogleSearch);
       return;
@@ -163,54 +164,46 @@ const App: React.FC = () => {
             />
           )}
           {messages.length <= 1 && !isLoading && !showChecklist && (
-            <KnowledgeBase
-              onProblemSelect={(problem, useGoogleSearch) =>
-                handleSendMessageWithIdentification(problem, undefined, useGoogleSearch)
-              }
-            />
-          )}
-          {messages.map((msg, index) => (
-            <ChatMessage key={index} message={msg} />
-          ))}
-          {isWaitingForModel && !isLoading && (
-            <div className="flex justify-center items-center my-4 animate-fade-in">
-              <button
-                onClick={() => setShowCameraModal(true)}
-                className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-100 transition-colors shadow-md"
-              >
-                <CameraIcon className="w-6 h-6 text-blue-500" />
+            <CameraIcon className="w-6 h-6 text-blue-500" />
                 Usar cámara para identificar modelo
-              </button>
-            </div>
-          )}
-          {isLoading && <LoadingSpinner />}
-        </div>
-      </main>
-
-      <footer className="sticky bottom-0 left-0 right-0">
-        <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
-      </footer>
-
-      {/* Modales */}
-      {showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} />}
-      {showCameraModal && (
-        <CameraIdentificationModal
-          onClose={() => setShowCameraModal(false)}
-          onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
-        />
-      )}
-      {showSavedRepairsModal && (
-        <SavedRepairsModal
-          onClose={() => setShowSavedRepairsModal(false)}
-          onSave={handleSaveRepair}
-          onLoadRepair={handleLoadRepair}
-          isSaveDisabled={isSaveDisabled}
-        />
-      )}
-      {showDatabaseDashboard && (
-        <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
-      )}
+        </button>
     </div>
+  )
+}
+{ isLoading && <LoadingSpinner /> }
+        </div >
+      </main >
+
+  <footer className="sticky bottom-0 left-0 right-0">
+    <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
+  </footer>
+
+{/* Modales */ }
+{ showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} /> }
+{
+  showCameraModal && (
+    <CameraIdentificationModal
+      onClose={() => setShowCameraModal(false)}
+      onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
+    />
+  )
+}
+{
+  showSavedRepairsModal && (
+    <SavedRepairsModal
+      onClose={() => setShowSavedRepairsModal(false)}
+      onSave={handleSaveRepair}
+      onLoadRepair={handleLoadRepair}
+      isSaveDisabled={isSaveDisabled}
+    />
+  )
+}
+{
+  showDatabaseDashboard && (
+    <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
+  )
+}
+    </div >
   );
 };
 

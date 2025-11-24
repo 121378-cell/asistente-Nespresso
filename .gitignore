@@ -1,13 +1,34 @@
 # local env files
 .env*.local
 .env.local
+.env
+
+# Sensitive files
+password*.txt
+*password*.txt
+credentials*.txt
+secret*.txt
+*.key
+*.pem
 
 # test outputs
 test_*.ts
 test_*.js
+test_*.txt
 *.test.log
 test-results/
 coverage/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# Temporary files
+env_content.txt
+*.tmp
+*.temp
 
 # Playwright
 playwright-report/
@@ -36,7 +57,7 @@ dist-ssr
 .DS_Store
 *.suo
 *.ntvs*
-*.njsproj
+*.njsproj*
 *.sln
 *.sw?
 
