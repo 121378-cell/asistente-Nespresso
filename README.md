@@ -1,5 +1,7 @@
 # ☕ Nespresso Assistant - Asistente de Reparación
 
+[![E2E Tests](https://github.com/YOUR_USERNAME/asistente-nespresso/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/asistente-nespresso/actions/workflows/e2e-tests.yml)
+
 Asistente inteligente para reparación de cafeteras Nespresso Profesionales con IA, base de datos PostgreSQL y soporte para dispositivos móviles.
 
 ## 🚀 Inicio Rápido
@@ -128,6 +130,32 @@ npm run prisma:migrate
 # Generar cliente Prisma
 npm run prisma:generate
 ```
+
+### Testing
+
+```bash
+# Tests unitarios
+npm test
+npm run test:ui
+npm run test:coverage
+
+# Tests E2E con Playwright
+npm run test:e2e              # Ejecutar todos los tests E2E
+npm run test:e2e:ui           # Modo UI interactivo
+npm run test:e2e:headed       # Con navegador visible
+npm run test:e2e:debug        # Modo debug
+npm run test:e2e:codegen      # Generar tests automáticamente
+```
+
+### CI/CD
+
+Los tests E2E se ejecutan automáticamente en GitHub Actions:
+
+- ✅ En cada push a `main` o `develop`
+- ✅ En cada pull request
+- ✅ Reportes disponibles como artifacts si fallan
+
+Ver el estado en el badge al inicio del README o en la pestaña [Actions](https://github.com/YOUR_USERNAME/asistente-nespresso/actions) de GitHub.
 
 ### Producción
 

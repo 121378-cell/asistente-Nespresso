@@ -1,6 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
@@ -8,6 +9,7 @@ import videoRouter from './routes/videoRouter.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
+import { swaggerSpec } from './config/swagger.js';
 
 // Load environment variables
 dotenv.config();
@@ -29,6 +31,12 @@ app.use(httpLogger);
 
 // Apply global rate limiting to all API routes
 app.use('/api/', globalLimiter);
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Nespresso Assistant API Docs',
+}));
 
 
 // Routes

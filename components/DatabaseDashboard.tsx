@@ -262,24 +262,58 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {repair.name}
                                                 </td>
-                                                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                                    <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 font-medium text-gray-700">
-                                                        Resultados
-                                                    </div>
-                                                    <div className="p-6 overflow-x-auto">
-                                                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                                            {JSON.stringify(queryResult, null, 2)}
-                                                        </pre>
-                                                    </div>
-                                                </div>
-                            )}
-                                            </div>
-                                        )}
-                                    </div>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {repair.model}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {repair.serialNumber}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {repair.messages?.length || 0}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    );
+                    )}
+
+                    {activeTab === 'query' && (
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                                    <h3 className="font-medium text-gray-700">Consulta Predefinida</h3>
+                                </div>
+                                <div className="p-6">
+                                    <button
+                                        onClick={handleRunQuery}
+                                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                    >
+                                        Ejecutar Consulta (Últimas 10 Reparaciones)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {queryResult && (
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 font-medium text-gray-700">
+                                        Resultados
+                                    </div>
+                                    <div className="p-6 overflow-x-auto">
+                                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            {JSON.stringify(queryResult, null, 2)}
+                                        </pre>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 };
 
-                    export { DatabaseDashboard };`nexport default DatabaseDashboard;
-
+export { DatabaseDashboard };
+export default DatabaseDashboard;
