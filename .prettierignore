@@ -6,3 +6,4 @@ coverage
 .env
 .env.local
 prisma/migrations
+backend/test-results.json

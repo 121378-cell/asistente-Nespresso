@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppContext } from './context/AppContext';
-import { Role, Message } from './types';
+import { Role } from './types';
 
 import { useChat } from './hooks/useChat';
 import { useMachineIdentification } from './hooks/useMachineIdentification';
@@ -23,7 +23,6 @@ import CameraIdentificationModal from './components/CameraIdentificationModal';
 import { DatabaseDashboard } from './components/DatabaseDashboard';
 
 const App: React.FC = () => {
-  // Context - Estado global
   const {
     messages,
     isLoading,
@@ -34,7 +33,6 @@ const App: React.FC = () => {
     chatContainerRef,
   } = useAppContext();
 
-  // Custom Hooks - Lógica separada
   const { handleSendMessage } = useChat();
 
   const {
@@ -58,7 +56,6 @@ const App: React.FC = () => {
 
   const { handleSaveRepair, handleLoadRepair, isSaveDisabled } = useRepairs();
 
-  // Manejador mejorado de envío de mensajes que integra identificación
   const handleSendMessageWithIdentification = async (
     userMessage: string,
     file?: File,
@@ -66,30 +63,24 @@ const App: React.FC = () => {
   ) => {
     if (isLoading || (!userMessage.trim() && !file)) return;
 
-    // Si estamos esperando identificación del modelo
     if (isWaitingForModel) {
-      // Agregar mensaje del usuario primero
       const attachment = file
         ? {
-          url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
-          type: file.type,
-        }
+            url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
+            type: file.type,
+          }
         : undefined;
       addMessage({ role: Role.USER, text: userMessage, attachment });
-
-      // Procesar identificación
       processUserIdentification(userMessage.trim());
       return;
     }
 
-    // Si es la primera interacción, solicitar modelo
     if (!machineModel) {
-      // Agregar mensaje del usuario
       const attachment = file
         ? {
-          url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
-          type: file.type,
-        }
+            url: await import('./utils/fileUtils').then((m) => m.fileToDataURL(file)),
+            type: file.type,
+          }
         : undefined;
       addMessage({ role: Role.USER, text: userMessage, attachment });
 
@@ -97,7 +88,6 @@ const App: React.FC = () => {
       return;
     }
 
-    // Flujo normal de conversación
     await handleSendMessage(userMessage, file, useGoogleSearch);
   };
 
@@ -109,12 +99,12 @@ const App: React.FC = () => {
             <CoffeeIcon className="h-8 w-8 text-gray-700" />
             <div>
               <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                Asistente de Reparación Nespresso
+                Asistente de Reparacion Nespresso
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-300">
                 {machineModel
                   ? `Modelo: ${machineModel}${serialNumber ? ` (N/S: ${serialNumber})` : ''}`
-                  : 'Tu experto electromecánico de confianza'}
+                  : 'Tu experto electromecanico de confianza'}
               </p>
             </div>
           </div>
@@ -144,10 +134,10 @@ const App: React.FC = () => {
             <button
               onClick={() => setShowVeoModal(true)}
               className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 font-semibold rounded-full hover:bg-purple-200 transition-colors shadow-sm"
-              title="Generar vídeo con Veo"
+              title="Generar video con Veo"
             >
               <SparklesIcon className="w-5 h-5" />
-              <span className="hidden md:inline">Crear Vídeo</span>
+              <span className="hidden md:inline">Crear Video</span>
             </button>
           </div>
         </div>
@@ -163,47 +153,58 @@ const App: React.FC = () => {
               onClose={() => setShowChecklist(false)}
             />
           )}
+
           {messages.length <= 1 && !isLoading && !showChecklist && (
-            <CameraIcon className="w-6 h-6 text-blue-500" />
-                Usar cámara para identificar modelo
-        </button>
+            <div className="text-center my-4">
+              <button
+                onClick={() => setShowCameraModal(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+                title="Identificar modelo con camara"
+              >
+                <CameraIcon className="w-6 h-6 text-blue-500" />
+                Usar camara para identificar modelo
+              </button>
+            </div>
+          )}
+
+          {messages.map((message, index) => (
+            <ChatMessage key={index} message={message} />
+          ))}
+
+          {isLoading && <LoadingSpinner />}
+
+          {!showChecklist && (
+            <KnowledgeBase onProblemSelect={handleSendMessageWithIdentification} />
+          )}
+        </div>
+      </main>
+
+      <footer className="sticky bottom-0 left-0 right-0">
+        <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
+      </footer>
+
+      {showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} />}
+
+      {showCameraModal && (
+        <CameraIdentificationModal
+          onClose={() => setShowCameraModal(false)}
+          onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
+        />
+      )}
+
+      {showSavedRepairsModal && (
+        <SavedRepairsModal
+          onClose={() => setShowSavedRepairsModal(false)}
+          onSave={handleSaveRepair}
+          onLoadRepair={handleLoadRepair}
+          isSaveDisabled={isSaveDisabled}
+        />
+      )}
+
+      {showDatabaseDashboard && (
+        <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
+      )}
     </div>
-  )
-}
-{ isLoading && <LoadingSpinner /> }
-        </div >
-      </main >
-
-  <footer className="sticky bottom-0 left-0 right-0">
-    <InputBar onSendMessage={handleSendMessageWithIdentification} isLoading={isLoading} />
-  </footer>
-
-{/* Modales */ }
-{ showVeoModal && <VideoGeneratorModal onClose={() => setShowVeoModal(false)} /> }
-{
-  showCameraModal && (
-    <CameraIdentificationModal
-      onClose={() => setShowCameraModal(false)}
-      onIdentify={({ model, serialNumber }) => onModelIdentified(model, serialNumber)}
-    />
-  )
-}
-{
-  showSavedRepairsModal && (
-    <SavedRepairsModal
-      onClose={() => setShowSavedRepairsModal(false)}
-      onSave={handleSaveRepair}
-      onLoadRepair={handleLoadRepair}
-      isSaveDisabled={isSaveDisabled}
-    />
-  )
-}
-{
-  showDatabaseDashboard && (
-    <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
-  )
-}
-    </div >
   );
 };
 

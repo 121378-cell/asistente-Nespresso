@@ -14,12 +14,7 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": [
-    "react",
-    "react-hooks",
-    "@typescript-eslint",
-    "prettier"
-  ],
+  "plugins": ["react", "react-hooks", "@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": [
       "error",
@@ -46,10 +41,5 @@
     "browser": true,
     "es2022": true
   },
-  "ignorePatterns": [
-    "dist",
-    "node_modules",
-    "*.config.js",
-    "*.config.ts"
-  ]
+  "ignorePatterns": ["backend/**", "dist", "node_modules", "*.config.js", "*.config.ts"]
 }
