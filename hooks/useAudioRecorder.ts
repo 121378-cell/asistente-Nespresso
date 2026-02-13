@@ -22,11 +22,11 @@ export const useAudioRecorder = () => {
         setStatus('stopped');
         audioChunksRef.current = [];
         // Stop all tracks to release the microphone
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
       mediaRecorderRef.current.start();
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      console.error('Error accessing microphone:', error);
       setStatus('idle');
     }
   };
@@ -36,11 +36,11 @@ export const useAudioRecorder = () => {
       mediaRecorderRef.current.stop();
     }
   };
-  
+
   const reset = () => {
-      setAudioBlob(null);
-      setStatus('idle');
-  }
+    setAudioBlob(null);
+    setStatus('idle');
+  };
 
   return { status, audioBlob, startRecording, stopRecording, reset };
 };

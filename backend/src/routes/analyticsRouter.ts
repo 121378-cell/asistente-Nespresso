@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import {
-    getStats,
-    searchRepairs,
-    exportData,
-    getModels,
-    getFullRepair,
-    customQuery,
+  getStats,
+  searchRepairs,
+  exportData,
+  getModels,
+  getFullRepair,
+  customQuery,
 } from '../controllers/analyticsController.js';
 import { validateBody, validateQuery } from '../middleware/validate.js';
 import { predefinedQuerySchema, searchSchema, exportSchema } from '../schemas/analyticsSchemas.js';
@@ -32,4 +32,3 @@ router.get('/repair/:id/full', getFullRepair);
 router.post('/query', analyticsLimiter, validateBody(predefinedQuerySchema), customQuery);
 
 export default router;
-

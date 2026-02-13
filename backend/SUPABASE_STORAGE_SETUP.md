@@ -27,6 +27,7 @@ SUPABASE_SERVICE_KEY=tu-service-role-key
 En Policies del bucket, crea:
 
 **Lectura Pública:**
+
 ```sql
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT
@@ -34,6 +35,7 @@ USING ( bucket_id = 'nespresso-images' );
 ```
 
 **Upload Service:**
+
 ```sql
 CREATE POLICY "Service Upload"
 ON storage.objects FOR INSERT

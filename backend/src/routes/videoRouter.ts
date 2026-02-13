@@ -13,4 +13,3 @@ router.post('/generate', videoLimiter, validateBody(generateVideoSchema), genera
 router.post('/status', validateBody(checkVideoStatusSchema), status);
 
 export default router;
-

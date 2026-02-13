@@ -4,15 +4,9 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     /* Gradual Strict Mode Adoption - Phase 1 */
     "strict": false, // Will enable incrementally
     "noImplicitAny": true, // ✅ Phase 1: Catch implicit any
@@ -33,9 +27,7 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true

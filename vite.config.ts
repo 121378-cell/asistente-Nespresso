@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
-      }
+      },
     },
     build: {
       rollupOptions: {
@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
             'react-query': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
 
             // Large components
-            'modals': [
+            modals: [
               './components/VideoGeneratorModal',
               './components/SavedRepairsModal',
               './components/DatabaseDashboard',
@@ -56,9 +56,9 @@ export default defineConfig(({ mode }) => {
         'node_modules/**',
         'dist/**',
         'e2e/**',
-        'tests/apiService.test.ts',  // TODO: Fix axios instance mocking
-        'backend/tests/repairsController.test.ts',  // TODO: Fix Prisma mock
-        'backend/tests/chatController.test.ts'  // TODO: Fix ES module issue
+        'tests/apiService.test.ts', // TODO: Fix axios instance mocking
+        'backend/tests/repairsController.test.ts', // TODO: Fix Prisma mock
+        'backend/tests/chatController.test.ts', // TODO: Fix ES module issue
       ],
       coverage: {
         provider: 'v8',

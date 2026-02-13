@@ -13,6 +13,7 @@ Para que tu aplicación sea accesible desde cualquier dispositivo móvil, necesi
    - Regístrate con GitHub
 
 2. **Subir tu código a GitHub**
+
    ```bash
    git init
    git add .
@@ -50,11 +51,13 @@ Para que tu aplicación sea accesible desde cualquier dispositivo móvil, necesi
 ### 🌐 Alternativas de Despliegue
 
 **Frontend:**
+
 - **Netlify**: https://netlify.com/ (gratis)
 - **Cloudflare Pages**: https://pages.cloudflare.com/ (gratis)
 - **GitHub Pages**: Solo para sitios estáticos
 
 **Backend:**
+
 - **Render**: https://render.com/ (gratis con límites)
 - **Fly.io**: https://fly.io/ (gratis con límites)
 - **Heroku**: https://heroku.com/ (de pago)
@@ -68,22 +71,27 @@ Si solo quieres acceder desde tu móvil cuando estás en casa:
 ### Configuración
 
 1. **Obtén tu IP local**
+
    ```bash
    ipconfig
    ```
+
    Busca "IPv4 Address" (ej: 192.168.1.100)
 
 2. **Actualiza backend/.env**
+
    ```env
    FRONTEND_URL=http://TU-IP:3000
    ```
 
 3. **Actualiza .env.local**
+
    ```env
    VITE_API_URL=http://TU-IP:3001
    ```
 
 4. **Inicia la aplicación**
+
    ```bash
    .\START.bat
    ```
@@ -98,12 +106,14 @@ Si solo quieres acceder desde tu móvil cuando estás en casa:
 Una vez que accedas desde el móvil:
 
 **Android (Chrome):**
+
 1. Abre la aplicación en Chrome
 2. Toca el menú (⋮)
 3. Selecciona "Añadir a pantalla de inicio"
 4. Confirma
 
 **iOS (Safari):**
+
 1. Abre la aplicación en Safari
 2. Toca el botón de compartir (⬆️)
 3. Selecciona "Añadir a pantalla de inicio"
@@ -120,28 +130,34 @@ Para acceso temporal desde cualquier lugar sin desplegar:
    - Crea una cuenta gratuita
 
 2. **Iniciar túneles**
-   
+
    Terminal 1 (Backend):
+
    ```bash
    cd backend
    npm run dev
    ```
-   
+
    Terminal 2 (Frontend):
+
    ```bash
    npm run dev
    ```
-   
+
    Terminal 3 (Túnel Backend):
+
    ```bash
    ngrok http 3001
    ```
+
    Copia la URL (ej: https://abc123.ngrok.io)
-   
+
    Terminal 4 (Túnel Frontend):
+
    ```bash
    ngrok http 3000
    ```
+
    Copia la URL (ej: https://xyz789.ngrok.io)
 
 3. **Actualizar configuración**
@@ -159,22 +175,24 @@ Para acceso temporal desde cualquier lugar sin desplegar:
 
 ## 📊 Comparación de Opciones
 
-| Opción | Acceso | Costo | Dificultad | Permanente |
-|--------|--------|-------|------------|------------|
-| **Vercel + Railway** | Global | Gratis | Media | ✅ Sí |
-| **Red Local** | Solo WiFi local | Gratis | Fácil | ✅ Sí |
-| **ngrok** | Global | Gratis | Fácil | ❌ 2 horas |
+| Opción               | Acceso          | Costo  | Dificultad | Permanente |
+| -------------------- | --------------- | ------ | ---------- | ---------- |
+| **Vercel + Railway** | Global          | Gratis | Media      | ✅ Sí      |
+| **Red Local**        | Solo WiFi local | Gratis | Fácil      | ✅ Sí      |
+| **ngrok**            | Global          | Gratis | Fácil      | ❌ 2 horas |
 
 ---
 
 ## 🎯 Recomendación
 
 Para uso profesional y acceso desde cualquier lugar:
+
 1. **Desplegar en Vercel + Railway** (15-30 minutos de configuración)
 2. **Instalar como PWA** en tu móvil
 3. **Usar desde cualquier dispositivo** con internet
 
 Para uso personal en casa:
+
 1. **Acceso por red local** (5 minutos de configuración)
 2. **Instalar como PWA** en tu móvil
 3. **Funciona solo cuando estás en casa**
@@ -184,6 +202,7 @@ Para uso personal en casa:
 ## 🔒 Seguridad
 
 Si despliegas en la nube:
+
 - ✅ Usa HTTPS (Vercel y Railway lo proporcionan automáticamente)
 - ✅ No compartas tu URL públicamente
 - ✅ Considera añadir autenticación en el futuro
@@ -194,6 +213,7 @@ Si despliegas en la nube:
 ## 📱 Resultado Final
 
 Una vez configurado, tendrás:
+
 - ✅ App instalable en móvil (como una app nativa)
 - ✅ Funciona offline (caché de PWA)
 - ✅ Acceso desde cualquier dispositivo

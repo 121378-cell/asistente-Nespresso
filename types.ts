@@ -1,4 +1,3 @@
-
 export enum Role {
   USER = 'user',
   MODEL = 'model',
@@ -19,7 +18,6 @@ export interface GroundingChunk {
 export interface GroundingMetadata {
   groundingChunks?: GroundingChunk[];
 }
-
 
 export interface Message {
   role: Role;

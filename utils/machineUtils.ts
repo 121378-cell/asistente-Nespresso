@@ -1,4 +1,3 @@
-
 /**
  * Intenta analizar un número de serie para determinar el modelo de la cafetera.
  * Basado en la documentación de Nespresso Profesional.
@@ -7,7 +6,7 @@
  */
 export function parseSerialNumber(serial: string): { model: string; serial: string } | null {
   if (!serial) return null;
-  
+
   // Sanitize: remove spaces and convert to uppercase.
   const sanitizedSerial = serial.replace(/\s+/g, '').toUpperCase();
 
@@ -22,12 +21,12 @@ export function parseSerialNumber(serial: string): { model: string; serial: stri
 
   // Map of known model codes to full model names.
   const modelMap: { [key: string]: string } = {
-    'Z': 'Zenius ZN 100 PRO',
-    'C': 'Gemini CS 203/223', // Classic Gemini code
-    'G': 'Gemini CS 203/223', // Some variants
-    'M': 'Nespresso Momento', // Momento family
-    'N': 'Nespresso Momento', // Momento variant
-    'E': 'Nespresso Momento', // Momento 100/200 often use E or similar in some regions
+    Z: 'Zenius ZN 100 PRO',
+    C: 'Gemini CS 203/223', // Classic Gemini code
+    G: 'Gemini CS 203/223', // Some variants
+    M: 'Nespresso Momento', // Momento family
+    N: 'Nespresso Momento', // Momento variant
+    E: 'Nespresso Momento', // Momento 100/200 often use E or similar in some regions
   };
 
   if (modelMap[modelCode]) {
@@ -39,10 +38,10 @@ export function parseSerialNumber(serial: string): { model: string; serial: stri
 
   // Fallback logic for specific substrings if the char code match fails
   if (sanitizedSerial.includes('CS200') || sanitizedSerial.includes('CS220')) {
-      return { model: 'Gemini CS 203/223', serial: sanitizedSerial };
+    return { model: 'Gemini CS 203/223', serial: sanitizedSerial };
   }
   if (sanitizedSerial.includes('ZN100')) {
-      return { model: 'Zenius ZN 100 PRO', serial: sanitizedSerial };
+    return { model: 'Zenius ZN 100 PRO', serial: sanitizedSerial };
   }
 
   return null;

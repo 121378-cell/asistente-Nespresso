@@ -9,6 +9,7 @@
 ## ⚠️ IMPORTANTE
 
 Las siguientes credenciales fueron expuestas y **DEBEN** ser rotadas:
+
 - ✅ Password de Supabase (en `password supabase.txt` - ya eliminado)
 - ⚠️ Posiblemente API keys de Supabase
 - ⚠️ Posiblemente API key de Gemini
@@ -20,6 +21,7 @@ Las siguientes credenciales fueron expuestas y **DEBEN** ser rotadas:
 ### Fase 1: Preparación (5 minutos)
 
 - [ ] **Backup de configuración actual**
+
   ```bash
   # Guardar .env actual (por si acaso)
   cp .env .env.backup.old
@@ -98,6 +100,7 @@ NODE_ENV=development
 ```
 
 **Verificar:**
+
 ```bash
 # Asegúrate que .env NO está en git
 git status
@@ -120,6 +123,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
 **Verificar:**
+
 ```bash
 cd backend
 git status
@@ -136,6 +140,7 @@ node scripts/verify-env.js
 ```
 
 **Salida esperada:**
+
 ```
 🔍 Verificando variables de entorno...
 
@@ -304,6 +309,7 @@ curl http://localhost:3001/health
 ### Error: "Invalid API key"
 
 **Solución:**
+
 1. Verifica que copiaste la key completa
 2. No debe haber espacios al inicio/final
 3. Reinicia el servidor después de cambiar .env
@@ -311,6 +317,7 @@ curl http://localhost:3001/health
 ### Error: "Connection refused" en DB
 
 **Solución:**
+
 1. Verifica la DATABASE_URL
 2. Asegúrate que la password es correcta
 3. Verifica que el proyecto de Supabase está activo
@@ -318,6 +325,7 @@ curl http://localhost:3001/health
 ### Error: "CORS policy"
 
 **Solución:**
+
 1. Verifica ALLOWED_ORIGINS en backend/.env
 2. Incluye el puerto correcto del frontend
 3. Reinicia el backend
@@ -325,6 +333,7 @@ curl http://localhost:3001/health
 ### Script verify-env.js falla
 
 **Solución:**
+
 ```bash
 # Instalar dependencias si es necesario
 npm install
@@ -338,6 +347,7 @@ node scripts/verify-env.js
 ## 📞 Contacto de Emergencia
 
 Si tienes problemas:
+
 1. **Supabase Support:** https://supabase.com/support
 2. **Documentación:** https://supabase.com/docs
 3. **Discord:** https://discord.supabase.com

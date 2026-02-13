@@ -20,26 +20,31 @@ e2e/
 ## 🚀 Ejecutar Tests
 
 ### Modo Headless (por defecto)
+
 ```bash
 npm run test:e2e
 ```
 
 ### Modo UI Interactivo
+
 ```bash
 npm run test:e2e:ui
 ```
 
 ### Modo Headed (con navegador visible)
+
 ```bash
 npm run test:e2e:headed
 ```
 
 ### Modo Debug
+
 ```bash
 npm run test:e2e:debug
 ```
 
 ### Generar Tests Automáticamente
+
 ```bash
 npm run test:e2e:codegen
 ```
@@ -108,6 +113,7 @@ Los tests que involucran la API de Gemini pueden tardar hasta 60 segundos. Esto 
 ### Tests Skipped
 
 Algunos tests están marcados como `.skip()` porque requieren:
+
 - Base de datos con datos de prueba
 - Permisos de cámara
 - Configuración adicional
@@ -151,6 +157,7 @@ npx playwright show-report
 ```
 
 Los screenshots y videos de tests fallidos están en:
+
 - `test-results/` - Screenshots y videos
 - `playwright-report/` - Reporte HTML
 
@@ -177,6 +184,7 @@ El workflow (`.github/workflows/e2e-tests.yml`) hace lo siguiente:
 ### Descargar Artifacts
 
 Si los tests fallan en CI, puedes descargar:
+
 - `playwright-report` - Reporte HTML completo
 - `test-results` - Screenshots y videos de los fallos
 
@@ -193,9 +201,9 @@ Por defecto solo se usa Chromium. Para añadir más navegadores, descomenta en `
 ```typescript
 projects: [
   { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  { name: 'firefox', use: { ...devices['Desktop Firefox'] } },  // Descomentar
-  { name: 'webkit', use: { ...devices['Desktop Safari'] } },    // Descomentar
-]
+  { name: 'firefox', use: { ...devices['Desktop Firefox'] } }, // Descomentar
+  { name: 'webkit', use: { ...devices['Desktop Safari'] } }, // Descomentar
+];
 ```
 
 ### Cambiar Puerto

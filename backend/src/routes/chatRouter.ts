@@ -129,11 +129,6 @@ router.post('/', chatLimiter, validateBody(chatMessageSchema), chat);
  *       500:
  *         description: Server error
  */
-router.post(
-    '/identify-machine',
-    chatLimiter,
-    validateBody(identifyMachineSchema),
-    identifyMachine
-);
+router.post('/identify-machine', chatLimiter, validateBody(identifyMachineSchema), identifyMachine);
 
 export default router;

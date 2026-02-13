@@ -27,6 +27,7 @@
 6. **IMPORTANTE**: Reemplaza `[YOUR-PASSWORD]` con la contraseña que generaste en el Paso 2
 
 La URL debería verse así:
+
 ```
 postgresql://postgres.xxxxxxxxxxxxx:[TU-CONTRASEÑA]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
 ```
@@ -35,7 +36,8 @@ postgresql://postgres.xxxxxxxxxxxxx:[TU-CONTRASEÑA]@aws-0-eu-central-1.pooler.s
 
 Ahora voy a crear el archivo `.env` con tu URL de conexión.
 
-**¿Ya tienes la URL de Supabase?** 
+**¿Ya tienes la URL de Supabase?**
+
 - Si es así, cópiala y pégala cuando te lo pida
 - Si no, sigue los pasos 1-3 primero
 
@@ -44,6 +46,7 @@ Ahora voy a crear el archivo `.env` con tu URL de conexión.
 ## Alternativa: PostgreSQL Local
 
 Si prefieres instalar PostgreSQL localmente:
+
 1. Descarga desde: https://www.postgresql.org/download/windows/
 2. Instala con usuario `postgres` y contraseña `postgres`
 3. La URL será: `postgresql://postgres:postgres@localhost:5432/nespresso_assistant`

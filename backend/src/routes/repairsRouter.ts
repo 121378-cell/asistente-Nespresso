@@ -1,13 +1,17 @@
 import { Router } from 'express';
 import {
-    getAllRepairs,
-    getRepairById,
-    createRepair,
-    updateRepair,
-    deleteRepair
+  getAllRepairs,
+  getRepairById,
+  createRepair,
+  updateRepair,
+  deleteRepair,
 } from '../controllers/repairsController.js';
 import { validateBody, validateParams } from '../middleware/validate.js';
-import { createRepairSchema, updateRepairSchema, repairIdSchema } from '../schemas/repairsSchemas.js';
+import {
+  createRepairSchema,
+  updateRepairSchema,
+  repairIdSchema,
+} from '../schemas/repairsSchemas.js';
 import { analyticsLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
@@ -22,10 +26,15 @@ router.get('/:id', validateParams(repairIdSchema), getRepairById);
 router.post('/', analyticsLimiter, validateBody(createRepairSchema), createRepair);
 
 // PUT /api/repairs/:id - Update a repair
-router.put('/:id', analyticsLimiter, validateParams(repairIdSchema), validateBody(updateRepairSchema), updateRepair);
+router.put(
+  '/:id',
+  analyticsLimiter,
+  validateParams(repairIdSchema),
+  validateBody(updateRepairSchema),
+  updateRepair
+);
 
 // DELETE /api/repairs/:id - Delete a repair
 router.delete('/:id', analyticsLimiter, validateParams(repairIdSchema), deleteRepair);
 
 export default router;
-

@@ -23,9 +23,9 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
   useEffect(() => {
     if (audioBlob) {
       const transcribe = async () => {
-        const audioFile = new File([audioBlob], "recording.webm", { type: 'audio/webm' });
+        const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
         const transcribedText = await transcribeAudio(audioFile);
-        setInput(prev => prev ? `${prev} ${transcribedText}` : transcribedText);
+        setInput((prev) => (prev ? `${prev} ${transcribedText}` : transcribedText));
         reset();
       };
       transcribe();
@@ -44,9 +44,9 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
     setFile(null);
     setFilePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,11 +62,24 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
   return (
     <div className="bg-white/80 backdrop-blur-md p-4 border-t border-gray-200">
       {filePreview && (
-        <div className="max-w-4xl mx-auto mb-2 p-2 bg-gray-100 rounded-lg relative w-fit" role="region" aria-label="Vista previa del archivo adjunto">
-          {file?.type.startsWith('image/')
-            ? <img src={filePreview} alt="Vista previa de imagen adjunta" className="max-h-24 rounded" />
-            : <video src={filePreview} className="max-h-24 rounded" aria-label="Vista previa de video adjunto" />
-          }
+        <div
+          className="max-w-4xl mx-auto mb-2 p-2 bg-gray-100 rounded-lg relative w-fit"
+          role="region"
+          aria-label="Vista previa del archivo adjunto"
+        >
+          {file?.type.startsWith('image/') ? (
+            <img
+              src={filePreview}
+              alt="Vista previa de imagen adjunta"
+              className="max-h-24 rounded"
+            />
+          ) : (
+            <video
+              src={filePreview}
+              className="max-h-24 rounded"
+              aria-label="Vista previa de video adjunto"
+            />
+          )}
           <button
             onClick={removeFile}
             className="absolute -top-2 -right-2 bg-gray-700 text-white rounded-full p-0.5 hover:bg-red-500"
@@ -77,8 +90,21 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
           </button>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-4 max-w-4xl mx-auto" role="search" aria-label="Formulario de mensaje">
-        <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" id="file-upload" aria-label="Seleccionar archivo para adjuntar" />
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 md:gap-4 max-w-4xl mx-auto"
+        role="search"
+        aria-label="Formulario de mensaje"
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          onChange={handleFileChange}
+          className="hidden"
+          id="file-upload"
+          aria-label="Seleccionar archivo para adjuntar"
+        />
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -94,26 +120,40 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
           onClick={isRecording ? stopRecording : startRecording}
           disabled={isLoading}
           className="flex-shrink-0 w-11 h-11 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
-          aria-label={isRecording ? "Detener grabación de audio" : "Grabar mensaje de audio"}
+          aria-label={isRecording ? 'Detener grabación de audio' : 'Grabar mensaje de audio'}
           aria-pressed={isRecording}
-          title={isRecording ? "Detener grabación" : "Grabar audio"}
+          title={isRecording ? 'Detener grabación' : 'Grabar audio'}
         >
-          {isRecording ? <StopCircleIcon className="w-6 h-6 text-red-500 animate-pulse" aria-hidden="true" /> : <MicrophoneIcon className="w-6 h-6" aria-hidden="true" />}
+          {isRecording ? (
+            <StopCircleIcon className="w-6 h-6 text-red-500 animate-pulse" aria-hidden="true" />
+          ) : (
+            <MicrophoneIcon className="w-6 h-6" aria-hidden="true" />
+          )}
         </button>
-        <label htmlFor="message-input" className="sr-only">Mensaje para el asistente</label>
+        <label htmlFor="message-input" className="sr-only">
+          Mensaje para el asistente
+        </label>
         <input
           id="message-input"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={isLoading ? "Esperando respuesta..." : isRecording ? "Grabando... habla ahora." : "Describe el problema aquí..."}
+          placeholder={
+            isLoading
+              ? 'Esperando respuesta...'
+              : isRecording
+                ? 'Grabando... habla ahora.'
+                : 'Describe el problema aquí...'
+          }
           disabled={isLoading || isRecording}
           className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow duration-200 text-gray-800"
           aria-label="Escribe tu mensaje sobre reparación de cafeteras"
           aria-describedby="input-help"
           aria-required="false"
         />
-        <span id="input-help" className="sr-only">Describe el problema de tu cafetera Nespresso o haz una pregunta</span>
+        <span id="input-help" className="sr-only">
+          Describe el problema de tu cafetera Nespresso o haz una pregunta
+        </span>
         <button
           type="submit"
           disabled={isLoading || isRecording || (!input.trim() && !file)}
@@ -124,7 +164,11 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
           <SendIcon className="w-6 h-6" aria-hidden="true" />
         </button>
       </form>
-      <div className="max-w-4xl mx-auto mt-2 flex justify-center items-center" role="region" aria-label="Opciones de búsqueda">
+      <div
+        className="max-w-4xl mx-auto mt-2 flex justify-center items-center"
+        role="region"
+        aria-label="Opciones de búsqueda"
+      >
         <label htmlFor="google-search-toggle" className="flex items-center cursor-pointer">
           <div className="relative">
             <input
@@ -137,10 +181,13 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
               aria-describedby="search-description"
             />
             <div className="block bg-gray-300 w-10 h-6 rounded-full" aria-hidden="true"></div>
-            <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useGoogleSearch ? 'transform translate-x-full bg-blue-500' : ''}`} aria-hidden="true"></div>
+            <div
+              className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useGoogleSearch ? 'transform translate-x-full bg-blue-500' : ''}`}
+              aria-hidden="true"
+            ></div>
           </div>
           <div className="ml-3 text-xs text-gray-600 font-medium" id="search-description">
-            {useGoogleSearch ? "Búsqueda Web Activada" : "Activar Búsqueda Web"}
+            {useGoogleSearch ? 'Búsqueda Web Activada' : 'Activar Búsqueda Web'}
           </div>
         </label>
       </div>

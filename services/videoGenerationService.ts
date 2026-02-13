@@ -27,23 +27,28 @@ export const generateVideo = async (
   aspectRatio: '16:9' | '9:16'
 ): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/video/generate`, {
-      prompt,
-      image,
-      aspectRatio
-    }, {
-      timeout: 120000 // 2 minutes for video generation
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/video/generate`,
+      {
+        prompt,
+        image,
+        aspectRatio,
+      },
+      {
+        timeout: 120000, // 2 minutes for video generation
+      }
+    );
 
     return response.data;
-
   } catch (error: any) {
     console.error('Error generating video:', error);
 
     if (error.response) {
       throw new Error(error.response.data?.error || 'Error al generar el vídeo');
     } else if (error.request) {
-      throw new Error('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.');
+      throw new Error(
+        'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.'
+      );
     } else {
       throw new Error('Error inesperado al generar el vídeo');
     }
@@ -55,14 +60,17 @@ export const generateVideo = async (
  */
 export const checkVideoStatus = async (operation: any): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/video/status`, {
-      operation
-    }, {
-      timeout: 30000 // 30 seconds
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/video/status`,
+      {
+        operation,
+      },
+      {
+        timeout: 30000, // 30 seconds
+      }
+    );
 
     return response.data;
-
   } catch (error: any) {
     console.error('Error checking video status:', error);
 

@@ -5,54 +5,54 @@ import { useEffect, useRef } from 'react';
  * Ensures keyboard users stay within the modal when tabbing
  */
 export const useFocusTrap = (isOpen: boolean) => {
-    const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!isOpen) return;
+  useEffect(() => {
+    if (!isOpen) return;
 
-        const container = containerRef.current;
-        if (!container) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-        // Get all focusable elements
-        const focusableElements = container.querySelectorAll<HTMLElement>(
-            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
+    // Get all focusable elements
+    const focusableElements = container.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
 
-        if (focusableElements.length === 0) return;
+    if (focusableElements.length === 0) return;
 
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
 
-        // Handle tab key to trap focus
-        const handleTabKey = (e: KeyboardEvent) => {
-            if (e.key !== 'Tab') return;
+    // Handle tab key to trap focus
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
 
-            if (e.shiftKey) {
-                // Shift + Tab
-                if (document.activeElement === firstElement) {
-                    lastElement.focus();
-                    e.preventDefault();
-                }
-            } else {
-                // Tab
-                if (document.activeElement === lastElement) {
-                    firstElement.focus();
-                    e.preventDefault();
-                }
-            }
-        };
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
 
-        // Focus first element when modal opens
-        firstElement?.focus();
+    // Focus first element when modal opens
+    firstElement?.focus();
 
-        // Add event listener
-        container.addEventListener('keydown', handleTabKey);
+    // Add event listener
+    container.addEventListener('keydown', handleTabKey);
 
-        // Cleanup
-        return () => {
-            container.removeEventListener('keydown', handleTabKey);
-        };
-    }, [isOpen]);
+    // Cleanup
+    return () => {
+      container.removeEventListener('keydown', handleTabKey);
+    };
+  }, [isOpen]);
 
-    return containerRef;
+  return containerRef;
 };

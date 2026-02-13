@@ -19,16 +19,19 @@ Backend API for the Nespresso Repair Assistant application. Built with Node.js, 
 ## Installation
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Set up environment variables:**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Then edit `.env` and configure your database connection:
+
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/nespresso_assistant?schema=public"
    PORT=3001
@@ -36,17 +39,18 @@ Backend API for the Nespresso Repair Assistant application. Built with Node.js, 
    ```
 
 3. **Set up PostgreSQL database:**
-   
+
    **Option A: Local PostgreSQL**
    - Install PostgreSQL on your machine
    - Create a database: `createdb nespresso_assistant`
    - Update `DATABASE_URL` in `.env` with your credentials
-   
+
    **Option B: Cloud PostgreSQL (Recommended for production)**
    - Use a service like [Supabase](https://supabase.com/), [Railway](https://railway.app/), or [Render](https://render.com/)
    - Get the connection string and update `DATABASE_URL` in `.env`
 
 4. **Run database migrations:**
+
    ```bash
    npm run prisma:migrate
    ```
@@ -59,6 +63,7 @@ Backend API for the Nespresso Repair Assistant application. Built with Node.js, 
 ## Development
 
 Start the development server with auto-reload:
+
 ```bash
 npm run dev
 ```
@@ -68,6 +73,7 @@ The server will start on `http://localhost:3001`
 ## Production
 
 1. **Build the project:**
+
    ```bash
    npm run build
    ```
@@ -80,6 +86,7 @@ The server will start on `http://localhost:3001`
 ## API Endpoints
 
 ### Health Check
+
 - `GET /health` - Check if the server is running
 
 ### Repairs
@@ -117,16 +124,19 @@ Content-Type: application/json
 ## Database Management
 
 ### View database in Prisma Studio
+
 ```bash
 npm run prisma:studio
 ```
 
 ### Create a new migration
+
 ```bash
 npm run prisma:migrate
 ```
 
 ### Reset database (⚠️ deletes all data)
+
 ```bash
 npx prisma migrate reset
 ```
@@ -152,21 +162,25 @@ backend/
 ## Troubleshooting
 
 ### Database connection errors
+
 - Ensure PostgreSQL is running
 - Check your `DATABASE_URL` in `.env`
 - Verify database exists: `psql -l`
 
 ### Port already in use
+
 - Change `PORT` in `.env` to a different port
 - Or kill the process using port 3001: `npx kill-port 3001`
 
 ### Prisma errors
+
 - Regenerate client: `npm run prisma:generate`
 - Reset database: `npx prisma migrate reset`
 
 ## Deployment
 
 ### Railway (Recommended)
+
 1. Create a new project on [Railway](https://railway.app/)
 2. Add PostgreSQL database
 3. Deploy this backend
@@ -174,6 +188,7 @@ backend/
 5. Update `FRONTEND_URL` to your deployed frontend URL
 
 ### Render
+
 1. Create a new Web Service on [Render](https://render.com/)
 2. Add PostgreSQL database
 3. Set build command: `npm install && npm run build && npm run prisma:generate`

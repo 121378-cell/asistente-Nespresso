@@ -69,6 +69,7 @@ asistente-nespresso/
 ### ✅ Tecnologías
 
 **Frontend:**
+
 - React 19
 - TypeScript
 - Vite
@@ -76,6 +77,7 @@ asistente-nespresso/
 - Axios
 
 **Backend:**
+
 - Node.js + Express
 - TypeScript
 - PostgreSQL
@@ -176,12 +178,14 @@ npm start
 ### Variables de Entorno
 
 **Frontend (`.env.local`):**
+
 ```env
 VITE_API_URL=http://localhost:3001
 GEMINI_API_KEY=tu_api_key_aqui
 ```
 
 **Backend (`backend/.env`):**
+
 ```env
 DATABASE_URL=postgresql://usuario:contraseña@host:5432/database
 PORT=3001
@@ -205,31 +209,35 @@ FRONTEND_URL=http://localhost:3000
 
 ## 📊 API Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/health` | Health check |
-| GET | `/api/repairs` | Listar reparaciones |
-| GET | `/api/repairs/:id` | Obtener reparación |
-| POST | `/api/repairs` | Crear reparación |
-| PUT | `/api/repairs/:id` | Actualizar reparación |
-| DELETE | `/api/repairs/:id` | Eliminar reparación |
+| Método | Ruta               | Descripción           |
+| ------ | ------------------ | --------------------- |
+| GET    | `/health`          | Health check          |
+| GET    | `/api/repairs`     | Listar reparaciones   |
+| GET    | `/api/repairs/:id` | Obtener reparación    |
+| POST   | `/api/repairs`     | Crear reparación      |
+| PUT    | `/api/repairs/:id` | Actualizar reparación |
+| DELETE | `/api/repairs/:id` | Eliminar reparación   |
 
 ## ❓ Solución de Problemas
 
 ### "Node.js no está instalado"
+
 - Descarga e instala desde: https://nodejs.org/
 
 ### "Error de conexión a la base de datos"
+
 - Verifica que `backend/.env` tenga la URL correcta
 - Si usas Supabase, verifica que la contraseña sea correcta
 - Prueba la conexión en Prisma Studio
 
 ### "El frontend no conecta al backend"
+
 - Verifica que ambos servidores estén corriendo
 - Verifica que `VITE_API_URL` en `.env.local` sea correcta
 - Revisa la consola del navegador (F12) para errores
 
 ### "Error al guardar reparación"
+
 - Verifica que el backend esté corriendo
 - Revisa los logs del backend en la terminal
 - Verifica la conexión a la base de datos

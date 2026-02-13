@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const CoffeeIcon: React.FC<{ className?: string }> = ({ className }) => (

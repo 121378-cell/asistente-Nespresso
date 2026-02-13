@@ -77,7 +77,7 @@ manualChunks: {
   // Vendor chunks
   'react-vendor': ['react', 'react-dom'],
   'react-query': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
-  
+
   // Large components
   'modals': [
     './components/VideoGeneratorModal',
@@ -89,6 +89,7 @@ manualChunks: {
 ```
 
 **Beneficios**:
+
 - Mejor caching del navegador
 - Chunks más pequeños y específicos
 - Actualizaciones más eficientes
@@ -108,14 +109,16 @@ npm run analyze
 ## 📊 Resultados Esperados
 
 ### Antes de Code Splitting
+
 - Bundle principal: ~800KB
 - Tiempo de carga inicial: ~2-3s
 - Modales: Carga instantánea (ya incluidos)
 
 ### Después de Code Splitting
+
 - Bundle principal: ~300-400KB (60-70% reducción)
 - Tiempo de carga inicial: ~1-1.5s (50% más rápido)
-- Modales: 
+- Modales:
   - Sin hover: ~200-300ms
   - Con hover: Instantáneo
 
@@ -124,12 +127,14 @@ npm run analyze
 ### Cuándo Usar Lazy Loading
 
 ✅ **SÍ usar para**:
+
 - Modales y dialogs
 - Componentes grandes que no se usan en la primera carga
 - Rutas/páginas en aplicaciones multi-página
 - Componentes condicionales (ej: solo para admin)
 
 ❌ **NO usar para**:
+
 - Componentes críticos de la primera renderización
 - Componentes pequeños (<10KB)
 - Componentes que se usan inmediatamente
@@ -137,11 +142,13 @@ npm run analyze
 ### Cómo Añadir un Nuevo Componente Lazy
 
 1. **Importar con lazyWithPreload**:
+
    ```typescript
    const NewComponent = lazyWithPreload(() => import('./components/NewComponent'));
    ```
 
 2. **Envolver con Suspense**:
+
    ```typescript
    <Suspense fallback={<LoadingFallback message="Cargando..." />}>
      <NewComponent />
@@ -171,6 +178,7 @@ npm run build:analyze
 ```
 
 Esto abrirá una visualización interactiva mostrando:
+
 - Tamaño de cada chunk
 - Qué módulos contiene cada chunk
 - Dependencias entre chunks

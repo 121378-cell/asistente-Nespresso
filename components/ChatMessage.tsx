@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Role, Message } from '../types';
 import CoffeeIcon from './icons/CoffeeIcon';
@@ -15,10 +14,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
-  const messageClasses = `max-w-xl lg:max-w-2xl xl:max-w-3xl w-fit p-4 rounded-2xl mb-4 shadow-md ${isModel
-    ? 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none'
-    : 'bg-blue-500 text-white ml-auto rounded-br-none'
-    }`;
+  const messageClasses = `max-w-xl lg:max-w-2xl xl:max-w-3xl w-fit p-4 rounded-2xl mb-4 shadow-md ${
+    isModel
+      ? 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none'
+      : 'bg-blue-500 text-white ml-auto rounded-br-none'
+  }`;
 
   const textContent = message.text || '';
   const formattedText = textContent.split('\n').map((line, index) => {
@@ -28,7 +28,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       }
       return part;
     });
-    return <p key={index} className="mb-2 last:mb-0">{parts}</p>;
+    return (
+      <p key={index} className="mb-2 last:mb-0">
+        {parts}
+      </p>
+    );
   });
 
   const handleSpeak = async () => {
@@ -41,8 +45,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       setIsSpeaking(true);
       await playPcmAudio(base64Audio);
     } catch (error) {
-      console.error("Failed to play audio", error);
-      alert("No se pudo reproducir el audio. Inténtalo de nuevo.");
+      console.error('Failed to play audio', error);
+      alert('No se pudo reproducir el audio. Inténtalo de nuevo.');
     } finally {
       setIsLoadingAudio(false);
       setIsSpeaking(false);
@@ -50,7 +54,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   };
 
   // Safely check if grounding chunks exist and have length
-  const hasGroundingChunks = message.groundingMetadata?.groundingChunks &&
+  const hasGroundingChunks =
+    message.groundingMetadata?.groundingChunks &&
     Array.isArray(message.groundingMetadata.groundingChunks) &&
     message.groundingMetadata.groundingChunks.length > 0;
 
@@ -65,16 +70,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         {message.attachment && (
           <div className="mb-3 rounded-lg overflow-hidden">
             {message.attachment.type.startsWith('image/') ? (
-              <img src={message.attachment.url} alt="Adjunto" className="max-w-xs max-h-64 object-contain" />
+              <img
+                src={message.attachment.url}
+                alt="Adjunto"
+                className="max-w-xs max-h-64 object-contain"
+              />
             ) : (
               <video src={message.attachment.url} controls className="max-w-xs max-h-64" />
             )}
           </div>
         )}
 
-        <div className="prose prose-sm md:prose-base prose-blue max-w-none">
-          {formattedText}
-        </div>
+        <div className="prose prose-sm md:prose-base prose-blue max-w-none">{formattedText}</div>
 
         {isModel && (
           <div className="mt-2 flex justify-end border-t border-gray-100 dark:border-gray-600 pt-2">
@@ -95,13 +102,20 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
         {hasGroundingChunks && (
           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Fuentes:</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+              Fuentes:
+            </h4>
             <ul className="space-y-2">
               {message.groundingMetadata!.groundingChunks.map((chunk, index) => {
                 if (chunk.web?.uri) {
                   return (
                     <li key={`web-${index}`} className="text-xs">
-                      <a href={chunk.web.uri} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline break-all dark:text-blue-400">
+                      <a
+                        href={chunk.web.uri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-blue-600 hover:underline break-all dark:text-blue-400"
+                      >
                         <span className="text-gray-400">🔗</span> {chunk.web.title || chunk.web.uri}
                       </a>
                     </li>

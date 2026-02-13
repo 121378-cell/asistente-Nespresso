@@ -10,13 +10,11 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Register service worker for PWA functionality
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .catch((error) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('SW registration failed:', error);
-        }
-      });
+    navigator.serviceWorker.register('/service-worker.js').catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('SW registration failed:', error);
+      }
+    });
   });
 }
 

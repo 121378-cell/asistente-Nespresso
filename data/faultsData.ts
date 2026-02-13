@@ -1,4 +1,3 @@
-
 import { Fault } from '../types';
 
 export const faults: Fault[] = [
@@ -50,11 +49,9 @@ export const faults: Fault[] = [
           '**Gemini:** Si es una Gemini, asegúrate de que el depósito está bien asentado y prueba a intercambiar los depósitos izquierdo/derecho para descartar fallo de válvula de pie.',
       },
     ],
-    preventionTips: [
-      'No dejar vaciar los depósitos por completo nunca.',
-    ],
+    preventionTips: ['No dejar vaciar los depósitos por completo nunca.'],
   },
-  
+
   // --- GEMINI SPECIFIC (CS203 / CS223) ---
   {
     id: 'gemini-milk-froth',
@@ -135,9 +132,7 @@ export const faults: Fault[] = [
           '**Reinicio forzado:** Desenchufa la máquina de la corriente. Espera 2 minutos completos (para descargar condensadores de la placa base). Vuelve a enchufar.',
       },
     ],
-    preventionTips: [
-      'Mantener el frontal de la máquina limpio.',
-    ],
+    preventionTips: ['Mantener el frontal de la máquina limpio.'],
   },
   {
     id: 'momento-error-code',
@@ -164,7 +159,7 @@ export const faults: Fault[] = [
       'No meter los dedos ni forzar la entrada de cápsula mientras el motor se mueve.',
     ],
   },
-  
+
   // --- COMMON GENERAL ---
   {
     id: 'cold-coffee',
@@ -188,8 +183,6 @@ export const faults: Fault[] = [
         imagePlaceholder: 'Líquido descalcificante.',
       },
     ],
-    preventionTips: [
-      'Usar tazas precalentadas (calientatazas).',
-    ],
+    preventionTips: ['Usar tazas precalentadas (calientatazas).'],
   },
 ];
