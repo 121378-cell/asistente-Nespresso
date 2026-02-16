@@ -9,7 +9,12 @@ vi.mock('axios');
 const mockedAxios = vi.mocked(axios, true);
 
 describe('API Service (Frontend)', () => {
-  let mockAxiosInstance: any;
+  let mockAxiosInstance: {
+    get: ReturnType<typeof vi.fn>;
+    post: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     mockAxiosInstance = {

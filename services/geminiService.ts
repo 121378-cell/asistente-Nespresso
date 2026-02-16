@@ -1,17 +1,34 @@
 import axios from 'axios';
-import { Message } from '../types';
+import { GroundingMetadata, Message } from '../types';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface GenerateContentResponse {
   text: string;
-  groundingMetadata?: any;
+  groundingMetadata?: GroundingMetadata;
 }
 
 interface FileData {
   mimeType: string;
   data: string; // base64
 }
+
+interface ApiErrorPayload {
+  error?: string;
+}
+
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError<ApiErrorPayload>(error)) {
+    if (error.response) {
+      return error.response.data?.error || fallback;
+    }
+    if (error.request) {
+      return 'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.';
+    }
+  }
+
+  return fallback;
+};
 
 /**
  * Convert File to base64 data
@@ -76,21 +93,9 @@ export async function generateResponse(
       text: response.data.text,
       groundingMetadata: response.data.groundingMetadata,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error calling chat API:', error);
-
-    if (error.response) {
-      // Backend returned an error
-      throw new Error(error.response.data?.error || 'Error al contactar con el servidor');
-    } else if (error.request) {
-      // Request was made but no response
-      throw new Error(
-        'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.'
-      );
-    } else {
-      // Something else happened
-      throw new Error('Error inesperado al procesar la solicitud');
-    }
+    throw new Error(getApiErrorMessage(error, 'Error inesperado al procesar la solicitud'));
   }
 }
 
@@ -112,18 +117,9 @@ export async function identifyMachineFromImage(
     );
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error identifying machine:', error);
-
-    if (error.response) {
-      throw new Error(error.response.data?.error || 'Error al identificar la máquina');
-    } else if (error.request) {
-      throw new Error(
-        'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.'
-      );
-    } else {
-      throw new Error('Error inesperado al identificar la máquina');
-    }
+    throw new Error(getApiErrorMessage(error, 'Error inesperado al identificar la máquina'));
   }
 }
 

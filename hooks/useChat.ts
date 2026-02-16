@@ -29,10 +29,12 @@ export const useChat = () => {
         if (!isCancelled) {
           setMessages([{ role: Role.MODEL, text: response.text ?? '' }]);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!isCancelled) {
           const errorMessageText =
-            error?.message || 'Lo siento, no pude iniciar. Por favor, recarga la página.';
+            error instanceof Error
+              ? error.message
+              : 'Lo siento, no pude iniciar. Por favor, recarga la página.';
           const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
           setMessages([errorMessage]);
         }
@@ -93,8 +95,8 @@ export const useChat = () => {
       };
 
       addMessage(newModelMessage);
-    } catch (error: any) {
-      const errorMessageText = error?.message || 'Un error ha ocurrido.';
+    } catch (error: unknown) {
+      const errorMessageText = error instanceof Error ? error.message : 'Un error ha ocurrido.';
       const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
       addMessage(errorMessage);
     } finally {

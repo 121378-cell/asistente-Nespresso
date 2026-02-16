@@ -10,7 +10,13 @@ export function decodeBase64(base64: string): Uint8Array {
 
 export async function playPcmAudio(base64Audio: string, sampleRate: number = 24000) {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+    const AudioContextCtor =
+      window.AudioContext ||
+      (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) {
+      throw new Error('AudioContext no está disponible en este navegador.');
+    }
+    const audioContext = new AudioContextCtor({
       sampleRate,
     });
     const audioData = decodeBase64(base64Audio);

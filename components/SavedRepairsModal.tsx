@@ -29,7 +29,7 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
         const { apiService } = await import('../services/apiService');
         const data = await apiService.getAllRepairs();
         setRepairs(data);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to load repairs from API:', error);
         setError(
           'No se pudieron cargar las reparaciones. Asegúrate de que el backend esté funcionando.'

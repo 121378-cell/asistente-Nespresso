@@ -12,6 +12,15 @@ interface ChecklistProps {
   onClose: () => void;
 }
 
+interface ChecklistMeta {
+  notes?: string;
+  finalNotes?: string;
+  technicianName?: string;
+  startTime?: string;
+  endTime?: string;
+  extraibles?: boolean;
+}
+
 const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items, onClose }) => {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [notes, setNotes] = useState('');
@@ -45,7 +54,7 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
 
       const savedMeta = localStorage.getItem(metaKey);
       if (savedMeta) {
-        const meta = JSON.parse(savedMeta);
+        const meta = JSON.parse(savedMeta) as ChecklistMeta;
         setNotes(meta.notes || '');
         setFinalNotes(meta.finalNotes || '');
         setTechnicianName(meta.technicianName || '');
@@ -63,9 +72,9 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
     }
   }, [storageKey, metaKey]);
 
-  const saveMeta = (newMeta: any) => {
+  const saveMeta = (newMeta: ChecklistMeta) => {
     try {
-      const currentMeta = JSON.parse(localStorage.getItem(metaKey) || '{}');
+      const currentMeta = JSON.parse(localStorage.getItem(metaKey) || '{}') as ChecklistMeta;
       localStorage.setItem(metaKey, JSON.stringify({ ...currentMeta, ...newMeta }));
     } catch (e) {
       console.error(e);

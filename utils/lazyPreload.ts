@@ -3,7 +3,7 @@ import { lazy, ComponentType } from 'react';
 /**
  * Tipo para un componente lazy con capacidad de preload
  */
-export type PreloadableComponent<T extends ComponentType<any>> = T & {
+export type PreloadableComponent<T extends ComponentType<unknown>> = T & {
   preload: () => Promise<{ default: T }>;
 };
 
@@ -25,7 +25,7 @@ export type PreloadableComponent<T extends ComponentType<any>> = T & {
  *   <MyComponent />
  * </Suspense>
  */
-export function lazyWithPreload<T extends ComponentType<any>>(
+export function lazyWithPreload<T extends ComponentType<unknown>>(
   importFunc: () => Promise<{ default: T }>
 ): PreloadableComponent<T> {
   const LazyComponent = lazy(importFunc);

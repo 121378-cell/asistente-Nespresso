@@ -77,8 +77,8 @@ const CameraIdentificationModal: React.FC<CameraIdentificationModalProps> = ({
       }
       stopCamera();
       onIdentify(result);
-    } catch (err: any) {
-      setError(err.message || 'Ocurrió un error inesperado.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Ocurrió un error inesperado.');
     } finally {
       setIsLoading(false);
     }

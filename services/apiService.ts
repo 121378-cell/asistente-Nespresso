@@ -1,7 +1,51 @@
 import axios, { AxiosInstance } from 'axios';
 import { SavedRepair } from '../types';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+export interface AnalyticsModelCount {
+  model: string;
+  count: number;
+}
+
+export interface AnalyticsMonthCount {
+  month: string;
+  count: number;
+}
+
+export interface AnalyticsStats {
+  totalRepairs: number;
+  totalMessages: number;
+  recentRepairs: number;
+  repairsByModel: AnalyticsModelCount[];
+  repairsByMonth: AnalyticsMonthCount[];
+}
+
+export interface SearchRepairsParams {
+  query?: string;
+  model?: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SearchRepairsResponse {
+  repairs: SavedRepair[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface PredefinedQueryResponse<T = unknown> {
+  result: T;
+}
+
+type QueryParams = Record<string, string | number | boolean | undefined | null>;
+
+interface ApiErrorPayload {
+  error?: string;
+}
 
 class ApiService {
   private axiosInstance: AxiosInstance;
@@ -16,8 +60,14 @@ class ApiService {
     });
   }
 
-  private handleError(error: any): never {
-    const message = error.response?.data?.error || error.message || 'An error occurred';
+  private handleError(error: unknown): never {
+    if (axios.isAxiosError<ApiErrorPayload>(error)) {
+      const message =
+        error.response?.data?.error || error.message || 'An error occurred while calling the API';
+      throw new Error(message);
+    }
+
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
     throw new Error(message);
   }
 
@@ -67,18 +117,20 @@ class ApiService {
   }
 
   // Analytics
-  async getStats(): Promise<any> {
+  async getStats(): Promise<AnalyticsStats> {
     try {
-      const response = await this.axiosInstance.get('/analytics/stats');
+      const response = await this.axiosInstance.get<AnalyticsStats>('/analytics/stats');
       return response.data;
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  async searchRepairs(params: any): Promise<any> {
+  async searchRepairs(params: SearchRepairsParams): Promise<SearchRepairsResponse> {
     try {
-      const response = await this.axiosInstance.get('/analytics/search', { params });
+      const response = await this.axiosInstance.get<SearchRepairsResponse>('/analytics/search', {
+        params,
+      });
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -94,20 +146,37 @@ class ApiService {
     }
   }
 
-  exportData(format: 'json' | 'csv', params?: any): void {
-    const queryString = new URLSearchParams({ format, ...params }).toString();
+  exportData(format: 'json' | 'csv', params?: QueryParams): void {
+    const queryParams = new URLSearchParams();
+    queryParams.set('format', format);
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.set(key, String(value));
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
     window.open(`${API_BASE_URL}/api/analytics/export?${queryString}`, '_blank');
   }
 
   /**
    * Run a predefined safe query
    */
-  async runPredefinedQuery(queryType: string, params?: any): Promise<any> {
+  async runPredefinedQuery<T = unknown>(
+    queryType: string,
+    params?: QueryParams
+  ): Promise<PredefinedQueryResponse<T>> {
     try {
-      const response = await this.axiosInstance.post('/analytics/query', {
-        queryType,
-        params,
-      });
+      const response = await this.axiosInstance.post<PredefinedQueryResponse<T>>(
+        '/analytics/query',
+        {
+          queryType,
+          params,
+        }
+      );
       return response.data;
     } catch (error) {
       this.handleError(error);

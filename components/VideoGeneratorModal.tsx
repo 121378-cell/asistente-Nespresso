@@ -4,6 +4,7 @@ import {
   checkVideoStatus,
   checkApiKey,
   requestApiKey,
+  type VideoOperation,
 } from '../services/videoGenerationService';
 import { fileToBase64 } from '../utils/fileUtils';
 import CloseIcon from './icons/CloseIcon';
@@ -46,7 +47,7 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     }
   };
 
-  const pollOperation = async (operation: any) => {
+  const pollOperation = async (operation: VideoOperation): Promise<VideoOperation | null> => {
     while (!operation.done) {
       await new Promise((resolve) => setTimeout(resolve, 10000));
       try {
@@ -95,9 +96,9 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
       } else {
         setError('No se pudo generar el vídeo. Inténtalo de nuevo.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Ocurrió un error desconocido.');
+      setError(err instanceof Error ? err.message : 'Ocurrió un error desconocido.');
     } finally {
       setIsLoading(false);
       setLoadingMessage('');

@@ -1,13 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/apiService';
 
+interface StatsByModel {
+  model: string;
+  count: number;
+}
+
+interface StatsByMonth {
+  month: string;
+  count: number;
+}
+
 interface Stats {
   totalRepairs: number;
   totalMessages: number;
   recentRepairs: number;
-  repairsByModel: { model: string; count: number }[];
-  repairsByMonth: any[];
+  repairsByModel: StatsByModel[];
+  repairsByMonth: StatsByMonth[];
 }
+
+interface SearchRepairResult {
+  id: string;
+  name: string;
+  model?: string | null;
+  machineModel?: string | null;
+  serialNumber?: string | null;
+  timestamp: number | string;
+  messages?: unknown[];
+}
+
+interface SearchResultsResponse {
+  repairs: SearchRepairResult[];
+}
+
+const getErrorMessage = (err: unknown): string =>
+  err instanceof Error ? err.message : 'Error desconocido';
+
+const isSearchResultsResponse = (data: unknown): data is SearchResultsResponse =>
+  !!data && typeof data === 'object' && Array.isArray((data as SearchResultsResponse).repairs);
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object';
+
+const getRecordValue = (value: unknown, key: string): unknown =>
+  isRecord(value) ? value[key] : undefined;
+
+const hasErrorField = (value: unknown): value is { error: string } =>
+  isRecord(value) && typeof value.error === 'string';
+
+const getModelLabel = (repair: SearchRepairResult): string =>
+  repair.model || repair.machineModel || 'Sin modelo';
+
+const getMessagesCount = (repair: SearchRepairResult): number =>
+  Array.isArray(repair.messages) ? repair.messages.length : 0;
+
+const getSafeDateLabel = (timestamp: number | string): string => {
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString();
+};
 
 const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<'stats' | 'search' | 'query'>('stats');
@@ -17,11 +67,11 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchRepairResult[]>([]);
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
 
-  const [queryResult, setQueryResult] = useState<any>(null);
+  const [queryResult, setQueryResult] = useState<unknown>(null);
 
   useEffect(() => {
     loadStats();
@@ -33,8 +83,8 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setLoading(true);
       const data = await apiService.getStats();
       setStats(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -56,9 +106,9 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         query: searchQuery,
         model: selectedModel,
       });
-      setSearchResults(data.repairs);
-    } catch (err: any) {
-      setError(err.message);
+      setSearchResults(isSearchResultsResponse(data) ? data.repairs : []);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -76,9 +126,9 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setLoading(true);
       // Usar consulta predefinida segura en lugar de SQL arbitrario
       const data = await apiService.runPredefinedQuery('recent_repairs', { limit: 10 });
-      setQueryResult(data.result);
-    } catch (err: any) {
-      setQueryResult({ error: err.message });
+      setQueryResult(getRecordValue(data, 'result') ?? null);
+    } catch (err: unknown) {
+      setQueryResult({ error: getErrorMessage(err) });
     } finally {
       setLoading(false);
     }
@@ -298,19 +348,19 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     {searchResults.map((repair) => (
                       <tr key={repair.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(repair.timestamp).toLocaleDateString()}
+                          {getSafeDateLabel(repair.timestamp)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {repair.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {repair.model}
+                          {getModelLabel(repair)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {repair.serialNumber}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {repair.messages?.length || 0}
+                          {getMessagesCount(repair)}
                         </td>
                       </tr>
                     ))}
@@ -342,7 +392,13 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     Resultados
                   </div>
                   <div className="p-6 overflow-x-auto">
-                    <pre className="text-xs font-mono bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <pre
+                      className={`text-xs font-mono p-4 rounded-lg border ${
+                        hasErrorField(queryResult)
+                          ? 'bg-red-50 border-red-200 text-red-700'
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
                       {JSON.stringify(queryResult, null, 2)}
                     </pre>
                   </div>

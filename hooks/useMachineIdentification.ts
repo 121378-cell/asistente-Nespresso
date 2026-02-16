@@ -81,8 +81,8 @@ export const useMachineIdentification = () => {
         ...(response.groundingMetadata && { groundingMetadata: response.groundingMetadata }),
       };
       addMessage(newModelMessage);
-    } catch (error: any) {
-      const errorMessageText = error?.message || 'Un error ha ocurrido.';
+    } catch (error: unknown) {
+      const errorMessageText = error instanceof Error ? error.message : 'Un error ha ocurrido.';
       const errorMessage: Message = { role: Role.MODEL, text: String(errorMessageText) };
       addMessage(errorMessage);
     } finally {
