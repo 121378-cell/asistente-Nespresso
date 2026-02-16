@@ -24,7 +24,9 @@ describe('API Service (Frontend)', () => {
       delete: vi.fn(),
     };
 
-    mockedAxios.create = vi.fn(() => mockAxiosInstance);
+    mockedAxios.create = vi.fn(
+      () => mockAxiosInstance as unknown as ReturnType<typeof axios.create>
+    ) as unknown as typeof mockedAxios.create;
   });
 
   afterEach(() => {
