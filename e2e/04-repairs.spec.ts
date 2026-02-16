@@ -1,32 +1,95 @@
 import { test, expect } from '@playwright/test';
 import { waitForAppLoad } from './helpers/page-helpers';
-import { testData, selectors } from './fixtures/test-data';
+
+interface RepairRecord {
+  id: string;
+  name: string;
+  machineModel: string | null;
+  serialNumber: string | null;
+  timestamp: number;
+  messages: Array<{ role: 'user' | 'model'; text: string }>;
+}
+
+const mockRepairsApi = async (page: import('@playwright/test').Page, initialRepairs: RepairRecord[]) => {
+  const repairs = [...initialRepairs];
+
+  await page.route('**/api/repairs', async (route, request) => {
+    if (request.method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(repairs),
+      });
+      return;
+    }
+
+    if (request.method() === 'POST') {
+      const payload = request.postDataJSON() as Omit<RepairRecord, 'id'>;
+      const createdRepair: RepairRecord = {
+        id: `repair-${repairs.length + 1}`,
+        ...payload,
+      };
+      repairs.unshift(createdRepair);
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify(createdRepair),
+      });
+      return;
+    }
+
+    await route.continue();
+  });
+
+  await page.route('**/api/repairs/*', async (route, request) => {
+    if (request.method() === 'DELETE') {
+      const id = request.url().split('/').pop() || '';
+      const index = repairs.findIndex((repair) => repair.id === id);
+      if (index >= 0) {
+        repairs.splice(index, 1);
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Repair deleted successfully' }),
+      });
+      return;
+    }
+
+    await route.continue();
+  });
+};
 
 test.describe('Funcionalidad de Reparaciones', () => {
   test.beforeEach(async ({ page }) => {
+    await mockRepairsApi(page, []);
+    await page.addInitScript(() => {
+      window.prompt = () => 'Reparacion E2E';
+    });
+    page.on('dialog', async (dialog) => {
+      await dialog.accept();
+    });
     await page.goto('/');
     await waitForAppLoad(page);
   });
 
   test('debe abrir el modal de reparaciones guardadas', async ({ page }) => {
     // Abrir modal de reparaciones
-    await page.click(selectors.header.repairsButton);
-
-    // Esperar a que cargue
-    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
 
     // Verificar que el modal está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
+    await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toBeVisible();
   });
 
   test('debe mostrar la lista de reparaciones (si existen)', async ({ page }) => {
     // Abrir modal de reparaciones
-    await page.click(selectors.header.repairsButton);
-    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
 
     // Verificar que hay contenido en el modal
-    const modal = page.locator('[class*="modal"]').first();
+    const modal = page
+      .locator('div[role="dialog"], div.fixed.inset-0')
+      .filter({ hasText: /reparaciones guardadas/i })
+      .first();
     const modalText = await modal.textContent();
 
     // Debería tener algún texto (lista vacía o con reparaciones)
@@ -36,7 +99,7 @@ test.describe('Funcionalidad de Reparaciones', () => {
 
   test('debe tener un botón para guardar nueva reparación', async ({ page }) => {
     // Abrir modal de reparaciones
-    await page.click(selectors.header.repairsButton);
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
     await page.waitForTimeout(1000);
 
     // Buscar botón de guardar (puede tener diferentes textos)
@@ -54,51 +117,80 @@ test.describe('Funcionalidad de Reparaciones', () => {
 
   test('debe permitir cerrar el modal de reparaciones', async ({ page }) => {
     // Abrir modal
-    await page.click(selectors.header.repairsButton);
-    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
 
-    // Cerrar modal
-    const closeButton = page
-      .locator('button')
-      .filter({
-        hasText: /cerrar|×|close/i,
-      })
-      .first();
-    await closeButton.click();
+    // Cerrar modal haciendo clic fuera del contenedor
+    await page.locator('div.fixed.inset-0').first().click({ position: { x: 8, y: 8 } });
 
-    // Esperar a que desaparezca
-    await page.waitForTimeout(500);
-
-    // Verificar que no hay modales visibles
-    const modalCount = await page.locator('[class*="modal"]:visible').count();
-    expect(modalCount).toBe(0);
+    // Verificar que el modal cerró
+    await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toHaveCount(0);
   });
 
-  test.skip('debe guardar una reparación con datos válidos', async ({ page }) => {
-    // Este test requiere tener una conversación activa primero
-    // Se marca como skip porque depende del flujo completo
-    // TODO: Implementar cuando se tenga el flujo completo
-    // 1. Iniciar conversación
-    // 2. Identificar modelo
-    // 3. Guardar reparación
-    // 4. Verificar que aparece en la lista
+  test('debe guardar una reparación con datos válidos', async ({ page }) => {
+    const createRepairRequest = page.waitForRequest(
+      (request) => request.url().includes('/api/repairs') && request.method() === 'POST'
+    );
+
+    await page
+      .getByRole('textbox', { name: /escribe tu mensaje sobre reparación de cafeteras/i })
+      .fill('Necesito ayuda con la maquina');
+    await page.getByRole('button', { name: /enviar mensaje/i }).click();
+
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
+    const saveButton = page.getByRole('button', { name: /guardar conversación actual/i });
+    await expect(saveButton).toBeEnabled();
+    await saveButton.click();
+
+    const request = await createRepairRequest;
+    const payload = request.postDataJSON() as { name: string };
+    expect(payload.name).toBe('Reparacion E2E');
   });
 
-  test.skip('debe cargar una reparación existente', async ({ page }) => {
-    // Este test requiere tener reparaciones guardadas
-    // Se marca como skip porque depende de datos existentes
-    // TODO: Implementar con datos de prueba en la BD
-    // 1. Abrir modal de reparaciones
-    // 2. Seleccionar una reparación
-    // 3. Verificar que se carga en el chat
+  test('debe cargar una reparación existente', async ({ page }) => {
+    await mockRepairsApi(page, [
+      {
+        id: 'repair-loaded',
+        name: 'Carga E2E',
+        machineModel: 'Zenius',
+        serialNumber: 'ZE123456',
+        timestamp: Date.now(),
+        messages: [
+          { role: 'model', text: 'Hola, preséntate.' },
+          { role: 'user', text: 'Mensaje de reparación cargada' },
+        ],
+      },
+    ]);
+
+    await page.reload();
+    await waitForAppLoad(page);
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
+    await page.getByRole('button', { name: /^cargar$/i }).click();
+
+    await expect(page.getByText(/modelo: zenius/i)).toBeVisible();
+    await expect(page.getByText('Mensaje de reparación cargada')).toBeVisible();
   });
 
-  test.skip('debe eliminar una reparación', async ({ page }) => {
-    // Este test requiere tener reparaciones guardadas
-    // Se marca como skip porque depende de datos existentes
-    // TODO: Implementar con datos de prueba en la BD
-    // 1. Abrir modal de reparaciones
-    // 2. Eliminar una reparación
-    // 3. Verificar que desaparece de la lista
+  test('debe eliminar una reparación', async ({ page }) => {
+    await mockRepairsApi(page, [
+      {
+        id: 'repair-delete',
+        name: 'Eliminar E2E',
+        machineModel: 'Gemini CS2',
+        serialNumber: 'GM999999',
+        timestamp: Date.now(),
+        messages: [{ role: 'user', text: 'Eliminar este registro' }],
+      },
+    ]);
+
+    await page.addInitScript(() => {
+      window.confirm = () => true;
+    });
+    await page.reload();
+    await waitForAppLoad(page);
+
+    await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
+    await expect(page.getByText('Eliminar E2E')).toBeVisible();
+    await page.getByRole('button', { name: /eliminar reparación/i }).click();
+    await expect(page.getByText('Eliminar E2E')).toHaveCount(0);
   });
 });

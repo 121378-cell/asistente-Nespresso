@@ -9,7 +9,7 @@ import { Page, expect } from '@playwright/test';
  */
 export async function waitForAppLoad(page: Page) {
   // Esperar a que el header esté visible
-  await expect(page.locator('h1:has-text("Asistente Nespresso")')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /asistente.*nespresso/i })).toBeVisible();
 
   // Esperar a que no haya spinners de carga
   await page.waitForLoadState('networkidle');
@@ -19,8 +19,10 @@ export async function waitForAppLoad(page: Page) {
  * Envía un mensaje en el chat
  */
 export async function sendChatMessage(page: Page, message: string) {
-  const input = page.locator('textarea[placeholder*="Escribe"]');
-  const sendButton = page.locator('button[type="submit"]');
+  const input = page.getByRole('textbox', {
+    name: /escribe tu mensaje sobre reparación de cafeteras/i,
+  });
+  const sendButton = page.getByRole('button', { name: /enviar mensaje/i });
 
   await input.fill(message);
   await sendButton.click();

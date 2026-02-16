@@ -4,6 +4,57 @@ import { testData, selectors } from './fixtures/test-data';
 
 test.describe('Identificación por Cámara', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      const mediaDevices = navigator.mediaDevices || ({} as MediaDevices);
+      mediaDevices.getUserMedia = async () =>
+        ({
+          getTracks: () => [
+            {
+              stop: () => {},
+            },
+          ],
+        }) as unknown as MediaStream;
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: mediaDevices,
+      });
+
+      Object.defineProperty(HTMLVideoElement.prototype, 'videoWidth', {
+        configurable: true,
+        get: () => 640,
+      });
+      Object.defineProperty(HTMLVideoElement.prototype, 'videoHeight', {
+        configurable: true,
+        get: () => 480,
+      });
+
+      const originalGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function getContextPatched(
+        contextId: string,
+        options?: CanvasRenderingContext2DSettings
+      ) {
+        if (contextId === '2d') {
+          return {
+            drawImage: () => {},
+          } as unknown as CanvasRenderingContext2D;
+        }
+        return originalGetContext.call(this, contextId, options);
+      };
+
+      HTMLCanvasElement.prototype.toDataURL = () => 'data:image/jpeg;base64,ZmFrZS1pbWFnZQ==';
+    });
+
+    await page.route('**/api/chat/identify-machine', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          model: 'Zenius',
+          serialNumber: 'ZE123456',
+        }),
+      });
+    });
+
     await page.goto('/');
     await waitForAppLoad(page);
   });
@@ -76,22 +127,32 @@ test.describe('Identificación por Cámara', () => {
     }
   });
 
-  test.skip('debe permitir capturar imagen con la cámara', async ({ page }) => {
-    // Este test requiere permisos de cámara y es difícil de automatizar
-    // Se marca como skip
-    // TODO: Implementar con mock de cámara si es necesario
-    // 1. Abrir modal de cámara
-    // 2. Simular captura de imagen
-    // 3. Verificar que se procesa
+  test('debe permitir capturar imagen con la cámara', async ({ page }) => {
+    const identifyRequestPromise = page.waitForRequest('**/api/chat/identify-machine');
+
+    await page.getByTitle(/identificar modelo con camara/i).evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
+    await expect(page.getByRole('button', { name: /capturar foto/i })).toBeVisible();
+    await page.getByRole('button', { name: /capturar foto/i }).evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
+
+    const request = await identifyRequestPromise;
+    const payload = request.postDataJSON() as { image: string };
+    expect(payload.image).toBeTruthy();
   });
 
-  test.skip('debe identificar el modelo desde la imagen capturada', async ({ page }) => {
-    // Este test requiere integración completa con la API de visión
-    // Se marca como skip
-    // TODO: Implementar con imagen de prueba
-    // 1. Abrir modal de cámara
-    // 2. Cargar imagen de prueba
-    // 3. Verificar identificación del modelo
+  test('debe identificar el modelo desde la imagen capturada', async ({ page }) => {
+    await page.getByTitle(/identificar modelo con camara/i).evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
+    await page.getByRole('button', { name: /capturar foto/i }).evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
+
+    await expect(page.locator('header').getByText(/modelo: zenius/i)).toBeVisible();
+    await expect(page.locator('header').getByText(/\(n\/s: ze123456\)/i)).toBeVisible();
   });
 
   test('debe cerrar el modal de cámara correctamente', async ({ page }) => {
