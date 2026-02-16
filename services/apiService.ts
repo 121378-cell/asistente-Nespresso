@@ -49,6 +49,9 @@ interface ApiErrorPayload {
   error?: string;
 }
 
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object';
+
 class ApiService {
   private axiosInstance: AxiosInstance;
 
@@ -67,6 +70,20 @@ class ApiService {
       const message =
         error.response?.data?.error || error.message || 'An error occurred while calling the API';
       throw new Error(message);
+    }
+
+    if (isObject(error)) {
+      const response = error.response;
+      if (
+        isObject(response) &&
+        isObject(response.data) &&
+        typeof response.data.error === 'string'
+      ) {
+        throw new Error(response.data.error);
+      }
+      if (typeof error.message === 'string') {
+        throw new Error(error.message);
+      }
     }
 
     const message = error instanceof Error ? error.message : 'An unknown error occurred';

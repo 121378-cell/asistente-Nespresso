@@ -15,6 +15,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md,css}\"",
     "prepare": "husky install",
     "test": "vitest",
+    "test:run": "vitest --run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
@@ -23,7 +24,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:codegen": "playwright codegen http://localhost:3000",
     "deploy:auto": "node scripts/auto-commit.js",
-    "deploy:check": "npm run build && npm --prefix backend run build && npm test -- --run && npm run lint"
+    "deploy:check": "npm run build && npm --prefix backend run build && npm run test:run && npm run lint"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.17.19",

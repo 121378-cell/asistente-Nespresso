@@ -44,22 +44,10 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'happy-dom',
+      environmentMatchGlobs: [['backend/tests/**/*.test.ts', 'node']],
       setupFiles: './tests/setup.ts',
-      include: [
-        'tests/**/*.test.ts',
-        'backend/tests/gemini.test.ts',
-        'backend/tests/api.test.ts',
-        'backend/tests/videoController.test.ts',
-        'backend/tests/security.test.ts',
-      ],
-      exclude: [
-        'node_modules/**',
-        'dist/**',
-        'e2e/**',
-        'tests/apiService.test.ts', // TODO: Fix axios instance mocking
-        'backend/tests/repairsController.test.ts', // TODO: Fix Prisma mock
-        'backend/tests/chatController.test.ts', // TODO: Fix ES module issue
-      ],
+      include: ['tests/**/*.test.ts', 'backend/tests/**/*.test.ts'],
+      exclude: ['node_modules/**', 'dist/**', 'e2e/**'],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html'],

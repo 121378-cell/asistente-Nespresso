@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import apiService from '../services/apiService';
 import axios from 'axios';
 import { Role, type SavedRepair } from '../types';
 
@@ -9,6 +8,7 @@ vi.mock('axios');
 const mockedAxios = vi.mocked(axios, true);
 
 describe('API Service (Frontend)', () => {
+  let apiService: typeof import('../services/apiService').default;
   let mockAxiosInstance: {
     get: ReturnType<typeof vi.fn>;
     post: ReturnType<typeof vi.fn>;
@@ -16,7 +16,9 @@ describe('API Service (Frontend)', () => {
     delete: ReturnType<typeof vi.fn>;
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules();
+
     mockAxiosInstance = {
       get: vi.fn(),
       post: vi.fn(),
@@ -27,6 +29,8 @@ describe('API Service (Frontend)', () => {
     mockedAxios.create = vi.fn(
       () => mockAxiosInstance as unknown as ReturnType<typeof axios.create>
     ) as unknown as typeof mockedAxios.create;
+    const serviceModule = await import('../services/apiService');
+    apiService = serviceModule.default;
   });
 
   afterEach(() => {
