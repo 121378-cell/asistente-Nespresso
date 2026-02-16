@@ -2,6 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
+interface TestMessage {
+  role: 'USER' | 'MODEL';
+  text: string;
+  id?: string;
+  attachment?: { url: string; type: string } | null;
+  groundingMetadata?: { groundingChunks: unknown[] } | null;
+  createdAt?: Date;
+}
+
 // Create mock Prisma functions using vi.hoisted to ensure they're available before module imports
 const { mockFindMany, mockFindUnique, mockCreate, mockUpdate, mockDelete, mockDisconnect } =
   vi.hoisted(() => ({
@@ -123,7 +132,14 @@ describe('Repairs Controller', () => {
 
   describe('GET /api/repairs/:id', () => {
     it('should return specific repair with all messages', async () => {
-      const mockRepair = {
+      const mockRepair: {
+        id: string;
+        name: string;
+        machineModel: string;
+        serialNumber: string;
+        timestamp: Date;
+        messages: TestMessage[];
+      } = {
         id: '1',
         name: 'Test Repair',
         machineModel: 'Gemini CS2',
@@ -205,7 +221,13 @@ describe('Repairs Controller', () => {
     });
 
     it('should successfully create a repair', async () => {
-      const newRepair = {
+      const newRepair: {
+        name: string;
+        machineModel: string;
+        serialNumber: string;
+        messages: TestMessage[];
+        timestamp: number;
+      } = {
         name: 'New Repair',
         machineModel: 'Gemini CS2',
         serialNumber: 'SN789',
@@ -220,11 +242,11 @@ describe('Repairs Controller', () => {
         id: 'new-id',
         ...newRepair,
         timestamp: new Date(newRepair.timestamp),
-        messages: newRepair.messages.map((msg, i) => ({
+        messages: newRepair.messages.map((msg: TestMessage, i: number) => ({
           ...msg,
           id: `msg-${i}`,
-          attachment: null,
-          groundingMetadata: null,
+          attachment: (msg.attachment ?? null) as TestMessage['attachment'],
+          groundingMetadata: (msg.groundingMetadata ?? null) as TestMessage['groundingMetadata'],
         })),
       };
 
@@ -239,7 +261,13 @@ describe('Repairs Controller', () => {
     });
 
     it('should create repair with attachments', async () => {
-      const newRepair = {
+      const newRepair: {
+        name: string;
+        machineModel: string | null;
+        serialNumber: string | null;
+        messages: TestMessage[];
+        timestamp: number;
+      } = {
         name: 'Repair with Image',
         machineModel: null,
         serialNumber: null,
@@ -261,7 +289,7 @@ describe('Repairs Controller', () => {
           {
             ...newRepair.messages[0],
             id: 'msg-1',
-            groundingMetadata: null,
+            groundingMetadata: null as TestMessage['groundingMetadata'],
           },
         ],
       };
@@ -297,7 +325,7 @@ describe('Repairs Controller', () => {
         machineModel: 'Gemini CS2',
         serialNumber: 'SN123',
         timestamp: new Date(),
-        messages: [],
+        messages: [] as TestMessage[],
       };
 
       mockUpdate.mockResolvedValue(mockUpdatedRepair);

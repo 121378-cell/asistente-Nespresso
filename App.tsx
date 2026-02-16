@@ -174,7 +174,11 @@ const App: React.FC = () => {
           {isLoading && <LoadingSpinner />}
 
           {!showChecklist && (
-            <KnowledgeBase onProblemSelect={handleSendMessageWithIdentification} />
+            <KnowledgeBase
+              onProblemSelect={(problem, useGoogleSearch) =>
+                handleSendMessageWithIdentification(problem, undefined, useGoogleSearch)
+              }
+            />
           )}
         </div>
       </main>
@@ -196,7 +200,7 @@ const App: React.FC = () => {
         <SavedRepairsModal
           onClose={() => setShowSavedRepairsModal(false)}
           onSave={handleSaveRepair}
-          onLoadRepair={handleLoadRepair}
+          onLoad={handleLoadRepair}
           isSaveDisabled={isSaveDisabled}
         />
       )}

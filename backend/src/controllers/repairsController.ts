@@ -35,6 +35,16 @@ interface CreateRepairInput {
   timestamp: number;
 }
 
+interface StoredMessage {
+  role: string;
+  text: string;
+  attachment?: {
+    url: string;
+    type: string;
+  } | null;
+  groundingMetadata?: unknown;
+}
+
 // GET /api/repairs - Get all saved repairs (without full messages)
 export const getAllRepairs = async (req: Request, res: Response) => {
   try {
@@ -87,7 +97,7 @@ export const getRepairById = async (req: Request, res: Response) => {
       machineModel: repair.machineModel,
       serialNumber: repair.serialNumber,
       timestamp: repair.timestamp.getTime(),
-      messages: repair.messages.map((msg) => ({
+      messages: repair.messages.map((msg: StoredMessage) => ({
         role: msg.role,
         text: msg.text,
         ...(msg.attachment && {
@@ -96,9 +106,11 @@ export const getRepairById = async (req: Request, res: Response) => {
             type: msg.attachment.type,
           },
         }),
-        ...(msg.groundingMetadata && {
-          groundingMetadata: msg.groundingMetadata as any,
-        }),
+        ...(msg.groundingMetadata
+          ? {
+              groundingMetadata: msg.groundingMetadata,
+            }
+          : {}),
       })),
     };
 

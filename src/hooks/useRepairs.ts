@@ -1,13 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../config/queryClient';
-import {
-  getRepairs,
-  getRepair,
-  createRepair,
-  updateRepair,
-  deleteRepair,
-} from '../services/apiService';
-import type { SavedRepair } from '../types';
+import apiService from '../../services/apiService';
+import type { SavedRepair } from '../../types';
 
 /**
  * Hook to fetch all repairs
@@ -15,7 +9,7 @@ import type { SavedRepair } from '../types';
 export function useRepairs() {
   return useQuery({
     queryKey: queryKeys.repairs,
-    queryFn: getRepairs,
+    queryFn: () => apiService.getAllRepairs(),
   });
 }
 
@@ -25,7 +19,7 @@ export function useRepairs() {
 export function useRepair(id: string) {
   return useQuery({
     queryKey: queryKeys.repair(id),
-    queryFn: () => getRepair(id),
+    queryFn: () => apiService.getRepairById(id),
     enabled: !!id, // Only run if ID exists
   });
 }
@@ -37,7 +31,7 @@ export function useCreateRepair() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createRepair,
+    mutationFn: (repair: Omit<SavedRepair, 'id'>) => apiService.createRepair(repair),
     onSuccess: () => {
       // Invalidate repairs list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.repairs });
@@ -53,7 +47,7 @@ export function useUpdateRepair() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<SavedRepair> }) =>
-      updateRepair(id, data),
+      apiService.updateRepair(id, data),
     onMutate: async ({ id, data }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.repairs });
@@ -90,7 +84,7 @@ export function useDeleteRepair() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteRepair,
+    mutationFn: (id: string) => apiService.deleteRepair(id),
     onMutate: async (id) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.repairs });

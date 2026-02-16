@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import apiService from '../services/apiService';
 import axios from 'axios';
+import { Role, type SavedRepair } from '../types';
 
 // Mock axios
 vi.mock('axios');
@@ -64,7 +65,7 @@ describe('API Service (Frontend)', () => {
             timestamp: Date.now(),
             messages: [],
           },
-        ];
+        ] as SavedRepair[];
 
         mockAxiosInstance.get.mockResolvedValue({ data: mockRepairs });
 
@@ -91,8 +92,8 @@ describe('API Service (Frontend)', () => {
           machineModel: 'Gemini CS2',
           serialNumber: 'SN123',
           timestamp: Date.now(),
-          messages: [{ role: 'USER' as const, text: 'Help' }],
-        };
+          messages: [{ role: Role.USER, text: 'Help' }],
+        } as SavedRepair;
 
         mockAxiosInstance.get.mockResolvedValue({ data: mockRepair });
 
@@ -113,11 +114,11 @@ describe('API Service (Frontend)', () => {
 
     describe('createRepair', () => {
       it('should create new repair', async () => {
-        const newRepair = {
+        const newRepair: Omit<SavedRepair, 'id'> = {
           name: 'New Repair',
           machineModel: 'Gemini CS2',
           serialNumber: 'SN789',
-          messages: [{ role: 'USER' as const, text: 'Issue description' }],
+          messages: [{ role: Role.USER, text: 'Issue description' }],
           timestamp: Date.now(),
         };
 
@@ -140,7 +141,7 @@ describe('API Service (Frontend)', () => {
             name: '',
             machineModel: null,
             serialNumber: null,
-            messages: [],
+            messages: [] as SavedRepair['messages'],
             timestamp: Date.now(),
           })
         ).rejects.toThrow('Name is required');
@@ -157,7 +158,7 @@ describe('API Service (Frontend)', () => {
             machineModel: 'Gemini CS2',
             serialNumber: 'SN123',
             timestamp: Date.now(),
-            messages: [],
+            messages: [] as SavedRepair['messages'],
           },
         };
 
@@ -260,7 +261,7 @@ describe('API Service (Frontend)', () => {
       });
 
       it('should run query without params', async () => {
-        const mockResult = { data: [] };
+        const mockResult: { data: unknown[] } = { data: [] };
         mockAxiosInstance.post.mockResolvedValue({ data: mockResult });
 
         await apiService.runPredefinedQuery('repairs_with_attachments');

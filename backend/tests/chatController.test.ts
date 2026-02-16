@@ -86,7 +86,7 @@ describe('Chat Controller', () => {
     it('should handle file attachments', async () => {
       const mockResponse = {
         text: 'Image analyzed',
-        candidates: [],
+        candidates: [] as unknown[],
       };
 
       vi.mocked(generateResponse).mockResolvedValue(mockResponse as any);
