@@ -9,7 +9,8 @@ test.describe('Navegación Básica', () => {
 
     // Verificar que el título esté presente
     await expect(page.locator(selectors.header.title)).toBeVisible();
-    await expect(page.locator(selectors.header.title)).toHaveText('Asistente Nespresso');
+    await expect(page.locator(selectors.header.title)).toContainText(/asistente/i);
+    await expect(page.locator(selectors.header.title)).toContainText(/nespresso/i);
   });
 
   test('debe mostrar todos los botones principales en el header', async ({ page }) => {
@@ -27,12 +28,8 @@ test.describe('Navegación Básica', () => {
     await waitForAppLoad(page);
 
     // Verificar que la base de conocimientos esté visible
-    const knowledgeBase = page
-      .locator('text=Base de Conocimientos')
-      .or(page.locator('text=Problemas Comunes'));
-
-    // Esperar un poco para que cargue el contenido
-    await page.waitForTimeout(1000);
+    const knowledgeBase = page.locator('h2:has-text("Base de Conocimiento")');
+    await expect(knowledgeBase).toBeVisible();
 
     // Verificar que haya contenido en la página
     const bodyText = await page.textContent('body');
@@ -44,8 +41,7 @@ test.describe('Navegación Básica', () => {
     await waitForAppLoad(page);
 
     // Verificar que el input de chat esté presente
-    const chatInput = page.locator('textarea').or(page.locator('input[type="text"]'));
-    await expect(chatInput.first()).toBeVisible();
+    await expect(page.locator(selectors.chat.input)).toBeVisible();
   });
 
   test('debe ser responsive y mostrar el layout correcto', async ({ page }) => {

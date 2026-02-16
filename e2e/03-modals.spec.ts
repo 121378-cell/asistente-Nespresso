@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { waitForAppLoad, openModal, closeModal } from './helpers/page-helpers';
+import { waitForAppLoad } from './helpers/page-helpers';
 import { selectors } from './fixtures/test-data';
+
+async function closeOverlay(page: import('@playwright/test').Page) {
+  await page
+    .locator('div.fixed.inset-0')
+    .first()
+    .click({ position: { x: 8, y: 8 } });
+}
 
 test.describe('Modales', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,119 +19,54 @@ test.describe('Modales', () => {
     // Abrir modal
     await page.click(selectors.header.videoButton);
 
-    // Esperar a que el modal aparezca
-    await page.waitForTimeout(1000);
-
-    // Verificar que el modal está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-
-    // Cerrar modal
-    const closeButton = page
-      .locator('button')
-      .filter({ hasText: /cerrar|×|close/i })
-      .first();
-    await closeButton.click();
-
-    // Esperar a que el modal desaparezca
-    await page.waitForTimeout(500);
+    await expect(
+      page.getByText(/se requiere una api key|generar vídeo con veo/i).first()
+    ).toBeVisible();
+    await closeOverlay(page);
+    await expect(page.getByText(/se requiere una api key|generar vídeo con veo/i)).toHaveCount(0);
   });
 
   test('debe abrir y cerrar el modal de reparaciones guardadas', async ({ page }) => {
     // Abrir modal
     await page.click(selectors.header.repairsButton);
-
-    // Esperar a que el modal aparezca
-    await page.waitForTimeout(1000);
-
-    // Verificar que el modal está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-
-    // Cerrar modal
-    const closeButton = page
-      .locator('button')
-      .filter({ hasText: /cerrar|×|close/i })
-      .first();
-    await closeButton.click();
-
-    // Esperar a que el modal desaparezca
-    await page.waitForTimeout(500);
+    await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toBeVisible();
+    await closeOverlay(page);
+    await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toHaveCount(0);
   });
 
   test('debe abrir y cerrar el modal de base de datos', async ({ page }) => {
     // Abrir modal
     await page.click(selectors.header.databaseButton);
-
-    // Esperar a que el modal aparezca
-    await page.waitForTimeout(1000);
-
-    // Verificar que el modal está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-
-    // Cerrar modal
-    const closeButton = page
-      .locator('button')
-      .filter({ hasText: /cerrar|×|close/i })
-      .first();
-    await closeButton.click();
-
-    // Esperar a que el modal desaparezca
-    await page.waitForTimeout(500);
+    await expect(page.getByRole('heading', { name: /base de datos/i })).toBeVisible();
+    await closeOverlay(page);
+    await expect(page.getByRole('heading', { name: /base de datos/i })).toHaveCount(0);
   });
 
   test('debe cerrar modales al presionar ESC', async ({ page }) => {
     // Abrir modal de video
     await page.click(selectors.header.videoButton);
-    await page.waitForTimeout(1000);
-
-    // Verificar que está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
+    await expect(
+      page.getByText(/se requiere una api key|generar vídeo con veo/i).first()
+    ).toBeVisible();
 
     // Presionar ESC
     await page.keyboard.press('Escape');
 
-    // Esperar y verificar que se cerró
-    await page.waitForTimeout(500);
-
-    // Verificar que no hay modales visibles
-    const modalCount = await page.locator('[class*="modal"]').count();
-    // Si hay modales, verificar que no están visibles
-    if (modalCount > 0) {
-      const isVisible = await modal.isVisible().catch(() => false);
-      expect(isVisible).toBeFalsy();
-    }
+    // Verificar cierre
+    await expect(page.getByText(/se requiere una api key|generar vídeo con veo/i)).toHaveCount(0);
   });
 
   test('debe permitir abrir diferentes modales secuencialmente', async ({ page }) => {
     // Abrir modal de video
     await page.click(selectors.header.videoButton);
-    await page.waitForTimeout(1000);
-
-    // Cerrar
-    let closeButton = page
-      .locator('button')
-      .filter({ hasText: /cerrar|×|close/i })
-      .first();
-    await closeButton.click();
-    await page.waitForTimeout(500);
+    await expect(
+      page.getByText(/se requiere una api key|generar vídeo con veo/i).first()
+    ).toBeVisible();
+    await closeOverlay(page);
 
     // Abrir modal de reparaciones
     await page.click(selectors.header.repairsButton);
-    await page.waitForTimeout(1000);
-
-    // Verificar que está visible
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-
-    // Cerrar
-    closeButton = page
-      .locator('button')
-      .filter({ hasText: /cerrar|×|close/i })
-      .first();
-    await closeButton.click();
-    await page.waitForTimeout(500);
+    await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toBeVisible();
+    await closeOverlay(page);
   });
 });

@@ -32,6 +32,17 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     checkApiKey().then(setHasApiKey);
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
   const handleSelectKey = async () => {
     await requestApiKey();
     setHasApiKey(true);

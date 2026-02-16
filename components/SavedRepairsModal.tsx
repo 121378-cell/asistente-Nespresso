@@ -43,6 +43,17 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
     loadRepairs();
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
   const handleDelete = async (id: string) => {
     if (
       window.confirm(

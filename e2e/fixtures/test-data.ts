@@ -40,17 +40,17 @@ export const testData = {
 export const selectors = {
   // Header
   header: {
-    title: 'h1:has-text("Asistente Nespresso")',
-    videoButton: 'button:has-text("Generar Video")',
-    repairsButton: 'button:has-text("Reparaciones")',
-    databaseButton: 'button:has-text("Base de Datos")',
+    title: 'h1:has-text("Asistente de Reparacion Nespresso")',
+    videoButton: 'button[title*="video"], button:has-text("Crear Video")',
+    repairsButton: 'button[title*="Reparaciones Guardadas"]',
+    databaseButton: 'button[title*="Base de Datos"]',
   },
 
   // Chat
   chat: {
-    input: 'textarea[placeholder*="Escribe"]',
-    sendButton: 'button[type="submit"]',
-    messages: '[class*="message"]',
+    input: 'input[aria-label*="Escribe tu mensaje"]',
+    sendButton: 'button[aria-label="Enviar mensaje"]',
+    messages: '[class*="rounded-bl-none"], [class*="rounded-br-none"]',
     loadingSpinner: '[class*="loading"]',
   },
 

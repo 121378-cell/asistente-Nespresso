@@ -78,7 +78,7 @@ export async function expectNotVisible(page: Page, selector: string) {
  * Cuenta el número de mensajes en el chat
  */
 export async function getMessageCount(page: Page): Promise<number> {
-  const messages = page.locator('[class*="message"]');
+  const messages = page.locator('[class*="rounded-bl-none"], [class*="rounded-br-none"]');
   return await messages.count();
 }
 
@@ -86,7 +86,7 @@ export async function getMessageCount(page: Page): Promise<number> {
  * Obtiene el texto del último mensaje
  */
 export async function getLastMessage(page: Page): Promise<string> {
-  const messages = page.locator('[class*="message"]');
+  const messages = page.locator('[class*="rounded-bl-none"], [class*="rounded-br-none"]');
   const count = await messages.count();
 
   if (count === 0) {
