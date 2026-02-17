@@ -9,6 +9,7 @@ import videoRouter from './routes/videoRouter.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
+import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
 import { swaggerSpec } from './config/swagger.js';
 
 // Load environment variables
@@ -30,6 +31,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Apply HTTP logging middleware (before routes)
 app.use(httpLogger);
+app.use(httpMetricsMiddleware);
 
 // Apply global rate limiting to all API routes
 app.use('/api/', globalLimiter);
@@ -52,7 +54,19 @@ app.use('/api/video', videoRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    requestId: req.id,
+  });
+});
+
+// Basic observability endpoint for dashboards and alerting.
+app.get('/metrics', (req: Request, res: Response) => {
+  res.json({
+    requestId: req.id,
+    ...getHttpMetricsSnapshot(),
+  });
 });
 
 // 404 handler
@@ -65,6 +79,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error({ err, path: req.path, method: req.method }, 'Unhandled error');
   res.status(500).json({
     error: 'Internal server error',
+    requestId: req.id,
     message: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });

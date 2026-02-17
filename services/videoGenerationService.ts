@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { buildTraceHeaders } from './requestTracing';
 
 const API_BASE_URL =
   (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL ||
@@ -60,6 +61,7 @@ export const generateVideo = async (
       },
       {
         timeout: 120000, // 2 minutes for video generation
+        headers: buildTraceHeaders(),
       }
     );
 
@@ -90,6 +92,7 @@ export const checkVideoStatus = async (operation: VideoOperation): Promise<Video
       },
       {
         timeout: 30000, // 30 seconds
+        headers: buildTraceHeaders(),
       }
     );
 

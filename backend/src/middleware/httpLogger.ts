@@ -1,4 +1,5 @@
 import pinoHttp from 'pino-http';
+import { randomUUID } from 'node:crypto';
 import { logger } from '../config/logger.js';
 
 /**
@@ -11,6 +12,13 @@ import { logger } from '../config/logger.js';
  */
 export const httpLogger = pinoHttp({
   logger,
+  genReqId: (req, res) => {
+    const incomingHeader = req.headers['x-request-id'];
+    const incomingRequestId = Array.isArray(incomingHeader) ? incomingHeader[0] : incomingHeader;
+    const requestId = incomingRequestId?.trim() || randomUUID();
+    res.setHeader('x-request-id', requestId);
+    return requestId;
+  },
 
   // Auto-log all HTTP requests
   autoLogging: true,
@@ -55,6 +63,9 @@ export const httpLogger = pinoHttp({
       statusCode: res.statusCode,
     }),
   },
+  customProps: (req) => ({
+    requestId: req.id,
+  }),
 });
 
 export default httpLogger;

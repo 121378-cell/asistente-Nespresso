@@ -1,5 +1,6 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { SavedRepair } from '../types';
+import { buildTraceHeaders } from './requestTracing';
 
 const API_BASE_URL =
   (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL ||
@@ -63,6 +64,14 @@ class ApiService {
       },
       timeout: 30000,
     });
+
+    this.axiosInstance.interceptors.request.use((config) => ({
+      ...config,
+      headers: AxiosHeaders.from({
+        ...(config.headers ? config.headers.toJSON() : {}),
+        ...buildTraceHeaders(),
+      }),
+    }));
   }
 
   private handleError(error: unknown): never {
@@ -205,7 +214,9 @@ class ApiService {
   // Health check
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/health`);
+      const response = await axios.get(`${API_BASE_URL}/health`, {
+        headers: buildTraceHeaders(),
+      });
       return response.data.status === 'ok';
     } catch (error) {
       return false;

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { GroundingMetadata, Message } from '../types';
+import { buildTraceHeaders } from './requestTracing';
 
 const API_BASE_URL =
   (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL ||
@@ -88,6 +89,7 @@ export async function generateResponse(
       },
       {
         timeout: 60000, // 60 seconds for AI responses
+        headers: buildTraceHeaders(),
       }
     );
 
@@ -115,6 +117,7 @@ export async function identifyMachineFromImage(
       },
       {
         timeout: 30000, // 30 seconds
+        headers: buildTraceHeaders(),
       }
     );
 
