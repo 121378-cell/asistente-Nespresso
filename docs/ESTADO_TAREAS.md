@@ -50,6 +50,11 @@ Fecha de actualización: 17 de febrero de 2026
     - Ajuste de tests frontend para compatibilidad con interceptores Axios (`tests/apiService.test.ts`).
     - Validaciones locales equivalentes en verde (lint, tests, build, audit, smoke).
     - Bloqueo externo: branch protection no configurable por plan actual del repositorio (GitHub API 403).
+16. Definición de ADR v1 de arquitectura objetivo (Fase 1 - issue `#29`).
+    - Documento: `docs/architecture/ADR-0001-target-architecture.md`.
+    - Incluye componentes objetivo (Web, API, Workers, Cola, Persistencia).
+    - Define límites de dominio, contratos y trade-offs.
+    - Plan de migración incremental por fases (sin big-bang), con riesgos y mitigaciones.
 
 ## Tareas pendientes
 
@@ -65,15 +70,15 @@ No hay tareas pendientes del bloque de estabilización inicial.
    - https://github.com/121378-cell/asistente-Nespresso/issues/27
 4. CI/CD con quality gates bloqueantes: `#28` (en progreso, bloqueado en branch protection por plan)
    - https://github.com/121378-cell/asistente-Nespresso/issues/28
-5. ADR v1 de arquitectura objetivo: `#29`
+5. ADR v1 de arquitectura objetivo: `#29` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/29
 
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (quality gates en curso de guardado)
-- Remoto: `origin/main` actualizado hasta `1d21053`
+- Working tree: con cambios locales pendientes de commit (ADR #29 en curso de guardado)
+- Remoto: `origin/main` actualizado hasta `ff71468`
 
 ## Próxima tarea recomendada
 
-1. Completar el issue `#28` habilitando checks requeridos en merge cuando el repo tenga branch protection disponible (GitHub Pro o repositorio público).
+1. Resolver el bloqueo externo de `#28` (branch protection) o definir política alternativa de merge mientras se mantiene el plan actual.
