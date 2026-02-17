@@ -36,14 +36,27 @@ Fecha de actualización: 17 de febrero de 2026
 
 ## Tareas pendientes
 
-No hay tareas pendientes de la lista planificada en este documento.
+No hay tareas pendientes del bloque de estabilización inicial.
+
+## Backlog de escalado (Fase 1, 30 días)
+
+1. EPIC Fase 1 (seguimiento principal): `#25`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/25
+2. Observabilidad base (logs, métricas, trazas): `#26`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/26
+3. Security baseline de producción: `#27`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/27
+4. CI/CD con quality gates bloqueantes: `#28`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/28
+5. ADR v1 de arquitectura objetivo: `#29`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/29
 
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (este documento y lockfile/dependencias si aplica)
-- Remoto: `origin/main` actualizado hasta `7e8dc17`
+- Working tree: con cambios locales pendientes de commit (actualización de este documento)
+- Remoto: `origin/main` actualizado hasta `711ad7e`
 
 ## Próxima tarea recomendada
 
-1. Hacer commit y push de la actualización de dependencias (`axios`) y de este documento para dejar trazabilidad final cerrada en remoto.
+1. Ejecutar el issue `#26` (observabilidad) como primer bloque de implementación de Fase 1.
