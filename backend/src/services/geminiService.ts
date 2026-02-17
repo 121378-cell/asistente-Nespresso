@@ -1,7 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse, Part, Content, Type } from '@google/genai';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { env } from '../config/env.js';
 
 const SYSTEM_INSTRUCTION = `Eres un compañero experto en reparación de cafeteras Nespresso Profesional. Tu especialidad abarca las gamas: **ZENIUS (ZN100)**, **GEMINI (CS203/CS223)** y **MOMENTO (80/100/200)**. Actúas como un técnico senior guiando a un compañero.
 
@@ -68,7 +66,7 @@ export async function generateResponse(
   machineModel?: string | null
 ): Promise<GenerateContentResponse> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = env.geminiApiKey;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY not configured in backend');
     }
@@ -143,7 +141,7 @@ export async function identifyMachineFromImage(
   base64Image: string
 ): Promise<{ model: string; serialNumber: string }> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = env.geminiApiKey;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY not configured in backend');
     }
@@ -213,7 +211,7 @@ export async function generateVideo(
   aspectRatio: '16:9' | '9:16'
 ): Promise<any> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = env.geminiApiKey;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY not configured in backend');
     }
@@ -243,7 +241,7 @@ export async function generateVideo(
  */
 export async function checkVideoStatus(operationData: any): Promise<any> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = env.geminiApiKey;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY not configured in backend');
     }

@@ -1,33 +1,58 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
+import { env } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
 import { swaggerSpec } from './config/swagger.js';
 
-// Load environment variables
-dotenv.config();
-
 const app: Application = express();
-const PORT = process.env.PORT || 3001;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const PORT = env.port;
+const ALLOWED_ORIGINS = env.allowedOrigins;
+
+if (env.trustProxy) {
+  app.set('trust proxy', 1);
+}
+
+app.disable('x-powered-by');
 
 // Middleware
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Origin not allowed by CORS policy'));
+    },
     credentials: true,
   })
 );
 app.use(express.json({ limit: '50mb' })); // Increased limit for image attachments
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(
+  ['/api', '/health', '/metrics'],
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        baseUri: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Apply HTTP logging middleware (before routes)
 app.use(httpLogger);
@@ -80,7 +105,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({
     error: 'Internal server error',
     requestId: req.id,
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    message: env.nodeEnv === 'development' ? err.message : undefined,
   });
 });
 
@@ -89,8 +114,8 @@ app.listen(PORT, () => {
   logger.info(
     {
       port: PORT,
-      env: process.env.NODE_ENV || 'development',
-      corsOrigin: FRONTEND_URL,
+      env: env.nodeEnv,
+      allowedOrigins: ALLOWED_ORIGINS,
     },
     'Server started successfully'
   );

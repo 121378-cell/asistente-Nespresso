@@ -34,8 +34,14 @@ Backend API for the Nespresso Repair Assistant application. Built with Node.js, 
 
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/nespresso_assistant?schema=public"
+   GEMINI_API_KEY="your_gemini_api_key"
+   SUPABASE_URL="https://your-project.supabase.co"
+   SUPABASE_SERVICE_KEY="your_service_role_key"
    PORT=3001
+   NODE_ENV=development
+   TRUST_PROXY=false
    FRONTEND_URL=http://localhost:5173
+   ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
    ```
 
 3. **Set up PostgreSQL database:**
@@ -88,6 +94,7 @@ The server will start on `http://localhost:3001`
 ### Health Check
 
 - `GET /health` - Check if the server is running
+- `GET /metrics` - Basic HTTP metrics snapshot (latency, status classes, throughput)
 
 ### Repairs
 

@@ -38,6 +38,12 @@ Fecha de actualización: 17 de febrero de 2026
     - Métricas HTTP en `GET /metrics` (latencia p50/p95/p99, errores, throughput).
     - `GET /health` ahora incluye `requestId` para correlación.
     - Documentación operativa: `docs/OBSERVABILIDAD_BASELINE.md`.
+14. Implementación de security baseline (Fase 1 - issue `#27`).
+    - Validación centralizada de variables de entorno (`backend/src/config/env.ts`).
+    - Hardening de cabeceras con `helmet` en API/health/metrics y CSP restrictiva.
+    - CORS por allowlist (`ALLOWED_ORIGINS`) y desactivación de `x-powered-by`.
+    - Dependencias backend saneadas: `npm audit` en `0` vulnerabilidades.
+    - Documentación operativa: `docs/SECURITY_BASELINE.md`.
 
 ## Tareas pendientes
 
@@ -49,7 +55,7 @@ No hay tareas pendientes del bloque de estabilización inicial.
    - https://github.com/121378-cell/asistente-Nespresso/issues/25
 2. Observabilidad base (logs, métricas, trazas): `#26` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/26
-3. Security baseline de producción: `#27`
+3. Security baseline de producción: `#27` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/27
 4. CI/CD con quality gates bloqueantes: `#28`
    - https://github.com/121378-cell/asistente-Nespresso/issues/28
@@ -59,9 +65,9 @@ No hay tareas pendientes del bloque de estabilización inicial.
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (actualización de este documento)
-- Remoto: `origin/main` actualizado hasta `ee28791`
+- Working tree: con cambios locales pendientes de commit (security baseline en curso de guardado)
+- Remoto: `origin/main` actualizado hasta `8ef3834`
 
 ## Próxima tarea recomendada
 
-1. Ejecutar el issue `#27` (security baseline) como siguiente bloque de Fase 1.
+1. Ejecutar el issue `#28` (CI/CD con quality gates bloqueantes) como siguiente bloque de Fase 1.

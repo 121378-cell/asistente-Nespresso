@@ -1,4 +1,5 @@
 import { supabase, IMAGES_BUCKET } from '../config/supabase.js';
+import { env } from '../config/env.js';
 import { compressImage, CompressionOptions } from './imageCompressionService.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -94,5 +95,5 @@ export async function deleteImage(url: string): Promise<void> {
  * @returns true if configured, false otherwise
  */
 export function isStorageConfigured(): boolean {
-  return !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY);
+  return !!(env.supabaseUrl && env.supabaseServiceKey);
 }

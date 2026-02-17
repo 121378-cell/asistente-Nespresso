@@ -1,7 +1,8 @@
 import pino from 'pino';
+import { env } from './env.js';
 
 // Determine if we're in development mode
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = env.nodeEnv !== 'production';
 
 /**
  * Centralized logger using Pino
@@ -13,7 +14,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
  * - High performance (async logging)
  */
 export const logger = pino({
-  level: process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info'),
+  level: env.logLevel || (isDevelopment ? 'debug' : 'info'),
 
   // Pretty print in development for better readability
   transport: isDevelopment
@@ -30,7 +31,7 @@ export const logger = pino({
 
   // Base configuration
   base: {
-    env: process.env.NODE_ENV || 'development',
+    env: env.nodeEnv,
   },
 
   // Timestamp format

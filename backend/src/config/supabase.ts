@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { env } from './env.js';
 
 // Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseUrl = env.supabaseUrl;
+const supabaseServiceKey = env.supabaseServiceKey;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.warn('⚠️  Supabase credentials not configured. Image storage will not work.');
