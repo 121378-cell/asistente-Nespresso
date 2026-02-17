@@ -1,6 +1,6 @@
 # Estado de tareas del proyecto
 
-Fecha de actualización: 16 de febrero de 2026
+Fecha de actualización: 17 de febrero de 2026
 
 ## Tareas realizadas
 
@@ -16,27 +16,34 @@ Fecha de actualización: 16 de febrero de 2026
    - Commit: `f6415f3`
 6. Estabilización de flujos E2E de navegación, chat y modales.
    - Commit: `18a41a1`
-   - Resultado validado: `27/27` tests E2E en Chromium.
 7. Actualización de `baseline-browser-mapping` para eliminar warning de Playwright.
    - Commit: `dfead6b`
+8. Registro del estado del proyecto en documento de seguimiento.
+   - Commit: `7e8dc17`
+9. Validación E2E completa posterior a actualización de dependencias.
+   - Resultado: `27/27` tests E2E en Chromium (`npx playwright test --project=chromium --workers=1 --reporter=line`).
+10. Corrección de vulnerabilidad alta reportada por `npm audit`.
+    - Acción: actualización de `axios` a la versión más reciente.
+    - Resultado: `npm audit` con `0` vulnerabilidades.
+11. Verificación de CI/CD remoto en GitHub Actions para `main`.
+    - Runs recientes en verde:
+      - `22065194576` (SHA `7e8dc17`) https://github.com/121378-cell/asistente-Nespresso/actions/runs/22065194576
+      - `22064433493` (SHA `dfead6b`) https://github.com/121378-cell/asistente-Nespresso/actions/runs/22064433493
+      - `22063013245` (SHA `18a41a1`) https://github.com/121378-cell/asistente-Nespresso/actions/runs/22063013245
+12. Configuración explícita de identidad Git en el repositorio local.
+    - `user.name`: `Sergio Marquez Brugal`
+    - `user.email`: `SMarquez@femarec.cat`
 
 ## Tareas pendientes
 
-1. Ejecutar validación E2E completa después de la actualización de dependencias reciente.
-   - Estado: pendiente de corrida completa posterior a `dfead6b` (solo se validó una suite rápida de navegación).
-2. Revisar y corregir la vulnerabilidad reportada por `npm audit` (alta severidad).
-   - Estado: pendiente de análisis de paquete afectado y plan de remediación.
-3. Verificación integral de CI/CD en GitHub Actions con el estado actual de `main`.
-   - Estado: pendiente de confirmar que todos los checks remotos quedan en verde tras los últimos commits.
-4. Configurar identidad Git explícita en el entorno de trabajo (nombre/email global o local).
-   - Estado: pendiente para evitar commits con identidad autogenerada.
+No hay tareas pendientes de la lista planificada en este documento.
 
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: limpio
-- Remoto: sincronizado con `origin/main`
+- Working tree: con cambios locales pendientes de commit (este documento y lockfile/dependencias si aplica)
+- Remoto: `origin/main` actualizado hasta `7e8dc17`
 
 ## Próxima tarea recomendada
 
-1. Ejecutar CI remoto + `npm audit` y cerrar primero seguridad (vulnerabilidad alta), luego dejar evidencia en este mismo documento.
+1. Hacer commit y push de la actualización de dependencias (`axios`) y de este documento para dejar trazabilidad final cerrada en remoto.

@@ -29,7 +29,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-query-devtools": "^5.17.19",
-    "axios": "^1.7.9",
+    "axios": "^1.13.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
