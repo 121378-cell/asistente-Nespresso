@@ -1,0 +1,132 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend Lint/Test/Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Run frontend tests
+        run: npm run test:run
+
+      - name: Build frontend
+        run: npm run build
+
+  backend:
+    name: Backend Test/Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backend tests
+        run: npm test
+
+      - name: Build backend
+        run: npm run build
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Audit root dependencies (high/critical)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Audit backend dependencies (high/critical)
+        run: npm --prefix backend audit --omit=dev --audit-level=high
+
+  e2e-smoke:
+    name: E2E Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke test suite
+        run: npx playwright test e2e/01-navigation.spec.ts --project=chromium --workers=1 --reporter=line
+        env:
+          CI: true
+
+      - name: Upload smoke artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-smoke-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+

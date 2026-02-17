@@ -44,6 +44,12 @@ Fecha de actualización: 17 de febrero de 2026
     - CORS por allowlist (`ALLOWED_ORIGINS`) y desactivación de `x-powered-by`.
     - Dependencias backend saneadas: `npm audit` en `0` vulnerabilidades.
     - Documentación operativa: `docs/SECURITY_BASELINE.md`.
+15. Implementación de quality gates CI/CD (Fase 1 - issue `#28`, parcial).
+    - Workflow nuevo: `.github/workflows/quality-gates.yml`.
+    - Jobs bloqueantes definidos: frontend lint/test/build, backend test/build, audit dependencias y E2E smoke.
+    - Ajuste de tests frontend para compatibilidad con interceptores Axios (`tests/apiService.test.ts`).
+    - Validaciones locales equivalentes en verde (lint, tests, build, audit, smoke).
+    - Bloqueo externo: branch protection no configurable por plan actual del repositorio (GitHub API 403).
 
 ## Tareas pendientes
 
@@ -57,7 +63,7 @@ No hay tareas pendientes del bloque de estabilización inicial.
    - https://github.com/121378-cell/asistente-Nespresso/issues/26
 3. Security baseline de producción: `#27` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/27
-4. CI/CD con quality gates bloqueantes: `#28`
+4. CI/CD con quality gates bloqueantes: `#28` (en progreso, bloqueado en branch protection por plan)
    - https://github.com/121378-cell/asistente-Nespresso/issues/28
 5. ADR v1 de arquitectura objetivo: `#29`
    - https://github.com/121378-cell/asistente-Nespresso/issues/29
@@ -65,9 +71,9 @@ No hay tareas pendientes del bloque de estabilización inicial.
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (security baseline en curso de guardado)
-- Remoto: `origin/main` actualizado hasta `8ef3834`
+- Working tree: con cambios locales pendientes de commit (quality gates en curso de guardado)
+- Remoto: `origin/main` actualizado hasta `1d21053`
 
 ## Próxima tarea recomendada
 
-1. Ejecutar el issue `#28` (CI/CD con quality gates bloqueantes) como siguiente bloque de Fase 1.
+1. Completar el issue `#28` habilitando checks requeridos en merge cuando el repo tenga branch protection disponible (GitHub Pro o repositorio público).

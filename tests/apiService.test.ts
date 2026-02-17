@@ -14,6 +14,11 @@ describe('API Service (Frontend)', () => {
     post: ReturnType<typeof vi.fn>;
     put: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
+    interceptors: {
+      request: {
+        use: ReturnType<typeof vi.fn>;
+      };
+    };
   };
 
   beforeEach(async () => {
@@ -24,6 +29,11 @@ describe('API Service (Frontend)', () => {
       post: vi.fn(),
       put: vi.fn(),
       delete: vi.fn(),
+      interceptors: {
+        request: {
+          use: vi.fn(),
+        },
+      },
     };
 
     mockedAxios.create = vi.fn(
