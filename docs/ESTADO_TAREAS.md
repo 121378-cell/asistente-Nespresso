@@ -59,6 +59,10 @@ Fecha de actualización: 18 de febrero de 2026
     - Hallazgo: `Frontend Lint/Test/Build` fallaba al ejecutar tests de `backend/` desde la raíz sin dependencias de backend (`supertest`).
     - Acción: separación explícita de scope en Vitest raíz (`vite.config.ts`) para ejecutar solo `tests/**/*.test.ts`.
     - Validación local: `npm run lint`, `npm run test:run`, `npm --prefix backend test` y `npm run build` en verde.
+18. Preparación operativa para cierre del pendiente de observabilidad (issue `#31`).
+    - Script nuevo `scripts/observability-evidence.mjs` para recolectar evidencia (`/health` + `/metrics`) con evaluación de umbrales.
+    - Script npm: `npm run ops:observability:evidence -- <base-url>`.
+    - Documento `docs/OBSERVABILIDAD_BASELINE.md` ampliado con alertas mínimas y procedimiento de cierre.
 
 ## Tareas pendientes
 
