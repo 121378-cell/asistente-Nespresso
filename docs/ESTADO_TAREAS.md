@@ -63,30 +63,45 @@ Fecha de actualización: 18 de febrero de 2026
     - Script nuevo `scripts/observability-evidence.mjs` para recolectar evidencia (`/health` + `/metrics`) con evaluación de umbrales.
     - Script npm: `npm run ops:observability:evidence -- <base-url>`.
     - Documento `docs/OBSERVABILIDAD_BASELINE.md` ampliado con alertas mínimas y procedimiento de cierre.
+19. Cierre de PR `#30` con checks verdes y policy de review satisfecha.
+    - Merge commit: `2aa3b46`.
+    - Ajustes integrados: scope frontend en Vitest y typecheck raíz sin backend.
+20. Integración de flujo de evidencia operativa de observabilidad.
+    - PR `#32` mergeada con script/documentación de evidencia.
+    - PR `#33` mergeada con reporte real de producción:
+      - `docs/observability-evidence-20260218.md`.
+21. Cierre formal de Fase 1.
+    - Issue `#31` cerrado (evidencia en entorno principal completada).
+    - EPIC `#25` cerrado con checklist de Fase 1 completado.
+22. Planificación de Fase 2 creada en GitHub.
+    - Nuevo EPIC: `#34`.
+    - Backlog base: `#35`, `#36`, `#37`, `#38`, `#39`.
 
 ## Tareas pendientes
 
 No hay tareas pendientes del bloque de estabilización inicial.
 
-## Backlog de escalado (Fase 1, 30 días)
+## Backlog de escalado (Fase 2, 60 días)
 
-1. EPIC Fase 1 (seguimiento principal): `#25`
-   - https://github.com/121378-cell/asistente-Nespresso/issues/25
-2. Observabilidad base (logs, métricas, trazas): `#26` (completado)
-   - https://github.com/121378-cell/asistente-Nespresso/issues/26
-3. Security baseline de producción: `#27` (completado)
-   - https://github.com/121378-cell/asistente-Nespresso/issues/27
-4. CI/CD con quality gates bloqueantes: `#28` (completado)
-   - https://github.com/121378-cell/asistente-Nespresso/issues/28
-5. ADR v1 de arquitectura objetivo: `#29` (completado)
-   - https://github.com/121378-cell/asistente-Nespresso/issues/29
+1. EPIC Fase 2 (cola/workers async): `#34`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/34
+2. Video async: encolar en API y persistir estado de job: `#35`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/35
+3. Worker de video + idempotencia por `jobId`: `#36`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/36
+4. Retry con backoff y DLQ para jobs async: `#37`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/37
+5. Observabilidad de cola/workers y runbook operativo: `#38`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/38
+6. Pruebas CI/E2E del flujo async de video: `#39`
+   - https://github.com/121378-cell/asistente-Nespresso/issues/39
 
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (actualización de estado tras cierre de #28)
-- Remoto: `origin/main` actualizado hasta `779c90c`
+- Working tree: limpio
+- Remoto: `origin/main` actualizado hasta `1521aae`
 
 ## Próxima tarea recomendada
 
-1. Cerrar el EPIC `#25` o planificar Fase 2 (cola/workers) con nuevo backlog.
+1. Iniciar implementación de `#35` (encolado async de video y estado de job persistente).
