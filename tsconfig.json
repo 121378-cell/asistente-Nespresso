@@ -31,5 +31,20 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "App.tsx",
+    "index.tsx",
+    "constants.ts",
+    "types.ts",
+    "components/**/*",
+    "context/**/*",
+    "data/**/*",
+    "hooks/**/*",
+    "services/**/*",
+    "src/**/*",
+    "tests/**/*",
+    "utils/**/*"
+  ],
+  "exclude": ["backend", "dist", "node_modules", "e2e"]
 }
