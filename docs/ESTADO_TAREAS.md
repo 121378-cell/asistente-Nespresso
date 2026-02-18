@@ -1,6 +1,6 @@
 # Estado de tareas del proyecto
 
-Fecha de actualización: 17 de febrero de 2026
+Fecha de actualización: 18 de febrero de 2026
 
 ## Tareas realizadas
 
@@ -44,17 +44,21 @@ Fecha de actualización: 17 de febrero de 2026
     - CORS por allowlist (`ALLOWED_ORIGINS`) y desactivación de `x-powered-by`.
     - Dependencias backend saneadas: `npm audit` en `0` vulnerabilidades.
     - Documentación operativa: `docs/SECURITY_BASELINE.md`.
-15. Implementación de quality gates CI/CD (Fase 1 - issue `#28`, parcial).
+15. Implementación de quality gates CI/CD (Fase 1 - issue `#28`).
     - Workflow nuevo: `.github/workflows/quality-gates.yml`.
     - Jobs bloqueantes definidos: frontend lint/test/build, backend test/build, audit dependencias y E2E smoke.
     - Ajuste de tests frontend para compatibilidad con interceptores Axios (`tests/apiService.test.ts`).
     - Validaciones locales equivalentes en verde (lint, tests, build, audit, smoke).
-    - Bloqueo externo: branch protection no configurable por plan actual del repositorio (GitHub API 403).
+    - Branch protection activada en `main` con checks requeridos y PR obligatorio (bloqueo resuelto).
 16. Definición de ADR v1 de arquitectura objetivo (Fase 1 - issue `#29`).
     - Documento: `docs/architecture/ADR-0001-target-architecture.md`.
     - Incluye componentes objetivo (Web, API, Workers, Cola, Persistencia).
     - Define límites de dominio, contratos y trade-offs.
     - Plan de migración incremental por fases (sin big-bang), con riesgos y mitigaciones.
+17. Diagnóstico y corrección de check fallido en PR `#30`.
+    - Hallazgo: `Frontend Lint/Test/Build` fallaba al ejecutar tests de `backend/` desde la raíz sin dependencias de backend (`supertest`).
+    - Acción: separación explícita de scope en Vitest raíz (`vite.config.ts`) para ejecutar solo `tests/**/*.test.ts`.
+    - Validación local: `npm run lint`, `npm run test:run`, `npm --prefix backend test` y `npm run build` en verde.
 
 ## Tareas pendientes
 
@@ -68,7 +72,7 @@ No hay tareas pendientes del bloque de estabilización inicial.
    - https://github.com/121378-cell/asistente-Nespresso/issues/26
 3. Security baseline de producción: `#27` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/27
-4. CI/CD con quality gates bloqueantes: `#28` (en progreso, bloqueado en branch protection por plan)
+4. CI/CD con quality gates bloqueantes: `#28` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/28
 5. ADR v1 de arquitectura objetivo: `#29` (completado)
    - https://github.com/121378-cell/asistente-Nespresso/issues/29
@@ -76,9 +80,9 @@ No hay tareas pendientes del bloque de estabilización inicial.
 ## Estado general
 
 - Rama actual: `main`
-- Working tree: con cambios locales pendientes de commit (ADR #29 en curso de guardado)
-- Remoto: `origin/main` actualizado hasta `ff71468`
+- Working tree: con cambios locales pendientes de commit (actualización de estado tras cierre de #28)
+- Remoto: `origin/main` actualizado hasta `779c90c`
 
 ## Próxima tarea recomendada
 
-1. Resolver el bloqueo externo de `#28` (branch protection) o definir política alternativa de merge mientras se mantiene el plan actual.
+1. Cerrar el EPIC `#25` o planificar Fase 2 (cola/workers) con nuevo backlog.
