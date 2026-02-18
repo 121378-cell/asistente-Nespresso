@@ -13,10 +13,15 @@ if (!baseUrl) {
   process.exit(1);
 }
 
-const timeout = Number(process.env.OBS_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
-const p95Limit = Number(process.env.OBS_P95_LIMIT_MS || DEFAULT_P95_MS);
-const p99Limit = Number(process.env.OBS_P99_LIMIT_MS || DEFAULT_P99_MS);
-const fiveXxLimit = Number(process.env.OBS_5XX_RATE_LIMIT || DEFAULT_5XX_RATE);
+const toNumberOrDefault = (value, defaultValue) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : defaultValue;
+};
+
+const timeout = toNumberOrDefault(process.env.OBS_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
+const p95Limit = toNumberOrDefault(process.env.OBS_P95_LIMIT_MS, DEFAULT_P95_MS);
+const p99Limit = toNumberOrDefault(process.env.OBS_P99_LIMIT_MS, DEFAULT_P99_MS);
+const fiveXxLimit = toNumberOrDefault(process.env.OBS_5XX_RATE_LIMIT, DEFAULT_5XX_RATE);
 
 const withTimeout = async (url) => {
   const controller = new AbortController();
