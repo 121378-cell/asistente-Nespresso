@@ -1,6 +1,6 @@
 # Observabilidad Baseline
 
-Fecha: 17 de febrero de 2026
+Fecha: 18 de febrero de 2026
 
 ## Objetivo
 
@@ -54,6 +54,36 @@ curl http://localhost:3001/metrics
 - Buscar en logs backend por `requestId`.
 - Revisar ruta/status/duración y contexto del error.
 
+## Alertas mínimas recomendadas (producción)
+
+- Tasa `5xx` global > `2%` durante 5 minutos.
+- `p95` por ruta > `1000ms` durante 5 minutos.
+- `p99` por ruta > `2000ms` durante 5 minutos.
+- `GET /health` no disponible durante 2 comprobaciones consecutivas.
+
+## Evidencia operativa (#31)
+
+1. Recoger snapshot de salud + métricas desde entorno principal:
+
+```bash
+npm run ops:observability:evidence -- https://api.tu-dominio.com > docs/observability-evidence-YYYYMMDD.md
+```
+
+2. Validar semáforos en el reporte generado:
+
+- `Error rate 5xx: OK`
+- `Latencia p95: OK`
+- `Latencia p99: OK`
+
+3. Adjuntar el reporte al issue `#31` y enlazar dashboard/alertas.
+
+Variables opcionales de umbral:
+
+- `OBS_P95_LIMIT_MS` (default `1000`)
+- `OBS_P99_LIMIT_MS` (default `2000`)
+- `OBS_5XX_RATE_LIMIT` (default `0.02`)
+- `OBS_TIMEOUT_MS` (default `10000`)
+
 ## Próximo paso recomendado
 
-1. Conectar `GET /metrics` a un dashboard (Grafana/Datadog) y definir alertas mínimas sobre `p95` y tasa de `5xx`.
+1. Ejecutar la captura de evidencia en entorno principal y cerrar el issue `#31`.
