@@ -1,6 +1,6 @@
 # Estado de tareas del proyecto
 
-Fecha de actualización: 17 de febrero de 2026
+Fecha de actualización: 18 de febrero de 2026
 
 ## Tareas realizadas
 
@@ -55,6 +55,10 @@ Fecha de actualización: 17 de febrero de 2026
     - Incluye componentes objetivo (Web, API, Workers, Cola, Persistencia).
     - Define límites de dominio, contratos y trade-offs.
     - Plan de migración incremental por fases (sin big-bang), con riesgos y mitigaciones.
+17. Diagnóstico y corrección de check fallido en PR `#30`.
+    - Hallazgo: `Frontend Lint/Test/Build` fallaba al ejecutar tests de `backend/` desde la raíz sin dependencias de backend (`supertest`).
+    - Acción: separación explícita de scope en Vitest raíz (`vite.config.ts`) para ejecutar solo `tests/**/*.test.ts`.
+    - Validación local: `npm run lint`, `npm run test:run`, `npm --prefix backend test` y `npm run build` en verde.
 
 ## Tareas pendientes
 

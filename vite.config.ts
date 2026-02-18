@@ -44,9 +44,8 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'happy-dom',
-      environmentMatchGlobs: [['backend/tests/**/*.test.ts', 'node']],
       setupFiles: './tests/setup.ts',
-      include: ['tests/**/*.test.ts', 'backend/tests/**/*.test.ts'],
+      include: ['tests/**/*.test.ts'],
       exclude: ['node_modules/**', 'dist/**', 'e2e/**'],
       coverage: {
         provider: 'v8',
