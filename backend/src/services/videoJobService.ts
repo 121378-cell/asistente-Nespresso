@@ -33,10 +33,28 @@ export interface VideoJob {
   updatedAt: string;
   startedAt?: string;
   completedAt?: string;
+  attempts: number;
+  maxAttempts: number;
+  nextRunAt?: string;
+  lastError?: string;
+  lastErrorAt?: string;
+}
+
+export interface VideoDlqEntry {
+  id: string;
+  jobId: string;
+  requestId: string;
+  failedAt: string;
+  attempts: number;
+  maxAttempts: number;
+  error: string;
+  reason: 'non-retryable' | 'max-retries-exhausted';
+  jobSnapshot: VideoJob;
 }
 
 interface VideoJobDb {
   jobs: VideoJob[];
+  dlq: VideoDlqEntry[];
 }
 
 const configuredDbPath = process.env.VIDEO_JOBS_DB_PATH;
@@ -44,6 +62,7 @@ const DB_PATH = configuredDbPath
   ? path.resolve(configuredDbPath)
   : path.resolve(process.cwd(), 'backend', 'data', 'video-jobs.json');
 const DATA_DIR = path.dirname(DB_PATH);
+const DEFAULT_MAX_ATTEMPTS = 3;
 
 let writeChain = Promise.resolve();
 
@@ -61,7 +80,7 @@ const ensureDb = async () => {
   try {
     await fs.access(DB_PATH);
   } catch {
-    const initial: VideoJobDb = { jobs: [] };
+    const initial: VideoJobDb = { jobs: [], dlq: [] };
     await fs.writeFile(DB_PATH, JSON.stringify(initial, null, 2), 'utf-8');
   }
 };
@@ -70,7 +89,10 @@ const loadDb = async (): Promise<VideoJobDb> => {
   await ensureDb();
   const content = await fs.readFile(DB_PATH, 'utf-8');
   const parsed = JSON.parse(content) as Partial<VideoJobDb>;
-  return parsed.jobs ? (parsed as VideoJobDb) : { jobs: [] };
+  return {
+    jobs: Array.isArray(parsed.jobs) ? parsed.jobs : [],
+    dlq: Array.isArray(parsed.dlq) ? parsed.dlq : [],
+  };
 };
 
 const saveDb = async (db: VideoJobDb) => {
@@ -80,6 +102,15 @@ const saveDb = async (db: VideoJobDb) => {
 };
 
 const findJob = (db: VideoJobDb, jobId: string) => db.jobs.find((job) => job.id === jobId);
+const findDlq = (db: VideoJobDb, jobId: string) => db.dlq.find((entry) => entry.jobId === jobId);
+
+const getConfiguredMaxAttempts = (): number => {
+  const parsed = Number(process.env.VIDEO_JOB_MAX_ATTEMPTS ?? DEFAULT_MAX_ATTEMPTS);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return DEFAULT_MAX_ATTEMPTS;
+  }
+  return Math.floor(parsed);
+};
 
 const updateJobInDb = async (
   jobId: string,
@@ -125,6 +156,8 @@ export const createVideoJob = async (
     aspectRatio: payload.aspectRatio,
     createdAt: now,
     updatedAt: now,
+    attempts: 0,
+    maxAttempts: getConfiguredMaxAttempts(),
   };
 
   db.jobs.push(job);
@@ -142,17 +175,25 @@ export const claimVideoJob = async (jobId: string): Promise<VideoJob | null> => 
   if (!current || current.status !== 'queued') {
     return null;
   }
+  if (current.nextRunAt && Date.parse(current.nextRunAt) > Date.now()) {
+    return null;
+  }
 
   return updateJobInDb(jobId, (job) => ({
     ...job,
     status: 'running',
     startedAt: job.startedAt || new Date().toISOString(),
+    attempts: job.attempts + 1,
+    nextRunAt: undefined,
   }));
 };
 
 export const claimNextQueuedVideoJob = async (): Promise<VideoJob | null> => {
   const db = await loadDb();
-  const nextQueued = db.jobs.find((job) => job.status === 'queued');
+  const now = Date.now();
+  const nextQueued = db.jobs
+    .filter((job) => job.status === 'queued')
+    .find((job) => !job.nextRunAt || Date.parse(job.nextRunAt) <= now);
 
   if (!nextQueued) {
     return null;
@@ -162,6 +203,8 @@ export const claimNextQueuedVideoJob = async (): Promise<VideoJob | null> => {
     ...job,
     status: 'running',
     startedAt: job.startedAt || new Date().toISOString(),
+    attempts: job.attempts + 1,
+    nextRunAt: undefined,
   }));
 };
 
@@ -192,13 +235,124 @@ export const markVideoJobCompleted = async (
   }));
 };
 
-export const markVideoJobFailed = async (jobId: string, errorMessage: string): Promise<VideoJob | null> => {
+export const markVideoJobFailed = async (
+  jobId: string,
+  errorMessage: string
+): Promise<VideoJob | null> => {
   return updateJobInDb(jobId, (job) => ({
     ...job,
     status: 'failed',
     error: errorMessage,
+    lastError: errorMessage,
+    lastErrorAt: new Date().toISOString(),
     completedAt: new Date().toISOString(),
   }));
+};
+
+export const scheduleVideoJobRetry = async (
+  jobId: string,
+  errorMessage: string,
+  waitMs: number
+): Promise<VideoJob | null> => {
+  return updateJobInDb(jobId, (job) => ({
+    ...job,
+    status: 'queued',
+    error: undefined,
+    completedAt: undefined,
+    nextRunAt: new Date(Date.now() + waitMs).toISOString(),
+    lastError: errorMessage,
+    lastErrorAt: new Date().toISOString(),
+  }));
+};
+
+export const moveVideoJobToDlq = async (
+  jobId: string,
+  errorMessage: string,
+  reason: VideoDlqEntry['reason']
+): Promise<VideoJob | null> => {
+  const db = await loadDb();
+  const job = findJob(db, jobId);
+
+  if (!job) {
+    return null;
+  }
+
+  const failedAt = new Date().toISOString();
+  const updatedJob: VideoJob = {
+    ...job,
+    status: 'failed',
+    error: errorMessage,
+    lastError: errorMessage,
+    lastErrorAt: failedAt,
+    completedAt: failedAt,
+    updatedAt: failedAt,
+  };
+
+  const entry: VideoDlqEntry = {
+    id: randomUUID(),
+    jobId: updatedJob.id,
+    requestId: updatedJob.requestId,
+    failedAt,
+    attempts: updatedJob.attempts,
+    maxAttempts: updatedJob.maxAttempts,
+    error: errorMessage,
+    reason,
+    jobSnapshot: updatedJob,
+  };
+
+  const existingEntryIndex = db.dlq.findIndex((dlq) => dlq.jobId === jobId);
+  if (existingEntryIndex >= 0) {
+    db.dlq[existingEntryIndex] = entry;
+  } else {
+    db.dlq.push(entry);
+  }
+
+  const jobIndex = db.jobs.findIndex((current) => current.id === jobId);
+  if (jobIndex >= 0) {
+    db.jobs[jobIndex] = updatedJob;
+  }
+
+  await saveDb(db);
+  return updatedJob;
+};
+
+export const listVideoDlqEntries = async (): Promise<VideoDlqEntry[]> => {
+  const db = await loadDb();
+  return db.dlq;
+};
+
+export const redriveVideoJobFromDlq = async (
+  jobId: string,
+  requestId: string
+): Promise<VideoJob | null> => {
+  const db = await loadDb();
+  const dlq = findDlq(db, jobId);
+  if (!dlq) {
+    return null;
+  }
+
+  const index = db.jobs.findIndex((job) => job.id === jobId);
+  if (index < 0) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  db.jobs[index] = {
+    ...db.jobs[index],
+    status: 'queued',
+    requestId,
+    updatedAt: now,
+    error: undefined,
+    completedAt: undefined,
+    nextRunAt: undefined,
+    lastError: undefined,
+    lastErrorAt: undefined,
+    attempts: 0,
+  };
+  db.dlq = db.dlq.filter((entry) => entry.jobId !== jobId);
+
+  await saveDb(db);
+  return db.jobs[index];
 };
 
 export const refreshVideoJobStatus = async (jobId: string): Promise<VideoJob | null> => {
@@ -229,9 +383,6 @@ export const refreshVideoJobStatus = async (jobId: string): Promise<VideoJob | n
 
     return updated;
   } catch (error) {
-    return markVideoJobFailed(
-      jobId,
-      error instanceof Error ? error.message : 'Unknown error'
-    );
+    return markVideoJobFailed(jobId, error instanceof Error ? error.message : 'Unknown error');
   }
 };
