@@ -19,15 +19,12 @@ Disponer de una base operativa para diagnosticar incidencias con correlación po
 - Middleware `pino-http` con `requestId` en cada evento.
 - Niveles por status (`info`, `warn`, `error`).
 
-3. Endpoint de métricas HTTP.
+3. Endpoint de métricas (`HTTP + async video`).
 
 - Ruta: `GET /metrics`
 - Devuelve snapshot JSON con:
-  - `totalRequests`
-  - `inFlightRequests`
-  - `byMethod`
-  - `byStatusClass`
-  - `routes[]` con `requests`, `errors` y latencias `avg/p50/p95/p99/max`.
+  - `http`: métricas HTTP (`totalRequests`, `inFlightRequests`, `byMethod`, `byStatusClass`, `routes[]`).
+  - `videoAsync`: métricas de cola/worker (`queueDepth`, `oldestQueuedAgeMs`, `throughputLast5m`, `retriesTotal`, `failedJobs`, `dlqSize`).
 
 4. Endpoint de salud con correlación.
 
@@ -86,4 +83,4 @@ Variables opcionales de umbral:
 
 ## Próximo paso recomendado
 
-1. Ejecutar la captura de evidencia en entorno principal y cerrar el issue `#31`.
+1. Para operación async de video, usar `docs/RUNBOOK_VIDEO_ASYNC.md` (dashboards, alertas y procedimiento DLQ/redrive).

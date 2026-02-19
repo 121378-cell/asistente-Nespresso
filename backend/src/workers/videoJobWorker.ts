@@ -91,6 +91,16 @@ const handleFailure = async (job: VideoJob, message: string): Promise<VideoJob |
 
 const processClaimedJob = async (job: VideoJob): Promise<VideoJob | null> => {
   try {
+    logger.info(
+      {
+        jobId: job.id,
+        requestId: job.requestId,
+        attempts: job.attempts,
+        maxAttempts: job.maxAttempts,
+      },
+      'Processing video job'
+    );
+
     const operation = await generateVideo(job.prompt, job.image, job.aspectRatio);
     const operationName = extractOperationName(operation);
     await markVideoJobOperation(job.id, operation, operationName);
@@ -108,6 +118,14 @@ const processClaimedJob = async (job: VideoJob): Promise<VideoJob | null> => {
       const currentOp = await checkVideoStatus({ name: operationName });
 
       if (isDone(currentOp)) {
+        logger.info(
+          {
+            jobId: job.id,
+            requestId: job.requestId,
+            attempts: job.attempts,
+          },
+          'Video job completed'
+        );
         return markVideoJobCompleted(job.id, currentOp, currentOp);
       }
 

@@ -94,7 +94,9 @@ The server will start on `http://localhost:3001`
 ### Health Check
 
 - `GET /health` - Check if the server is running
-- `GET /metrics` - Basic HTTP metrics snapshot (latency, status classes, throughput)
+- `GET /metrics` - Observability snapshot:
+  - `http`: latency, status classes, throughput
+  - `videoAsync`: queue depth/age, retries, failures, DLQ size, async throughput
 
 ### Video Async Jobs
 
