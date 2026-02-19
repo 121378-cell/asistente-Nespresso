@@ -41,6 +41,14 @@ export const generate = async (req: Request, res: Response) => {
       String(req.id),
       req.body.jobId
     );
+    logger.info(
+      {
+        requestId: req.id,
+        jobId: job.id,
+        status: job.status,
+      },
+      'Video job enqueued'
+    );
 
     res.status(202).json({
       jobId: job.id,
@@ -66,6 +74,15 @@ export const status = async (req: Request, res: Response) => {
       if (!job) {
         return res.status(404).json({ error: 'Video job not found' });
       }
+      logger.info(
+        {
+          requestId: req.id,
+          jobId: job.id,
+          status: job.status,
+          operationName: job.operationName,
+        },
+        'Video job status requested'
+      );
 
       return res.json({
         jobId: job.id,

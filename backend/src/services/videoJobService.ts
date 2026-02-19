@@ -52,6 +52,18 @@ export interface VideoDlqEntry {
   jobSnapshot: VideoJob;
 }
 
+export interface VideoAsyncMetricsSnapshot {
+  queueDepth: number;
+  oldestQueuedAgeMs: number | null;
+  runningJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  retriesTotal: number;
+  throughputLast5m: number;
+  throughputPerMinuteLast5m: number;
+  dlqSize: number;
+}
+
 interface VideoJobDb {
   jobs: VideoJob[];
   dlq: VideoDlqEntry[];
@@ -319,6 +331,45 @@ export const moveVideoJobToDlq = async (
 export const listVideoDlqEntries = async (): Promise<VideoDlqEntry[]> => {
   const db = await loadDb();
   return db.dlq;
+};
+
+export const getVideoAsyncMetricsSnapshot = async (): Promise<VideoAsyncMetricsSnapshot> => {
+  const db = await loadDb();
+  const now = Date.now();
+  const windowMs = 5 * 60 * 1_000;
+  const queuedJobs = db.jobs.filter((job) => job.status === 'queued');
+  const oldestQueued = queuedJobs.reduce<number | null>((min, job) => {
+    const createdAtMs = Date.parse(job.createdAt);
+    if (!Number.isFinite(createdAtMs)) {
+      return min;
+    }
+    if (min === null) {
+      return createdAtMs;
+    }
+    return Math.min(min, createdAtMs);
+  }, null);
+
+  const throughputLast5m = db.jobs.filter((job) => {
+    if (job.status !== 'completed' || !job.completedAt) {
+      return false;
+    }
+    const completedAtMs = Date.parse(job.completedAt);
+    return Number.isFinite(completedAtMs) && completedAtMs >= now - windowMs;
+  }).length;
+
+  const retriesTotal = db.jobs.reduce((acc, job) => acc + Math.max(0, job.attempts - 1), 0);
+
+  return {
+    queueDepth: queuedJobs.length,
+    oldestQueuedAgeMs: oldestQueued === null ? null : Math.max(0, now - oldestQueued),
+    runningJobs: db.jobs.filter((job) => job.status === 'running').length,
+    completedJobs: db.jobs.filter((job) => job.status === 'completed').length,
+    failedJobs: db.jobs.filter((job) => job.status === 'failed').length,
+    retriesTotal,
+    throughputLast5m,
+    throughputPerMinuteLast5m: Number((throughputLast5m / 5).toFixed(2)),
+    dlqSize: db.dlq.length,
+  };
 };
 
 export const redriveVideoJobFromDlq = async (

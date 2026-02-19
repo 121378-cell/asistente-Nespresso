@@ -13,6 +13,7 @@ import { httpLogger } from './middleware/httpLogger.js';
 import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
 import { swaggerSpec } from './config/swagger.js';
 import { startVideoJobWorker, stopVideoJobWorker } from './workers/videoJobWorker.js';
+import { getVideoAsyncMetricsSnapshot } from './services/videoJobService.js';
 
 const app: Application = express();
 const PORT = env.port;
@@ -88,10 +89,18 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // Basic observability endpoint for dashboards and alerting.
-app.get('/metrics', (req: Request, res: Response) => {
+app.get('/metrics', async (req: Request, res: Response) => {
+  let videoAsync = null;
+  try {
+    videoAsync = await getVideoAsyncMetricsSnapshot();
+  } catch (error) {
+    logger.error({ err: error, requestId: req.id }, 'Failed to collect video async metrics');
+  }
+
   res.json({
     requestId: req.id,
-    ...getHttpMetricsSnapshot(),
+    http: getHttpMetricsSnapshot(),
+    videoAsync,
   });
 });
 

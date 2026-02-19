@@ -96,6 +96,10 @@ describe('Video Worker', () => {
 
     const dlqEntries = await videoJobService.listVideoDlqEntries();
     expect(dlqEntries).toHaveLength(0);
+    const metrics = await videoJobService.getVideoAsyncMetricsSnapshot();
+    expect(metrics.retriesTotal).toBe(1);
+    expect(metrics.failedJobs).toBe(0);
+    expect(metrics.dlqSize).toBe(0);
   });
 
   it('moves non-retryable failures to DLQ and allows manual redrive', async () => {
@@ -133,5 +137,9 @@ describe('Video Worker', () => {
     await expect(videoJobWorker.processVideoJobById(created.id)).resolves.toBeTruthy();
     const completed = await videoJobService.getVideoJob(created.id);
     expect(completed?.status).toBe('completed');
+
+    const metrics = await videoJobService.getVideoAsyncMetricsSnapshot();
+    expect(metrics.dlqSize).toBe(0);
+    expect(metrics.completedJobs).toBe(1);
   });
 });
