@@ -12,6 +12,7 @@ const imageDataSchema = z.object({
  * Schema para validar request de generación de video
  */
 export const generateVideoSchema = z.object({
+  jobId: z.string().uuid().optional(),
   prompt: z.string().min(1, 'Prompt cannot be empty'),
   image: imageDataSchema,
   aspectRatio: z.enum(['16:9', '9:16'], {
@@ -23,11 +24,15 @@ export const generateVideoSchema = z.object({
  * Schema para validar request de consulta de estado de video
  */
 export const checkVideoStatusSchema = z.object({
+  jobId: z.string().uuid().optional(),
   operation: z
     .object({
       name: z.string().min(1, 'Operation name is required'),
     })
-    .passthrough(), // Permite propiedades adicionales
+    .passthrough()
+    .optional(), // Permite propiedades adicionales
+}).refine((data) => Boolean(data.jobId || data.operation), {
+  message: 'Either jobId or operation is required',
 });
 
 // Exportar tipos TypeScript inferidos de los schemas

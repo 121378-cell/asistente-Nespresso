@@ -3,13 +3,17 @@ import request from 'supertest';
 import express from 'express';
 import { generate, status } from '../src/controllers/videoController.js';
 
-// Mock Gemini service
+// Mock services
 vi.mock('../src/services/geminiService.js', () => ({
-  generateVideo: vi.fn(),
   checkVideoStatus: vi.fn(),
 }));
+vi.mock('../src/services/videoJobService.js', () => ({
+  createVideoJob: vi.fn(),
+  refreshVideoJobStatus: vi.fn(),
+}));
 
-import { generateVideo, checkVideoStatus } from '../src/services/geminiService.js';
+import { checkVideoStatus } from '../src/services/geminiService.js';
+import { createVideoJob, refreshVideoJobStatus } from '../src/services/videoJobService.js';
 
 describe('Video Controller', () => {
   let app: express.Application;
@@ -87,13 +91,12 @@ describe('Video Controller', () => {
       expect(response.body.error).toContain('AspectRatio must be either "16:9" or "9:16"');
     });
 
-    it('should successfully generate video with 16:9 aspect ratio', async () => {
-      const mockOperation = {
-        name: 'operations/video-123',
-        metadata: { state: 'PROCESSING' },
-      };
-
-      vi.mocked(generateVideo).mockResolvedValue(mockOperation);
+    it('should queue video generation and return 202 with jobId', async () => {
+      vi.mocked(createVideoJob).mockResolvedValue({
+        id: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        status: 'queued',
+        requestId: 'req-123',
+      } as any);
 
       const response = await request(app)
         .post('/api/video/generate')
@@ -103,37 +106,25 @@ describe('Video Controller', () => {
           aspectRatio: '16:9',
         });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockOperation);
-      expect(generateVideo).toHaveBeenCalledWith(
-        'Show machine repair process',
-        { imageBytes: 'base64data', mimeType: 'image/jpeg' },
-        '16:9'
+      expect(response.status).toBe(202);
+      expect(response.body).toEqual({
+        jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        status: 'queued',
+        requestId: 'req-123',
+      });
+      expect(createVideoJob).toHaveBeenCalledWith(
+        {
+          prompt: 'Show machine repair process',
+          image: { imageBytes: 'base64data', mimeType: 'image/jpeg' },
+          aspectRatio: '16:9',
+        },
+        expect.any(String),
+        undefined
       );
     });
 
-    it('should successfully generate video with 9:16 aspect ratio', async () => {
-      const mockOperation = {
-        name: 'operations/video-456',
-        metadata: { state: 'PROCESSING' },
-      };
-
-      vi.mocked(generateVideo).mockResolvedValue(mockOperation);
-
-      const response = await request(app)
-        .post('/api/video/generate')
-        .send({
-          prompt: 'Vertical video tutorial',
-          image: { imageBytes: 'base64data', mimeType: 'image/png' },
-          aspectRatio: '9:16',
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockOperation);
-    });
-
     it('should handle generation errors', async () => {
-      vi.mocked(generateVideo).mockRejectedValue(new Error('Video generation failed'));
+      vi.mocked(createVideoJob).mockRejectedValue(new Error('Video generation failed'));
 
       const response = await request(app)
         .post('/api/video/generate')
@@ -149,15 +140,57 @@ describe('Video Controller', () => {
   });
 
   describe('POST /api/video/status', () => {
-    it('should return 400 if operation is missing', async () => {
+    it('should return 400 if operation and jobId are missing', async () => {
       const response = await request(app).post('/api/video/status').send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('Operation data is required');
+      expect(response.body.error).toContain('jobId or operation data is required');
     });
 
-    it('should successfully check video status - processing', async () => {
+    it('should return job status for jobId', async () => {
+      vi.mocked(refreshVideoJobStatus).mockResolvedValue({
+        id: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        status: 'running',
+        requestId: 'req-123',
+        operationName: 'operations/video-123',
+        result: undefined,
+        error: undefined,
+        createdAt: '2026-02-19T00:00:00.000Z',
+        updatedAt: '2026-02-19T00:01:00.000Z',
+      } as any);
+      const response = await request(app)
+        .post('/api/video/status')
+        .send({
+          jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        status: 'running',
+        requestId: 'req-123',
+        operationName: 'operations/video-123',
+        result: undefined,
+        error: undefined,
+        createdAt: '2026-02-19T00:00:00.000Z',
+        updatedAt: '2026-02-19T00:01:00.000Z',
+      });
+    });
+
+    it('should return 404 for unknown jobId', async () => {
+      vi.mocked(refreshVideoJobStatus).mockResolvedValue(null);
+      const response = await request(app)
+        .post('/api/video/status')
+        .send({
+          jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: 'Video job not found' });
+    });
+
+    it('should support legacy operation status checks with deprecated flag', async () => {
       const mockResult = {
         done: false,
         metadata: { state: 'PROCESSING', progressPercent: 50 },
@@ -172,32 +205,8 @@ describe('Video Controller', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockResult);
+      expect(response.body).toEqual({ ...mockResult, deprecated: true });
       expect(checkVideoStatus).toHaveBeenCalledWith({ name: 'operations/video-123' });
-    });
-
-    it('should successfully check video status - completed', async () => {
-      const mockResult = {
-        done: true,
-        response: {
-          generatedSamples: [
-            {
-              video: { uri: 'https://example.com/video.mp4' },
-            },
-          ],
-        },
-      };
-
-      vi.mocked(checkVideoStatus).mockResolvedValue(mockResult);
-
-      const response = await request(app)
-        .post('/api/video/status')
-        .send({
-          operation: { name: 'operations/video-456' },
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockResult);
     });
 
     it('should handle status check errors', async () => {
