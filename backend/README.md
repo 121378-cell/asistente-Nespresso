@@ -96,6 +96,29 @@ The server will start on `http://localhost:3001`
 - `GET /health` - Check if the server is running
 - `GET /metrics` - Basic HTTP metrics snapshot (latency, status classes, throughput)
 
+### Video Async Jobs
+
+- `POST /api/video/generate` enqueues a video job and returns `202` with `jobId`.
+- `POST /api/video/status` accepts:
+  - `jobId` for async persisted status
+  - `operation` as legacy fallback (`deprecated: true` in response)
+- Job lifecycle: `queued | running | completed | failed`.
+- Failed jobs can be retried with exponential backoff and moved to DLQ when exhausted/non-retryable.
+
+#### DLQ Operations
+
+List DLQ entries:
+
+```bash
+npm run video:dlq:list
+```
+
+Redrive a DLQ job:
+
+```bash
+npm run video:dlq:redrive -- --jobId <job-uuid> [--requestId manual-redrive-001]
+```
+
 ### Repairs
 
 - `GET /api/repairs` - Get all saved repairs (with message preview)

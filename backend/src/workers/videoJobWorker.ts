@@ -3,8 +3,9 @@ import {
   claimNextQueuedVideoJob,
   claimVideoJob,
   markVideoJobCompleted,
-  markVideoJobFailed,
   markVideoJobOperation,
+  moveVideoJobToDlq,
+  scheduleVideoJobRetry,
   VideoJob,
 } from '../services/videoJobService.js';
 import { logger } from '../config/logger.js';
@@ -12,6 +13,8 @@ import { logger } from '../config/logger.js';
 const IDLE_WAIT_MS = 1_000;
 const POLL_WAIT_MS = 2_000;
 const OPERATION_TIMEOUT_MS = 10 * 60 * 1_000;
+const RETRY_BASE_BACKOFF_MS = Number(process.env.VIDEO_JOB_RETRY_BASE_MS ?? 2_000);
+const RETRY_MAX_BACKOFF_MS = Number(process.env.VIDEO_JOB_RETRY_MAX_MS ?? 60_000);
 
 let workerActive = false;
 let workerPromise: Promise<void> | null = null;
@@ -40,6 +43,52 @@ const isDone = (operation: unknown): boolean =>
   'done' in operation &&
   Boolean((operation as { done?: boolean }).done);
 
+const isRetryableError = (message: string): boolean =>
+  /(timeout|timed out|rate limit|429|5\d\d|unavailable|network|econn|etimedout|eai_again)/i.test(
+    message
+  );
+
+const getBackoffMs = (attempt: number): number => {
+  const factor = Math.max(0, attempt - 1);
+  const backoff = RETRY_BASE_BACKOFF_MS * 2 ** factor;
+  return Math.min(backoff, RETRY_MAX_BACKOFF_MS);
+};
+
+const handleFailure = async (job: VideoJob, message: string): Promise<VideoJob | null> => {
+  const retryable = isRetryableError(message);
+  const exhausted = job.attempts >= job.maxAttempts;
+
+  if (retryable && !exhausted) {
+    const waitMs = getBackoffMs(job.attempts);
+    logger.warn(
+      {
+        jobId: job.id,
+        requestId: job.requestId,
+        attempts: job.attempts,
+        maxAttempts: job.maxAttempts,
+        waitMs,
+        error: message,
+      },
+      'Retrying video job with exponential backoff'
+    );
+    return scheduleVideoJobRetry(job.id, message, waitMs);
+  }
+
+  const reason = exhausted ? 'max-retries-exhausted' : 'non-retryable';
+  logger.error(
+    {
+      jobId: job.id,
+      requestId: job.requestId,
+      attempts: job.attempts,
+      maxAttempts: job.maxAttempts,
+      reason,
+      error: message,
+    },
+    'Moving video job to DLQ'
+  );
+  return moveVideoJobToDlq(job.id, message, reason);
+};
+
 const processClaimedJob = async (job: VideoJob): Promise<VideoJob | null> => {
   try {
     const operation = await generateVideo(job.prompt, job.image, job.aspectRatio);
@@ -51,7 +100,7 @@ const processClaimedJob = async (job: VideoJob): Promise<VideoJob | null> => {
         return markVideoJobCompleted(job.id, operation, operation);
       }
 
-      return markVideoJobFailed(job.id, 'Missing operation name in video generation response');
+      return handleFailure(job, 'Missing operation name in video generation response');
     }
 
     const startedAtMs = Date.now();
@@ -66,10 +115,10 @@ const processClaimedJob = async (job: VideoJob): Promise<VideoJob | null> => {
       await wait(POLL_WAIT_MS);
     }
 
-    return markVideoJobFailed(job.id, 'Video operation timed out');
+    return handleFailure(job, 'Video operation timed out');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    return markVideoJobFailed(job.id, message);
+    return handleFailure(job, message);
   }
 };
 
