@@ -25,7 +25,22 @@ export interface VideoOperation {
   [key: string]: unknown;
 }
 
-interface VideoGenerateResponse extends VideoOperation {}
+export interface VideoJobStatusResponse {
+  jobId: string;
+  status: 'queued' | 'running' | 'failed' | 'completed';
+  requestId?: string;
+  operationName?: string;
+  result?: VideoOperation;
+  error?: string;
+  [key: string]: unknown;
+}
+
+interface VideoGenerateResponse extends VideoOperation {
+  jobId?: string;
+  status?: string;
+}
+
+type VideoStatusRequest = VideoOperation | { jobId: string };
 
 /**
  * Check if API key is configured (always true now since it's in backend)
@@ -83,20 +98,25 @@ export const generateVideo = async (
 /**
  * Check video generation status using backend API
  */
-export const checkVideoStatus = async (operation: VideoOperation): Promise<VideoOperation> => {
+export const checkVideoStatus = async (
+  operation: VideoStatusRequest
+): Promise<VideoOperation | VideoJobStatusResponse> => {
   try {
-    const response = await axios.post<VideoOperation>(
+    const payload: Record<string, unknown> =
+      'jobId' in operation && typeof (operation as { jobId?: unknown }).jobId === 'string'
+        ? { jobId: (operation as { jobId: string }).jobId }
+        : { operation };
+
+    const response = await axios.post<VideoOperation | VideoJobStatusResponse>(
       `${API_BASE_URL}/api/video/status`,
-      {
-        operation,
-      },
+      payload,
       {
         timeout: 30000, // 30 seconds
         headers: buildTraceHeaders(),
       }
     );
 
-    return response.data;
+    return response.data as VideoOperation & VideoJobStatusResponse;
   } catch (error: unknown) {
     console.error('Error checking video status:', error);
 

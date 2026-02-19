@@ -9,6 +9,7 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
+    "test:video-async": "vitest tests/videoController.test.ts tests/videoWorker.test.ts --run",
     "video:dlq:list": "tsx scripts/videoDlqTool.ts list",
     "video:dlq:redrive": "tsx scripts/videoDlqTool.ts redrive"
   },

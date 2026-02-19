@@ -65,6 +65,9 @@ jobs:
       - name: Run backend tests
         run: npm test
 
+      - name: Run async video regression tests
+        run: npm run test:video-async
+
       - name: Build backend
         run: npm run build
 
@@ -116,7 +119,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke test suite
-        run: npx playwright test e2e/01-navigation.spec.ts --project=chromium --workers=1 --reporter=line
+        run: npx playwright test e2e/01-navigation.spec.ts e2e/06-video-async.spec.ts --project=chromium --workers=1 --reporter=line
         env:
           CI: true
 
@@ -129,4 +132,3 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 14
-
