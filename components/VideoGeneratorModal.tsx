@@ -5,6 +5,7 @@ import {
   checkApiKey,
   requestApiKey,
   type VideoOperation,
+  type VideoJobStatusResponse,
 } from '../services/videoGenerationService';
 import { fileToBase64 } from '../utils/fileUtils';
 import CloseIcon from './icons/CloseIcon';
@@ -15,6 +16,34 @@ interface VideoGeneratorModalProps {
 }
 
 type AspectRatio = '16:9' | '9:16';
+const POLL_INTERVAL_MS = 2_000;
+const MAX_STATUS_RETRIES = 3;
+
+const isJobStatusResponse = (value: unknown): value is VideoJobStatusResponse =>
+  typeof value === 'object' && value !== null && 'jobId' in value && 'status' in value;
+
+const extractGeneratedVideoUri = (
+  value: VideoOperation | VideoJobStatusResponse | null
+): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  const operation =
+    isJobStatusResponse(value) && value.result ? (value.result as VideoOperation) : value;
+  const response = operation.response as
+    | {
+        generatedVideos?: Array<{ video?: { uri?: string } }>;
+        generatedSamples?: Array<{ video?: { uri?: string } }>;
+      }
+    | undefined;
+
+  return (
+    response?.generatedVideos?.[0]?.video?.uri ||
+    response?.generatedSamples?.[0]?.video?.uri ||
+    null
+  );
+};
 
 const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) => {
   const [prompt, setPrompt] = useState('');
@@ -58,19 +87,57 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
     }
   };
 
-  const pollOperation = async (operation: VideoOperation): Promise<VideoOperation | null> => {
-    while (!operation.done) {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+  const pollOperation = async (
+    operation: VideoOperation
+  ): Promise<VideoOperation | VideoJobStatusResponse | null> => {
+    let statusTarget: VideoOperation | { jobId: string } =
+      typeof operation.jobId === 'string' ? { jobId: operation.jobId } : operation;
+    let transientFailures = 0;
+    let keepPolling = true;
+    let finalResult: VideoOperation | VideoJobStatusResponse | null = null;
+
+    // Poll until provider operation or async job reaches a terminal state.
+    while (keepPolling) {
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
       try {
-        operation = await checkVideoStatus(operation);
+        const latest = await checkVideoStatus(statusTarget);
+        transientFailures = 0;
+
+        if (isJobStatusResponse(latest)) {
+          if (latest.status === 'completed') {
+            finalResult = latest;
+            keepPolling = false;
+            continue;
+          }
+          if (latest.status === 'failed') {
+            setError(latest.error || 'No se pudo generar el vídeo. Inténtalo de nuevo.');
+            keepPolling = false;
+            continue;
+          }
+
+          statusTarget = { jobId: latest.jobId };
+          continue;
+        }
+
+        if (latest.done) {
+          finalResult = latest;
+          keepPolling = false;
+          continue;
+        }
+        statusTarget = latest;
       } catch (e) {
         console.error(e);
-        setError('Hubo un error al verificar el estado del vídeo.');
-        setIsLoading(false);
-        return null;
+        transientFailures += 1;
+        if (transientFailures >= MAX_STATUS_RETRIES) {
+          setError('Hubo un error al verificar el estado del vídeo.');
+          keepPolling = false;
+          continue;
+        }
+        setLoadingMessage('Reintentando consulta de estado del vídeo...');
       }
     }
-    return operation;
+
+    return finalResult;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,8 +166,8 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
       );
       const finalOperation = await pollOperation(operation);
 
-      if (finalOperation?.response?.generatedVideos?.[0]?.video?.uri) {
-        const downloadLink = finalOperation.response.generatedVideos[0].video.uri;
+      const downloadLink = extractGeneratedVideoUri(finalOperation);
+      if (downloadLink) {
         const response = await fetch(downloadLink);
         const videoBlob = await response.blob();
         setGeneratedVideoUrl(URL.createObjectURL(videoBlob));
