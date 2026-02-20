@@ -8,7 +8,13 @@ import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
 import authRouter from './routes/authRouter.js';
 import jobsRouter from './routes/jobsRouter.js';
+import sparePartsRouter from './routes/sparePartsRouter.js';
 import { env } from './config/env.js';
+import XLSX from 'xlsx';
+import path from 'path';
+import { PrismaClient } from '@prisma/client';
+
+const prismaClient = new PrismaClient();
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { authenticate } from './middleware/auth.js';
 import { logger } from './config/logger.js';
@@ -82,6 +88,39 @@ app.use('/api/auth', authRouter);
 app.use('/api/repairs', authenticate, repairsRouter);
 app.use('/api/analytics', authenticate, analyticsRouter);
 app.use('/api/jobs', authenticate, jobsRouter);
+app.use('/api/spare-parts', sparePartsRouter);
+
+app.post('/api/admin/import-spare-parts', authenticate, async (req, res) => {
+  try {
+    const filePath = path.resolve('../data/inventory/ZN100.xlsm');
+    const workbook = XLSX.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+    const dataRows = data.slice(8);
+    let count = 0;
+
+    for (const row of dataRows) {
+      if (!row || row.length < 4) continue;
+      const family = String(row[1] || '').trim();
+      const partNumber = String(row[2] || '').trim();
+      const name = String(row[3] || '').trim();
+      const category = String(row[4] || '').trim();
+      if (!partNumber || !name) continue;
+
+      await prismaClient.sparePart.upsert({
+        where: { partNumber },
+        update: { name, family, category },
+        create: { partNumber, name, family, category },
+      });
+      count++;
+    }
+    res.json({ success: true, count });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.use('/api/chat', chatRouter);
 app.use('/api/video', videoRouter);
 

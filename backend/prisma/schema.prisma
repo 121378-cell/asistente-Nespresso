@@ -25,6 +25,29 @@ model User {
   updatedAt DateTime       @updatedAt
 }
 
+model SparePart {
+  id          String         @id @default(uuid())
+  partNumber  String         @unique
+  name        String
+  family      String?
+  category    String?        // ABC Category
+  repairs     UsedSparePart[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model UsedSparePart {
+  id          String    @id @default(uuid())
+  repairId    String
+  repair      SavedRepair @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  partId      String
+  sparePart   SparePart   @relation(fields: [partId], references: [id])
+  quantity    Int       @default(1)
+  createdAt   DateTime  @default(now())
+
+  @@unique([repairId, partId])
+}
+
 model SavedRepair {
   id            String    @id @default(uuid())
   name          String
@@ -32,6 +55,7 @@ model SavedRepair {
   serialNumber  String?
   timestamp     DateTime  @default(now())
   messages      Message[]
+  usedParts     UsedSparePart[]
   userId        String?
   user          User?     @relation(fields: [userId], references: [id])
   createdAt     DateTime  @default(now())
