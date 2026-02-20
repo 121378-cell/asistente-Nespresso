@@ -13,6 +13,7 @@ import { httpLogger } from './middleware/httpLogger.js';
 import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
 import { swaggerSpec } from './config/swagger.js';
 import { startVideoJobWorker, stopVideoJobWorker } from './workers/videoJobWorker.js';
+import { startImageJobWorker, stopImageJobWorker } from './workers/imageJobWorker.js';
 import { getVideoAsyncMetricsSnapshot } from './services/videoJobService.js';
 
 const app: Application = express();
@@ -122,6 +123,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Start server
 const server = app.listen(PORT, () => {
   startVideoJobWorker();
+  startImageJobWorker();
   logger.info(
     {
       port: PORT,
@@ -135,6 +137,7 @@ const server = app.listen(PORT, () => {
 const shutdown = async (signal: string) => {
   logger.info({ signal }, 'Shutting down server');
   await stopVideoJobWorker();
+  await stopImageJobWorker();
   server.close(() => {
     process.exit(0);
   });
