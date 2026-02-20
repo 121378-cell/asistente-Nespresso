@@ -1,5 +1,7 @@
 import { GoogleGenAI, GenerateContentResponse, Part, Content, Type } from '@google/genai';
 import { env } from '../config/env.js';
+import { logger } from '../config/logger.js';
+import { getCacheKey, getCachedResponse, setCachedResponse } from './cacheService.js';
 
 const SYSTEM_INSTRUCTION = `Eres un compañero experto en reparación de cafeteras Nespresso Profesional. Tu especialidad abarca las gamas: **ZENIUS (ZN100)**, **GEMINI (CS203/CS223)** y **MOMENTO (80/100/200)**. Actúas como un técnico senior guiando a un compañero.
 
@@ -65,6 +67,20 @@ export async function generateResponse(
   useGoogleSearch?: boolean,
   machineModel?: string | null
 ): Promise<GenerateContentResponse> {
+  const cacheKey = getCacheKey(message, {
+    history: history.slice(-2),
+    machineModel,
+    useGoogleSearch,
+  });
+
+  if (!file && !useGoogleSearch) {
+    const cached = await getCachedResponse(cacheKey);
+    if (cached) {
+      logger.info({ cacheKey }, 'Cache hit for Gemini response');
+      return cached;
+    }
+  }
+
   try {
     const apiKey = env.geminiApiKey;
     if (!apiKey) {
@@ -129,6 +145,10 @@ export async function generateResponse(
       contents: contents,
       config: config as never,
     });
+
+    if (!file && !useGoogleSearch) {
+      await setCachedResponse(cacheKey, response);
+    }
 
     return response;
   } catch (error) {

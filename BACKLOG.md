@@ -15,7 +15,8 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 
 - [x] **Tarea 3: Migración Async de Identificación de Imágenes**
   - [x] Desacoplar el análisis de fotos pesado de la solicitud HTTP síncrona.
-- [ ] **Tarea 4: Optimización de Costes IA** - [ ] Implementar caché semántica para consultas frecuentes a Gemini.
+- [x] **Tarea 4: Optimización de Costes IA**
+  - [x] Implementar caché semántica para consultas frecuentes a Gemini.
 
 ## 🔒 Seguridad y Funcionalidad (Prioridad Baja)
 
