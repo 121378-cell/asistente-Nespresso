@@ -255,3 +255,51 @@ export const moveImageJobToDlq = async (
   await saveDb(db);
   return updatedJob;
 };
+
+export const listImageJobs = async (): Promise<ImageJob[]> => {
+  const db = await loadDb();
+  return db.jobs;
+};
+
+export const listImageDlqEntries = async (): Promise<ImageDlqEntry[]> => {
+  const db = await loadDb();
+  return db.dlq;
+};
+
+export const redriveImageJobFromDlq = async (
+  jobId: string,
+  requestId: string
+): Promise<ImageJob | null> => {
+  const db = await loadDb();
+  const index = db.jobs.findIndex((job) => job.id === jobId);
+  if (index < 0) return null;
+
+  const now = new Date().toISOString();
+  db.jobs[index] = {
+    ...db.jobs[index],
+    status: 'queued',
+    requestId,
+    updatedAt: now,
+    error: undefined,
+    completedAt: undefined,
+    nextRunAt: undefined,
+    lastError: undefined,
+    lastErrorAt: undefined,
+    attempts: 0,
+  };
+  db.dlq = db.dlq.filter((entry) => entry.jobId !== jobId);
+
+  await saveDb(db);
+  return db.jobs[index];
+};
+
+export const getImageAsyncMetricsSnapshot = async (): Promise<any> => {
+  const db = await loadDb();
+  return {
+    queueDepth: db.jobs.filter((j) => j.status === 'queued').length,
+    runningJobs: db.jobs.filter((j) => j.status === 'running').length,
+    completedJobs: db.jobs.filter((j) => j.status === 'completed').length,
+    failedJobs: db.jobs.filter((j) => j.status === 'failed').length,
+    dlqSize: db.dlq.length,
+  };
+};

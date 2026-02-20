@@ -25,6 +25,17 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 - [x] **Tarea 6: Generación de Reportes**
   - [x] Exportación de reparaciones a PDF.
 
+## 🛠️ Fase 3: Fiabilidad y Operaciones (Siguiente Paso)
+
+- [ ] **Tarea 7: Modo Offline (IndexedDB)**
+  - [ ] Implementar almacenamiento local de mensajes y checklists para áreas sin cobertura.
+  - [ ] Sincronización automática con el servidor al recuperar la conexión.
+- [x] **Tarea 8: Dashboard Administrativo de Jobs**
+  - [x] Interfaz para visualizar colas de Video e Imagen.
+  - [x] Herramientas de redrive (reintento manual) para la Dead Letter Queue (DLQ).
+- [ ] **Tarea 9: Optimización UX (Manos Libres)**
+  - [ ] Integración de dictado por voz y lectura de respuestas para trabajo en campo.
+
 ---
 
 _Nota: Este archivo se actualiza tras cada hito completado y commit realizado._

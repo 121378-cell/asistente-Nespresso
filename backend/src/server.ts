@@ -7,6 +7,7 @@ import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
 import authRouter from './routes/authRouter.js';
+import jobsRouter from './routes/jobsRouter.js';
 import { env } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { authenticate } from './middleware/auth.js';
@@ -80,6 +81,7 @@ app.use(
 app.use('/api/auth', authRouter);
 app.use('/api/repairs', authenticate, repairsRouter);
 app.use('/api/analytics', authenticate, analyticsRouter);
+app.use('/api/jobs', authenticate, jobsRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/video', videoRouter);
 

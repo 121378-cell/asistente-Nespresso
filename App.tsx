@@ -21,6 +21,7 @@ import Checklist from './components/Checklist';
 import CameraIcon from './components/icons/CameraIcon';
 import CameraIdentificationModal from './components/CameraIdentificationModal';
 import { DatabaseDashboard } from './components/DatabaseDashboard';
+import JobsDashboard from './components/JobsDashboard';
 
 const App: React.FC = () => {
   const {
@@ -53,6 +54,8 @@ const App: React.FC = () => {
     setShowDatabaseDashboard,
     setShowCameraModal,
   } = useModals();
+
+  const [showJobsDashboard, setShowJobsDashboard] = React.useState(false);
 
   const { handleSaveRepair, handleLoadRepair, isSaveDisabled } = useRepairs();
 
@@ -121,6 +124,20 @@ const App: React.FC = () => {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => setShowJobsDashboard(true)}
+              className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="Dashboard de Jobs"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
                 />
               </svg>
             </button>
@@ -208,6 +225,8 @@ const App: React.FC = () => {
       {showDatabaseDashboard && (
         <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
       )}
+
+      {showJobsDashboard && <JobsDashboard onClose={() => setShowJobsDashboard(false)} />}
     </div>
   );
 };
