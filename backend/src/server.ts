@@ -6,8 +6,10 @@ import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
+import authRouter from './routes/authRouter.js';
 import { env } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
+import { authenticate } from './middleware/auth.js';
 import { logger } from './config/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
@@ -75,8 +77,9 @@ app.use(
 );
 
 // Routes
-app.use('/api/repairs', repairsRouter);
-app.use('/api/analytics', analyticsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/repairs', authenticate, repairsRouter);
+app.use('/api/analytics', authenticate, analyticsRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/video', videoRouter);
 

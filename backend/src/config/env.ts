@@ -24,6 +24,7 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -71,6 +72,7 @@ export const env = {
   geminiApiKey: parsed.GEMINI_API_KEY || '',
   supabaseUrl: parsed.SUPABASE_URL || '',
   supabaseServiceKey,
+  jwtSecret: parsed.JWT_SECRET,
 };
 
 export type AppEnv = typeof env;

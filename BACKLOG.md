@@ -20,10 +20,9 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 
 ## 🔒 Seguridad y Funcionalidad (Prioridad Baja)
 
-- [ ] **Tarea 5: Autenticación**
-  - [ ] Implementar sistema de login/JWT para proteger datos de reparaciones.
-- [ ] **Tarea 6: Generación de Reportes**
-  - [ ] Exportación de reparaciones a PDF.
+- [x] **Tarea 5: Autenticación**
+  - [x] Implementar sistema de login/JWT para proteger datos de reparaciones.
+- [ ] **Tarea 6: Generación de Reportes** - [ ] Exportación de reparaciones a PDF.
 
 ---
 
