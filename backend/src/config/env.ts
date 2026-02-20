@@ -25,6 +25,8 @@ const envSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
+  LLM_PROVIDER: z.enum(['gemini', 'ollama']).default('gemini'),
+  OLLAMA_MODEL: z.string().default('llama3'),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -73,6 +75,8 @@ export const env = {
   supabaseUrl: parsed.SUPABASE_URL || '',
   supabaseServiceKey,
   jwtSecret: parsed.JWT_SECRET,
+  llmProvider: parsed.LLM_PROVIDER,
+  ollamaModel: parsed.OLLAMA_MODEL,
 };
 
 export type AppEnv = typeof env;

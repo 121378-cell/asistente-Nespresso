@@ -36,6 +36,12 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 - [x] **Tarea 9: Optimización UX (Manos Libres)**
   - [x] Integración de dictado por voz y lectura de respuestas para trabajo en campo.
 
+## 🎁 Bonus: Soberanía de Datos (Completado)
+
+- [x] **Tarea Extra: Integración LLM Local (Ollama)**
+  - [x] Arquitectura Híbrida (Factory Pattern) para cambiar entre Gemini y Ollama.
+  - [x] Soporte para modelos Open Source gratuitos (Llama 3, Mistral).
+
 ---
 
 _Nota: Este archivo se actualiza tras cada hito completado y commit realizado._
