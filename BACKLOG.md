@@ -27,9 +27,9 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 
 ## 🛠️ Fase 3: Fiabilidad y Operaciones (Siguiente Paso)
 
-- [ ] **Tarea 7: Modo Offline (IndexedDB)**
-  - [ ] Implementar almacenamiento local de mensajes y checklists para áreas sin cobertura.
-  - [ ] Sincronización automática con el servidor al recuperar la conexión.
+- [x] **Tarea 7: Modo Offline (IndexedDB)**
+  - [x] Implementar almacenamiento local de mensajes y checklists para áreas sin cobertura.
+  - [x] Sincronización automática con el servidor al recuperar la conexión.
 - [x] **Tarea 8: Dashboard Administrativo de Jobs**
   - [x] Interfaz para visualizar colas de Video e Imagen.
   - [x] Herramientas de redrive (reintento manual) para la Dead Letter Queue (DLQ).

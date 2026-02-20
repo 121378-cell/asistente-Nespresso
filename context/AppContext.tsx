@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useRef, useEffect } from 'react';
 import { Message } from '../types';
+import { db } from '../db';
 
 // Define el tipo del contexto
 interface AppContextType {
@@ -10,6 +11,7 @@ interface AppContextType {
   isLoading: boolean;
   isWaitingForModel: boolean;
   showChecklist: boolean;
+  isOnline: boolean;
   initialUserQuery: {
     message: string;
     file?: File;
@@ -52,6 +54,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isWaitingForModel, setIsWaitingForModel] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [initialUserQuery, setInitialUserQuery] = useState<{
     message: string;
     file?: File;
@@ -59,9 +62,56 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   } | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // Load messages from IndexedDB on startup
+  useEffect(() => {
+    const loadLocalData = async () => {
+      try {
+        const localMessages = await db.messages.orderBy('localId').toArray();
+        if (localMessages.length > 0) {
+          // Map local messages back to App format
+          setMessages(
+            localMessages.map((m) => ({
+              role: m.role,
+              text: m.text,
+              attachment: m.attachment,
+              groundingMetadata: m.groundingMetadata,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load local messages:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLocalData();
+
+    // Online/Offline listeners
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Función helper para agregar un mensaje
-  const addMessage = (message: Message) => {
+  const addMessage = async (message: Message) => {
     setMessages((prev) => [...prev, message]);
+
+    // Persist to IndexedDB
+    try {
+      await db.messages.add({
+        ...message,
+        isSynced: false,
+      } as any); // Dexie types can be tricky with auto-increment
+    } catch (error) {
+      console.error('Failed to persist message locally:', error);
+    }
   };
 
   // Función para establecer información de la máquina
@@ -71,13 +121,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   // Función para resetear la conversación
-  const resetConversation = () => {
+  const resetConversation = async () => {
     setMessages([]);
     setMachineModel(null);
     setSerialNumber(null);
     setIsWaitingForModel(false);
     setShowChecklist(false);
     setInitialUserQuery(null);
+
+    // Clear local messages too on reset
+    try {
+      await db.messages.clear();
+    } catch (error) {
+      console.error('Failed to clear local messages:', error);
+    }
   };
 
   const value: AppContextType = {
@@ -88,6 +145,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isLoading,
     isWaitingForModel,
     showChecklist,
+    isOnline,
     initialUserQuery,
     chatContainerRef,
 

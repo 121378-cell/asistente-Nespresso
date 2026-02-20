@@ -32,6 +32,7 @@ const App: React.FC = () => {
     isWaitingForModel,
     addMessage,
     chatContainerRef,
+    isOnline,
   } = useAppContext();
 
   const { handleSendMessage } = useChat();
@@ -110,6 +111,11 @@ const App: React.FC = () => {
                   : 'Tu experto electromecanico de confianza'}
               </p>
             </div>
+            {!isOnline && (
+              <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full animate-pulse border border-amber-200">
+                OFFLINE
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
