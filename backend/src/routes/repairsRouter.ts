@@ -5,6 +5,7 @@ import {
   createRepair,
   updateRepair,
   deleteRepair,
+  exportPdf,
 } from '../controllers/repairsController.js';
 import { validateBody, validateParams } from '../middleware/validate.js';
 import {
@@ -36,5 +37,8 @@ router.put(
 
 // DELETE /api/repairs/:id - Delete a repair
 router.delete('/:id', analyticsLimiter, validateParams(repairIdSchema), deleteRepair);
+
+// GET /api/repairs/:id/pdf - Export repair to PDF
+router.get('/:id/pdf', validateParams(repairIdSchema), exportPdf);
 
 export default router;

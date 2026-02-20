@@ -22,7 +22,8 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 
 - [x] **Tarea 5: Autenticación**
   - [x] Implementar sistema de login/JWT para proteger datos de reparaciones.
-- [ ] **Tarea 6: Generación de Reportes** - [ ] Exportación de reparaciones a PDF.
+- [x] **Tarea 6: Generación de Reportes**
+  - [x] Exportación de reparaciones a PDF.
 
 ---
 

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { generateRepairPdf } from '../services/reportService.js';
 
 const prisma = new PrismaClient();
 
@@ -240,6 +241,40 @@ export const deleteRepair = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Repair not found' });
     }
     res.status(500).json({ error: 'Failed to delete repair' });
+  }
+};
+
+// GET /api/repairs/:id/pdf - Export repair to PDF
+export const exportPdf = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const repair = await prisma.savedRepair.findUnique({
+      where: { id },
+      include: {
+        messages: true,
+      },
+    });
+
+    if (!repair) {
+      return res.status(404).json({ error: 'Repair not found' });
+    }
+
+    const pdfBuffer = await generateRepairPdf({
+      id: repair.id,
+      name: repair.name,
+      machineModel: repair.machineModel,
+      serialNumber: repair.serialNumber,
+      timestamp: repair.timestamp,
+      messages: repair.messages.map((m) => ({ role: m.role, text: m.text })),
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=repair-${id}.pdf`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
   }
 };
 
