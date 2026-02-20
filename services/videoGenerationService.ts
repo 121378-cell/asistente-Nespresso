@@ -32,6 +32,9 @@ export interface VideoJobStatusResponse {
   operationName?: string;
   result?: VideoOperation;
   error?: string;
+  nextRunAt?: string;
+  attempts?: number;
+  maxAttempts?: number;
   [key: string]: unknown;
 }
 

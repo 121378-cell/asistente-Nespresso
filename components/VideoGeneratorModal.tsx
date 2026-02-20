@@ -115,6 +115,16 @@ const VideoGeneratorModal: React.FC<VideoGeneratorModalProps> = ({ onClose }) =>
             continue;
           }
 
+          if (latest.status === 'queued' && (latest.attempts || 0) > 0) {
+            setLoadingMessage(
+              `Reintentando generación (Intento ${latest.attempts} de ${latest.maxAttempts})...`
+            );
+          } else if (latest.status === 'running') {
+            setLoadingMessage(
+              'Procesando el vídeo en los servidores de Google... Mantén esta ventana abierta.'
+            );
+          }
+
           statusTarget = { jobId: latest.jobId };
           continue;
         }

@@ -93,6 +93,9 @@ export const status = async (req: Request, res: Response) => {
         error: job.error,
         createdAt: job.createdAt,
         updatedAt: job.updatedAt,
+        nextRunAt: job.nextRunAt,
+        attempts: job.attempts,
+        maxAttempts: job.maxAttempts,
       });
     }
 

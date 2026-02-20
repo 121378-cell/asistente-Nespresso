@@ -50,7 +50,9 @@ const isRetryableError = (message: string): boolean =>
 
 const getBackoffMs = (attempt: number): number => {
   const factor = Math.max(0, attempt - 1);
-  const backoff = RETRY_BASE_BACKOFF_MS * 2 ** factor;
+  const baseBackoff = RETRY_BASE_BACKOFF_MS * 2 ** factor;
+  const jitter = Math.random() * (baseBackoff * 0.1); // Add 10% jitter
+  const backoff = baseBackoff + jitter;
   return Math.min(backoff, RETRY_MAX_BACKOFF_MS);
 };
 
