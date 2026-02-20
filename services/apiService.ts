@@ -211,6 +211,30 @@ class ApiService {
     }
   }
 
+  // Spare Parts
+  async searchSpareParts(query: string): Promise<unknown[]> {
+    try {
+      const response = await this.axiosInstance.get('/spare-parts/search', {
+        params: { query },
+      });
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async addPartToRepair(repairId: string, partId: string, quantity: number): Promise<void> {
+    try {
+      await this.axiosInstance.post('/spare-parts/add', {
+        repairId,
+        partId,
+        quantity,
+      });
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   // Health check
   async healthCheck(): Promise<boolean> {
     try {
