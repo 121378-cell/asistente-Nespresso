@@ -33,8 +33,8 @@ Este documento registra las tareas pendientes y el progreso del proyecto hacia l
 - [x] **Tarea 8: Dashboard Administrativo de Jobs**
   - [x] Interfaz para visualizar colas de Video e Imagen.
   - [x] Herramientas de redrive (reintento manual) para la Dead Letter Queue (DLQ).
-- [ ] **Tarea 9: Optimización UX (Manos Libres)**
-  - [ ] Integración de dictado por voz y lectura de respuestas para trabajo en campo.
+- [x] **Tarea 9: Optimización UX (Manos Libres)**
+  - [x] Integración de dictado por voz y lectura de respuestas para trabajo en campo.
 
 ---
 
