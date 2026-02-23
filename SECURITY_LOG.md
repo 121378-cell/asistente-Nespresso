@@ -73,6 +73,12 @@
 - ⚠️ `npm --prefix backend audit --omit=dev --audit-level=high` still reports **4 high** vulnerabilities in transitive chain `@google/genai -> gaxios -> rimraf/glob/minimatch`.
 - ⚠️ No non-breaking automatic fix was applied by `npm audit fix`.
 
+### CI Risk Control
+
+- ✅ Added a temporary backend audit gate (`scripts/audit-gate.mjs`) with strict allowlist for `GHSA-3ppc-4f35-3m26` chain only (`gaxios`, `rimraf`, `glob`, `minimatch`).
+- ✅ Quality Gates workflow now fails on any new non-allowlisted production vulnerability.
+- ⏰ Allowlist expiry target: **2026-04-30** (must be reviewed/removed).
+
 ### Status
 
 🟡 **PARTIALLY MITIGATED** - production exposure reduced; residual transitive vulnerabilities remain pending upstream resolution or controlled override strategy.
