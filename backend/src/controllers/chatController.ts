@@ -48,7 +48,7 @@ export const chat = async (req: Request, res: Response) => {
 
     res.json({
       text,
-      groundingMetadata: groundingMetadata || undefined,
+      groundingMetadata: groundingMetadata ?? null,
     });
   } catch (error: any) {
     logger.error({ err: error, message: req.body.message }, 'Failed to generate chat response');

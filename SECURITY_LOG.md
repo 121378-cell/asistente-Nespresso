@@ -52,3 +52,27 @@
 
 **Verified by:** Automated verification script
 **Timestamp:** 2025-11-24T20:39:26+01:00
+
+## Dependency Risk Mitigation - 2026-02-23
+
+### Event
+
+- **Date:** 2026-02-23
+- **Reason:** High-severity findings in backend dependency audit (`npm --prefix backend audit --omit=dev --audit-level=high`)
+- **Action:** Runtime attack surface reduction + dependency update
+
+### Actions Taken
+
+1. ✅ Moved `swagger-jsdoc`, `swagger-ui-express`, and `xlsx` from backend production dependencies to `devDependencies`.
+2. ✅ Disabled Swagger docs and spare-parts XLSX import endpoint in `production` runtime.
+3. ✅ Updated `@google/genai` to latest available compatible release (`^1.42.0`).
+4. ✅ Revalidated backend build/tests and root `deploy:check`.
+
+### Current Residual Risk
+
+- ⚠️ `npm --prefix backend audit --omit=dev --audit-level=high` still reports **4 high** vulnerabilities in transitive chain `@google/genai -> gaxios -> rimraf/glob/minimatch`.
+- ⚠️ No non-breaking automatic fix was applied by `npm audit fix`.
+
+### Status
+
+🟡 **PARTIALLY MITIGATED** - production exposure reduced; residual transitive vulnerabilities remain pending upstream resolution or controlled override strategy.
