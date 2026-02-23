@@ -1,6 +1,7 @@
 import { useAppContext } from '../context/AppContext';
 import { SavedRepair, UsedPart } from '../types';
 import { checklists } from '../data/checklistData';
+import { apiService } from '../services/apiService';
 
 /**
  * Custom hook para manejar el guardado y carga de reparaciones
@@ -34,7 +35,6 @@ export const useRepairs = () => {
       };
 
       try {
-        const { apiService } = await import('../services/apiService');
         const savedRepair = await apiService.createRepair(newRepair);
 
         // If we have parts, associate them

@@ -5,6 +5,7 @@ import TrashIcon from './icons/TrashIcon';
 import BookmarkIcon from './icons/BookmarkIcon';
 import ToolIcon from './icons/ToolIcon';
 import SparePartsSelector from './SparePartsSelector';
+import { apiService } from '../services/apiService';
 
 interface SavedRepairsModalProps {
   onClose: () => void;
@@ -29,7 +30,6 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
       try {
         setIsLoading(true);
         setError(null);
-        const { apiService } = await import('../services/apiService');
         const data = await apiService.getAllRepairs();
         setRepairs(data);
       } catch (error: unknown) {
@@ -64,7 +64,6 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
       )
     ) {
       try {
-        const { apiService } = await import('../services/apiService');
         await apiService.deleteRepair(id);
         setRepairs(repairs.filter((r) => r.id !== id));
       } catch (error) {
