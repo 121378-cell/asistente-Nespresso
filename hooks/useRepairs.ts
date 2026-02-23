@@ -1,5 +1,5 @@
 import { useAppContext } from '../context/AppContext';
-import { SavedRepair } from '../types';
+import { SavedRepair, UsedPart } from '../types';
 import { checklists } from '../data/checklistData';
 
 /**

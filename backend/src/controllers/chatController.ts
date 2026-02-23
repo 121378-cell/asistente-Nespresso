@@ -44,7 +44,7 @@ export const chat = async (req: Request, res: Response) => {
 
     // Extract response data
     const text = response.text ?? '';
-    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+    const groundingMetadata = response.groundingMetadata;
 
     res.json({
       text,

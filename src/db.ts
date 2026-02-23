@@ -1,17 +1,17 @@
 import Dexie, { Table } from 'dexie';
-import { Message, SavedRepair } from './types';
+import { Message, SavedRepair } from '../types';
 
 export interface LocalRepair extends Omit<SavedRepair, 'id'> {
   id?: string;
   isSynced: boolean;
-  localId: number;
+  localId?: number;
 }
 
 export interface LocalMessage extends Message {
   id?: string;
   repairId?: string;
   isSynced: boolean;
-  localId: number;
+  localId?: number;
 }
 
 export class NespressoDatabase extends Dexie {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useRef, useEffect } from 'react';
 import { Message } from '../types';
-import { db } from '../db';
+import { db, LocalMessage } from '../src/db';
 
 // Define el tipo del contexto
 interface AppContextType {
@@ -70,7 +70,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         if (localMessages.length > 0) {
           // Map local messages back to App format
           setMessages(
-            localMessages.map((m) => ({
+            localMessages.map((m: LocalMessage) => ({
               role: m.role,
               text: m.text,
               attachment: m.attachment,
@@ -108,7 +108,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await db.messages.add({
         ...message,
         isSynced: false,
-      } as any); // Dexie types can be tricky with auto-increment
+      });
     } catch (error) {
       console.error('Failed to persist message locally:', error);
     }

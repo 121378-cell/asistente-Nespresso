@@ -10,6 +10,33 @@ interface InputBarProps {
   isLoading: boolean;
 }
 
+interface SpeechRecognitionResultLike {
+  isFinal: boolean;
+  0: {
+    transcript: string;
+  };
+}
+
+interface SpeechRecognitionEventLike {
+  resultIndex: number;
+  results: SpeechRecognitionResultLike[];
+}
+
+interface SpeechRecognitionLike {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface SpeechRecognitionCtor {
+  new (): SpeechRecognitionLike;
+}
+
 const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
   const [input, setInput] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -17,18 +44,22 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
   const [useGoogleSearch, setUseGoogleSearch] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
+    const browserWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionCtor;
+      webkitSpeechRecognition?: SpeechRecognitionCtor;
+    };
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      browserWindow.SpeechRecognition || browserWindow.webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'es-ES';
 
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      recognitionRef.current.onresult = (event: SpeechRecognitionEventLike) => {
         let finalTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; ++i) {
