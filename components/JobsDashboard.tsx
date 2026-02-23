@@ -4,15 +4,43 @@ import CloseIcon from './icons/CloseIcon';
 import LoadingSpinner from './LoadingSpinner';
 import { buildTraceHeaders } from '../services/requestTracing';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+interface AsyncMetrics {
+  queueDepth: number;
+  runningJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  dlqSize: number;
+}
+
+interface MetricsResponse {
+  video: AsyncMetrics;
+  image: AsyncMetrics;
+  timestamp: string;
+}
+
+interface DlqItem {
+  id: string;
+  jobId: string;
+  attempts: number;
+  error: string;
+}
+
+interface DlqResponse {
+  video: DlqItem[];
+  image: DlqItem[];
+}
+
+const API_BASE_URL =
+  (import.meta as ImportMeta & { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL ||
+  'http://localhost:3001';
 
 interface JobsDashboardProps {
   onClose: () => void;
 }
 
 const JobsDashboard: React.FC<JobsDashboardProps> = ({ onClose }) => {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [dlqItems, setDlqItems] = useState<any>(null);
+  const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
+  const [dlqItems, setDlqItems] = useState<DlqResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,8 +48,10 @@ const JobsDashboard: React.FC<JobsDashboardProps> = ({ onClose }) => {
     try {
       setIsLoading(true);
       const [mRes, dRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/jobs/metrics`, { headers: buildTraceHeaders() }),
-        axios.get(`${API_BASE_URL}/api/jobs/dlq`, { headers: buildTraceHeaders() }),
+        axios.get<MetricsResponse>(`${API_BASE_URL}/api/jobs/metrics`, {
+          headers: buildTraceHeaders(),
+        }),
+        axios.get<DlqResponse>(`${API_BASE_URL}/api/jobs/dlq`, { headers: buildTraceHeaders() }),
       ]);
       setMetrics(mRes.data);
       setDlqItems(dRes.data);
@@ -52,7 +82,7 @@ const JobsDashboard: React.FC<JobsDashboardProps> = ({ onClose }) => {
     }
   };
 
-  const renderMetricCard = (title: string, data: any) => (
+  const renderMetricCard = (title: string, data: AsyncMetrics) => (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -110,7 +140,7 @@ const JobsDashboard: React.FC<JobsDashboardProps> = ({ onClose }) => {
                   </p>
                 ) : (
                   <>
-                    {dlqItems?.video?.map((item: any) => (
+                    {dlqItems?.video?.map((item) => (
                       <div
                         key={item.id}
                         className="bg-white dark:bg-gray-800 p-4 rounded border-l-4 border-red-500 shadow-sm flex justify-between items-center"
@@ -129,7 +159,7 @@ const JobsDashboard: React.FC<JobsDashboardProps> = ({ onClose }) => {
                         </button>
                       </div>
                     ))}
-                    {dlqItems?.image?.map((item: any) => (
+                    {dlqItems?.image?.map((item) => (
                       <div
                         key={item.id}
                         className="bg-white dark:bg-gray-800 p-4 rounded border-l-4 border-purple-500 shadow-sm flex justify-between items-center"
