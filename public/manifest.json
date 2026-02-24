@@ -2,11 +2,15 @@
   "name": "Nespresso Assistant",
   "short_name": "Nespresso",
   "description": "Asistente de reparación para cafeteras Nespresso Profesionales",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#1f2937",
   "orientation": "portrait-primary",
+  "lang": "es-ES",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -26,7 +30,9 @@
     {
       "src": "/screenshot.png",
       "sizes": "1280x720",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "wide"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
