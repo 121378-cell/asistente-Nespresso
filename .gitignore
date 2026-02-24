@@ -15,9 +15,13 @@ secret*.txt
 test_*.ts
 test_*.js
 test_*.txt
+test-output.txt
 *.test.log
 test-results/
 coverage/
+backend/test-results.json
+backend/data/*.json
+!backend/data/.gitkeep
 
 # Backup files
 *.backup
