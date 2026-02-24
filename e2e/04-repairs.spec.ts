@@ -10,7 +10,10 @@ interface RepairRecord {
   messages: Array<{ role: 'user' | 'model'; text: string }>;
 }
 
-const mockRepairsApi = async (page: import('@playwright/test').Page, initialRepairs: RepairRecord[]) => {
+const mockRepairsApi = async (
+  page: import('@playwright/test').Page,
+  initialRepairs: RepairRecord[]
+) => {
   const repairs = [...initialRepairs];
 
   await page.route('**/api/repairs', async (route, request) => {
@@ -120,7 +123,10 @@ test.describe('Funcionalidad de Reparaciones', () => {
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
 
     // Cerrar modal haciendo clic fuera del contenedor
-    await page.locator('div.fixed.inset-0').first().click({ position: { x: 8, y: 8 } });
+    await page
+      .locator('div.fixed.inset-0')
+      .first()
+      .click({ position: { x: 8, y: 8 } });
 
     // Verificar que el modal cerró
     await expect(page.getByRole('heading', { name: /reparaciones guardadas/i })).toHaveCount(0);
@@ -137,7 +143,7 @@ test.describe('Funcionalidad de Reparaciones', () => {
     await page.getByRole('button', { name: /enviar mensaje/i }).click();
 
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
-    const saveButton = page.getByRole('button', { name: /guardar conversación actual/i });
+    const saveButton = page.getByRole('button', { name: /guardar con .*recambios/i });
     await expect(saveButton).toBeEnabled();
     await saveButton.click();
 

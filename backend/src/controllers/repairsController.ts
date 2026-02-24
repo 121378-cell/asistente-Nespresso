@@ -266,7 +266,10 @@ export const exportPdf = async (req: Request, res: Response) => {
       machineModel: repair.machineModel,
       serialNumber: repair.serialNumber,
       timestamp: repair.timestamp,
-      messages: repair.messages.map((m) => ({ role: m.role, text: m.text })),
+      messages: repair.messages.map((m: { role: string; text: string }) => ({
+        role: m.role,
+        text: m.text,
+      })),
     });
 
     res.setHeader('Content-Type', 'application/pdf');

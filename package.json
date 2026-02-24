@@ -13,7 +13,7 @@
     "lint:fix": "eslint App.tsx index.tsx constants.ts types.ts components context data hooks services src tests utils --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md,css}\"",
-    "prepare": "husky install",
+    "prepare": "husky install || node -e \"process.exit(0)\"",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
