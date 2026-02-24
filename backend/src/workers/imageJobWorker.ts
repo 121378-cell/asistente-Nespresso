@@ -69,7 +69,7 @@ const processClaimedJob = async (job: ImageJob): Promise<ImageJob | null> => {
   try {
     logger.info({ jobId: job.id, requestId: job.requestId }, 'Processing image identification');
     const result = await identifyMachineFromImage(job.image);
-    logger.info({ jobId: job.id, result }, 'Image identification completed');
+    logger.info({ jobId: job.id, requestId: job.requestId }, 'Image identification completed');
     return markImageJobCompleted(job.id, result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';

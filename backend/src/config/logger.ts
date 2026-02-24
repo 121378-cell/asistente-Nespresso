@@ -34,6 +34,26 @@ export const logger = pino({
     env: env.nodeEnv,
   },
 
+  // Redact sensitive fields from structured logs.
+  redact: {
+    paths: [
+      'req.headers.authorization',
+      'req.headers.cookie',
+      'request.headers.authorization',
+      'request.headers.cookie',
+      'headers.authorization',
+      'headers.cookie',
+      '*.password',
+      '*.token',
+      '*.jwt',
+      '*.apiKey',
+      '*.authorization',
+      '*.cookie',
+      '*.secret',
+    ],
+    censor: '[REDACTED]',
+  },
+
   // Timestamp format
   timestamp: pino.stdTimeFunctions.isoTime,
 });

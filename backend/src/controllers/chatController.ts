@@ -57,8 +57,7 @@ export const chat = async (req: Request, res: Response) => {
       res,
       error,
       'Failed to generate chat response',
-      'Failed to generate response',
-      { message: req.body.message }
+      'Failed to generate response'
     );
   }
 };
