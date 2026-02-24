@@ -78,3 +78,33 @@ export const readLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+/**
+ * Rate limiter para autenticación
+ * Límite: 10 requests por 15 minutos
+ */
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    error: 'Too many authentication attempts, please try again later',
+    retryAfter: '15 minutes',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
+ * Rate limiter para polling/estado de jobs asíncronos
+ * Límite: 120 requests por minuto
+ */
+export const asyncStatusLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: {
+    error: 'Too many status requests, please slow down polling',
+    retryAfter: '1 minute',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

@@ -99,6 +99,11 @@ The server will start on `http://localhost:3001`
   - `videoAsync`: queue depth/age, retries, failures, DLQ size, async throughput
   - `imageAsync`: queue depth/age, retries, failures, DLQ size, async throughput
 
+### Rate Limits
+
+- Endpoint limits are applied by operational cost (auth, chat, async polling, video generation, reads/writes).
+- Full matrix: `docs/RATE_LIMITS.md`.
+
 ### Video Async Jobs
 
 - `POST /api/video/generate` enqueues a video job and returns `202` with `jobId`.

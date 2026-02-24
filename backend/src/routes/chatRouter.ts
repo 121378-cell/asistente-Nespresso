@@ -7,7 +7,7 @@ import {
 } from '../controllers/chatController.js';
 import { validateBody } from '../middleware/validate.js';
 import { chatMessageSchema, identifyMachineSchema } from '../schemas/chatSchemas.js';
-import { chatLimiter } from '../middleware/rateLimiter.js';
+import { chatLimiter, asyncStatusLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -159,6 +159,6 @@ router.post(
  *     description: Check the status of an asynchronous machine identification job
  *     tags: [Chat]
  */
-router.get('/identify-machine/status/:jobId', chatLimiter, identifyMachineStatus);
+router.get('/identify-machine/status/:jobId', asyncStatusLimiter, identifyMachineStatus);
 
 export default router;

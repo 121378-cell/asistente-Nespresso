@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { register, login } from '../controllers/authController.js';
 import { validateBody } from '../middleware/validate.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -16,7 +17,7 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
-router.post('/register', validateBody(registerSchema), register);
-router.post('/login', validateBody(loginSchema), login);
+router.post('/register', authLimiter, validateBody(registerSchema), register);
+router.post('/login', authLimiter, validateBody(loginSchema), login);
 
 export default router;

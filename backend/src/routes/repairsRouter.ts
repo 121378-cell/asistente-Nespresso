@@ -13,15 +13,15 @@ import {
   updateRepairSchema,
   repairIdSchema,
 } from '../schemas/repairsSchemas.js';
-import { analyticsLimiter } from '../middleware/rateLimiter.js';
+import { analyticsLimiter, readLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
 // GET /api/repairs - Get all saved repairs
-router.get('/', getAllRepairs);
+router.get('/', readLimiter, getAllRepairs);
 
 // GET /api/repairs/:id - Get a specific repair by ID
-router.get('/:id', validateParams(repairIdSchema), getRepairById);
+router.get('/:id', readLimiter, validateParams(repairIdSchema), getRepairById);
 
 // POST /api/repairs - Create a new repair
 router.post('/', analyticsLimiter, validateBody(createRepairSchema), createRepair);
@@ -39,6 +39,6 @@ router.put(
 router.delete('/:id', analyticsLimiter, validateParams(repairIdSchema), deleteRepair);
 
 // GET /api/repairs/:id/pdf - Export repair to PDF
-router.get('/:id/pdf', validateParams(repairIdSchema), exportPdf);
+router.get('/:id/pdf', readLimiter, validateParams(repairIdSchema), exportPdf);
 
 export default router;
