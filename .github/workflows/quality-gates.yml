@@ -71,6 +71,42 @@ jobs:
       - name: Build backend
         run: npm run build
 
+  coverage:
+    name: Coverage Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run frontend coverage with thresholds
+        run: npm run test:coverage
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Run backend coverage with thresholds
+        run: npm --prefix backend run test:coverage
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-artifacts
+          path: |
+            coverage/
+            backend/coverage/
+          retention-days: 14
+
   dependency-audit:
     name: Dependency Audit
     runs-on: ubuntu-latest

@@ -31,6 +31,11 @@ Fecha: 17 de febrero de 2026
 
 - `npx playwright test e2e/01-navigation.spec.ts --project=chromium --workers=1 --reporter=line`
 
+5. Coverage mínima (nuevo gate):
+
+- Frontend: `npm run test:coverage` con umbrales globales (`lines/statements >= 75`, `functions >= 70`, `branches >= 55`).
+- Backend: `npm --prefix backend run test:coverage` con umbrales globales (`lines/statements >= 50`, `functions >= 45`, `branches >= 40`).
+
 ## Evidencia local (equivalente)
 
 - Frontend lint: OK
