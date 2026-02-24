@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { generateRepairPdf } from '../services/reportService.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 const prisma = new PrismaClient();
 
@@ -65,8 +66,7 @@ export const getAllRepairs = async (req: Request, res: Response) => {
 
     res.json(repairs);
   } catch (error) {
-    console.error('Error fetching repairs:', error);
-    res.status(500).json({ error: 'Failed to fetch repairs' });
+    return logAndSendInternalError(req, res, error, 'Error fetching repairs', 'Failed to fetch repairs');
   }
 };
 
@@ -117,8 +117,7 @@ export const getRepairById = async (req: Request, res: Response) => {
 
     res.json(formattedRepair);
   } catch (error) {
-    console.error('Error fetching repair:', error);
-    res.status(500).json({ error: 'Failed to fetch repair' });
+    return logAndSendInternalError(req, res, error, 'Error fetching repair', 'Failed to fetch repair');
   }
 };
 
@@ -188,8 +187,7 @@ export const createRepair = async (req: Request, res: Response) => {
 
     res.status(201).json(formattedRepair);
   } catch (error) {
-    console.error('Error creating repair:', error);
-    res.status(500).json({ error: 'Failed to create repair' });
+    return logAndSendInternalError(req, res, error, 'Error creating repair', 'Failed to create repair');
   }
 };
 
@@ -217,11 +215,10 @@ export const updateRepair = async (req: Request, res: Response) => {
 
     res.json(repair);
   } catch (error: any) {
-    console.error('Error updating repair:', error);
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Repair not found' });
     }
-    res.status(500).json({ error: 'Failed to update repair' });
+    return logAndSendInternalError(req, res, error, 'Error updating repair', 'Failed to update repair');
   }
 };
 
@@ -236,11 +233,10 @@ export const deleteRepair = async (req: Request, res: Response) => {
 
     res.json({ message: 'Repair deleted successfully' });
   } catch (error: any) {
-    console.error('Error deleting repair:', error);
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Repair not found' });
     }
-    res.status(500).json({ error: 'Failed to delete repair' });
+    return logAndSendInternalError(req, res, error, 'Error deleting repair', 'Failed to delete repair');
   }
 };
 
@@ -276,8 +272,7 @@ export const exportPdf = async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename=repair-${id}.pdf`);
     res.send(pdfBuffer);
   } catch (error) {
-    console.error('Error exporting PDF:', error);
-    res.status(500).json({ error: 'Failed to generate PDF' });
+    return logAndSendInternalError(req, res, error, 'Error exporting PDF', 'Failed to generate PDF');
   }
 };
 

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { checkVideoStatus } from '../services/geminiService.js';
 import { logger } from '../config/logger.js';
 import { createVideoJob, refreshVideoJobStatus } from '../services/videoJobService.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 interface GenerateVideoRequest {
   jobId?: string;
@@ -55,11 +56,9 @@ export const generate = async (req: Request, res: Response) => {
       status: job.status,
       requestId: job.requestId,
     });
-  } catch (error: any) {
-    logger.error({ err: error, prompt: req.body.prompt }, 'Failed to generate video');
-    res.status(500).json({
-      error: 'Failed to generate video',
-      message: process.env.NODE_ENV === 'development' ? error.message : undefined,
+  } catch (error) {
+    return logAndSendInternalError(req, res, error, 'Failed to generate video', 'Failed to generate video', {
+      prompt: req.body.prompt,
     });
   }
 };
@@ -105,14 +104,14 @@ export const status = async (req: Request, res: Response) => {
 
     const result = await checkVideoStatus(operation);
     res.json({ ...result, deprecated: true });
-  } catch (error: any) {
-    logger.error(
-      { err: error, operation: req.body.operation, jobId: req.body.jobId },
-      'Failed to check video status'
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to check video status',
+      'Failed to check video status',
+      { operation: req.body.operation, jobId: req.body.jobId }
     );
-    res.status(500).json({
-      error: 'Failed to check video status',
-      message: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
   }
 };

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 const prisma = new PrismaClient();
 
@@ -63,15 +64,7 @@ export const getStats = async (req: Request, res: Response) => {
       repairsByMonth,
     });
   } catch (error) {
-    console.error('Error fetching stats:', JSON.stringify(error, null, 2));
-    if (error instanceof Error) {
-      console.error('Stack:', error.stack);
-      console.error('Message:', error.message);
-    }
-    res.status(500).json({
-      error: 'Failed to fetch statistics',
-      details: error instanceof Error ? error.message : String(error),
-    });
+    return logAndSendInternalError(req, res, error, 'Error fetching stats', 'Failed to fetch statistics');
   }
 };
 
@@ -133,8 +126,7 @@ export const searchRepairs = async (req: Request, res: Response) => {
       offset: Number(offset),
     });
   } catch (error) {
-    console.error('Error searching repairs:', error);
-    res.status(500).json({ error: 'Failed to search repairs' });
+    return logAndSendInternalError(req, res, error, 'Error searching repairs', 'Failed to search repairs');
   }
 };
 
@@ -191,8 +183,7 @@ export const exportData = async (req: Request, res: Response) => {
       res.json(repairs);
     }
   } catch (error) {
-    console.error('Error exporting data:', error);
-    res.status(500).json({ error: 'Failed to export data' });
+    return logAndSendInternalError(req, res, error, 'Error exporting data', 'Failed to export data');
   }
 };
 
@@ -216,15 +207,7 @@ export const getModels = async (req: Request, res: Response) => {
 
     res.json(models.map((m: any) => m.machineModel));
   } catch (error) {
-    console.error('Error fetching models:', JSON.stringify(error, null, 2));
-    if (error instanceof Error) {
-      console.error('Stack:', error.stack);
-      console.error('Message:', error.message);
-    }
-    res.status(500).json({
-      error: 'Failed to fetch models',
-      details: error instanceof Error ? error.message : String(error),
-    });
+    return logAndSendInternalError(req, res, error, 'Error fetching models', 'Failed to fetch models');
   }
 };
 
@@ -253,8 +236,13 @@ export const getFullRepair = async (req: Request, res: Response) => {
 
     res.json(repair);
   } catch (error) {
-    console.error('Error fetching full repair:', error);
-    res.status(500).json({ error: 'Failed to fetch repair details' });
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error fetching full repair',
+      'Failed to fetch repair details'
+    );
   }
 };
 
@@ -393,8 +381,13 @@ export const customQuery = async (req: Request, res: Response) => {
     }
 
     res.json({ result });
-  } catch (error: any) {
-    console.error('Error executing predefined query:', error);
-    res.status(500).json({ error: error.message });
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error executing predefined query',
+      'Failed to execute predefined query'
+    );
   }
 };

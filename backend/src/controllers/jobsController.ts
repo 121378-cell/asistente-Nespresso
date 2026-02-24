@@ -9,7 +9,7 @@ import {
   listImageDlqEntries,
   redriveImageJobFromDlq,
 } from '../services/imageJobService.js';
-import { logger } from '../config/logger.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 export const getUnifiedMetrics = async (req: Request, res: Response) => {
   try {
@@ -22,8 +22,7 @@ export const getUnifiedMetrics = async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error({ err: error }, 'Failed to fetch unified metrics');
-    res.status(500).json({ error: 'Failed to fetch metrics' });
+    return logAndSendInternalError(req, res, error, 'Failed to fetch unified metrics', 'Failed to fetch metrics');
   }
 };
 
@@ -37,8 +36,7 @@ export const getDlqItems = async (req: Request, res: Response) => {
       image: imageDlq,
     });
   } catch (error) {
-    logger.error({ err: error }, 'Failed to fetch DLQ items');
-    res.status(500).json({ error: 'Failed to fetch DLQ items' });
+    return logAndSendInternalError(req, res, error, 'Failed to fetch DLQ items', 'Failed to fetch DLQ items');
   }
 };
 
@@ -57,7 +55,8 @@ export const redriveJob = async (req: Request, res: Response) => {
 
     res.status(400).json({ error: 'Invalid job type' });
   } catch (error) {
-    logger.error({ err: error, jobId: req.body.jobId }, 'Failed to redrive job');
-    res.status(500).json({ error: 'Failed to redrive job' });
+    return logAndSendInternalError(req, res, error, 'Failed to redrive job', 'Failed to redrive job', {
+      jobId: req.body.jobId,
+    });
   }
 };

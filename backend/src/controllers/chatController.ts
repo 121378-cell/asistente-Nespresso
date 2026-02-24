@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { generateResponse, identifyMachineFromImage } from '../services/geminiService.js';
 import { logger } from '../config/logger.js';
 import { createImageJob, getImageJob } from '../services/imageJobService.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 interface MessageInput {
   role: 'user' | 'model';
@@ -50,12 +51,15 @@ export const chat = async (req: Request, res: Response) => {
       text,
       groundingMetadata: groundingMetadata ?? null,
     });
-  } catch (error: any) {
-    logger.error({ err: error, message: req.body.message }, 'Failed to generate chat response');
-    res.status(500).json({
-      error: 'Failed to generate response',
-      message: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to generate chat response',
+      'Failed to generate response',
+      { message: req.body.message }
+    );
   }
 };
 
@@ -73,12 +77,14 @@ export const identifyMachine = async (req: Request, res: Response) => {
     const result = await identifyMachineFromImage(image);
 
     res.json(result);
-  } catch (error: any) {
-    logger.error({ err: error }, 'Failed to identify machine from image');
-    res.status(500).json({
-      error: 'Failed to identify machine',
-      message: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to identify machine from image',
+      'Failed to identify machine'
+    );
   }
 };
 
@@ -98,9 +104,14 @@ export const identifyMachineAsync = async (req: Request, res: Response) => {
       jobId: job.id,
       status: job.status,
     });
-  } catch (error: any) {
-    logger.error({ err: error }, 'Failed to enqueue image identification');
-    res.status(500).json({ error: 'Failed to start identification' });
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to enqueue image identification',
+      'Failed to start identification'
+    );
   }
 };
 
@@ -122,8 +133,14 @@ export const identifyMachineStatus = async (req: Request, res: Response) => {
       attempts: job.attempts,
       maxAttempts: job.maxAttempts,
     });
-  } catch (error: any) {
-    logger.error({ err: error, jobId: req.params.jobId }, 'Failed to check image job status');
-    res.status(500).json({ error: 'Failed to check status' });
+  } catch (error) {
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to check image job status',
+      'Failed to check status',
+      { jobId: req.params.jobId }
+    );
   }
 };

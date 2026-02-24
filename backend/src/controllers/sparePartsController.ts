@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { logger } from '../config/logger.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 const prisma = new PrismaClient();
 
@@ -23,8 +23,7 @@ export const searchParts = async (req: Request, res: Response) => {
 
     res.json(parts);
   } catch (error) {
-    logger.error({ err: error }, 'Failed to search spare parts');
-    res.status(500).json({ error: 'Failed to search parts' });
+    return logAndSendInternalError(req, res, error, 'Failed to search spare parts', 'Failed to search parts');
   }
 };
 
@@ -48,7 +47,6 @@ export const addPartToRepair = async (req: Request, res: Response) => {
 
     res.json(usedPart);
   } catch (error) {
-    logger.error({ err: error }, 'Failed to add part to repair');
-    res.status(500).json({ error: 'Failed to add part' });
+    return logAndSendInternalError(req, res, error, 'Failed to add part to repair', 'Failed to add part');
   }
 };

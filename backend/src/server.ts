@@ -22,6 +22,7 @@ import { startVideoJobWorker, stopVideoJobWorker } from './workers/videoJobWorke
 import { startImageJobWorker, stopImageJobWorker } from './workers/imageJobWorker.js';
 import { getVideoAsyncMetricsSnapshot } from './services/videoJobService.js';
 import { getImageAsyncMetricsSnapshot } from './services/imageJobService.js';
+import { logAndSendInternalError } from './utils/errorResponse.js';
 
 const app: Application = express();
 const PORT = env.port;
@@ -135,8 +136,14 @@ if (!isProduction) {
         count++;
       }
       res.json({ success: true, count });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      return logAndSendInternalError(
+        req,
+        res,
+        error,
+        'Failed to import spare parts from admin endpoint',
+        'Failed to import spare parts'
+      );
     }
   });
 }

@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { logger } from '../config/logger.js';
+import { logAndSendInternalError } from '../utils/errorResponse.js';
 
 const prisma = new PrismaClient();
 
@@ -34,8 +34,7 @@ export const register = async (req: Request, res: Response) => {
       userId: user.id,
     });
   } catch (error) {
-    logger.error({ err: error }, 'Registration failed');
-    res.status(500).json({ error: 'Registration failed' });
+    return logAndSendInternalError(req, res, error, 'Registration failed', 'Registration failed');
   }
 };
 
@@ -66,7 +65,6 @@ export const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error({ err: error }, 'Login failed');
-    res.status(500).json({ error: 'Login failed' });
+    return logAndSendInternalError(req, res, error, 'Login failed', 'Login failed');
   }
 };
