@@ -97,6 +97,7 @@ The server will start on `http://localhost:3001`
 - `GET /metrics` - Observability snapshot:
   - `http`: latency, status classes, throughput
   - `videoAsync`: queue depth/age, retries, failures, DLQ size, async throughput
+  - `imageAsync`: queue depth/age, retries, failures, DLQ size, async throughput
 
 ### Video Async Jobs
 

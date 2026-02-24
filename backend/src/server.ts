@@ -21,6 +21,7 @@ import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/http
 import { startVideoJobWorker, stopVideoJobWorker } from './workers/videoJobWorker.js';
 import { startImageJobWorker, stopImageJobWorker } from './workers/imageJobWorker.js';
 import { getVideoAsyncMetricsSnapshot } from './services/videoJobService.js';
+import { getImageAsyncMetricsSnapshot } from './services/imageJobService.js';
 
 const app: Application = express();
 const PORT = env.port;
@@ -155,16 +156,23 @@ app.get('/health', (req: Request, res: Response) => {
 // Basic observability endpoint for dashboards and alerting.
 app.get('/metrics', async (req: Request, res: Response) => {
   let videoAsync = null;
+  let imageAsync = null;
   try {
     videoAsync = await getVideoAsyncMetricsSnapshot();
   } catch (error) {
     logger.error({ err: error, requestId: req.id }, 'Failed to collect video async metrics');
+  }
+  try {
+    imageAsync = await getImageAsyncMetricsSnapshot();
+  } catch (error) {
+    logger.error({ err: error, requestId: req.id }, 'Failed to collect image async metrics');
   }
 
   res.json({
     requestId: req.id,
     http: getHttpMetricsSnapshot(),
     videoAsync,
+    imageAsync,
   });
 });
 

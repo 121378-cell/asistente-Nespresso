@@ -43,6 +43,18 @@ interface ImageJobDb {
   dlq: ImageDlqEntry[];
 }
 
+export interface ImageAsyncMetricsSnapshot {
+  queueDepth: number;
+  oldestQueuedAgeMs: number | null;
+  runningJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  retriesTotal: number;
+  throughputLast5m: number;
+  throughputPerMinuteLast5m: number;
+  dlqSize: number;
+}
+
 const configuredDbPath = process.env.IMAGE_JOBS_DB_PATH;
 const DB_PATH = configuredDbPath
   ? path.resolve(configuredDbPath)
@@ -293,13 +305,38 @@ export const redriveImageJobFromDlq = async (
   return db.jobs[index];
 };
 
-export const getImageAsyncMetricsSnapshot = async (): Promise<any> => {
+export const getImageAsyncMetricsSnapshot = async (): Promise<ImageAsyncMetricsSnapshot> => {
   const db = await loadDb();
+  const now = Date.now();
+  const queuedJobs = db.jobs.filter((j) => j.status === 'queued');
+  const oldestQueued = queuedJobs.reduce<number | null>((min, job) => {
+    const createdAtMs = Date.parse(job.createdAt);
+    if (Number.isNaN(createdAtMs)) {
+      return min;
+    }
+    if (min === null) {
+      return createdAtMs;
+    }
+    return Math.min(min, createdAtMs);
+  }, null);
+  const throughputLast5m = db.jobs.filter((job) => {
+    if (job.status !== 'completed' || !job.completedAt) {
+      return false;
+    }
+    const completedAtMs = Date.parse(job.completedAt);
+    return !Number.isNaN(completedAtMs) && now - completedAtMs <= 5 * 60 * 1000;
+  }).length;
+  const retriesTotal = db.jobs.reduce((acc, job) => acc + Math.max(0, job.attempts - 1), 0);
+
   return {
-    queueDepth: db.jobs.filter((j) => j.status === 'queued').length,
+    queueDepth: queuedJobs.length,
+    oldestQueuedAgeMs: oldestQueued === null ? null : Math.max(0, now - oldestQueued),
     runningJobs: db.jobs.filter((j) => j.status === 'running').length,
     completedJobs: db.jobs.filter((j) => j.status === 'completed').length,
     failedJobs: db.jobs.filter((j) => j.status === 'failed').length,
+    retriesTotal,
+    throughputLast5m,
+    throughputPerMinuteLast5m: Number((throughputLast5m / 5).toFixed(2)),
     dlqSize: db.dlq.length,
   };
 };
