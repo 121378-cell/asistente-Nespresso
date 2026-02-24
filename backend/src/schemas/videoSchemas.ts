@@ -12,6 +12,7 @@ const imageDataSchema = z.object({
  * Schema para validar request de generación de video
  */
 export const generateVideoSchema = z.object({
+  jobId: z.string().uuid().optional(),
   prompt: z.string().min(1, 'Prompt cannot be empty'),
   image: imageDataSchema,
   aspectRatio: z.enum(['16:9', '9:16'], {

@@ -14,7 +14,8 @@ e2e/
 ├── 02-chat-flow.spec.ts      # Tests del flujo de chat
 ├── 03-modals.spec.ts         # Tests de modales
 ├── 04-repairs.spec.ts        # Tests de reparaciones
-└── 05-camera-identification.spec.ts  # Tests de cámara
+├── 05-camera-identification.spec.ts  # Tests de cámara
+└── 06-video-async.spec.ts    # E2E flujo async de video (happy path + retry)
 ```
 
 ## 🚀 Ejecutar Tests
@@ -173,6 +174,11 @@ El workflow (`.github/workflows/e2e-tests.yml`) hace lo siguiente:
 2. ✅ Instala navegadores de Playwright
 3. ✅ Ejecuta todos los tests E2E
 4. ✅ Sube reportes como artifacts si hay fallos
+
+Además, el workflow de quality gates (`.github/workflows/quality-gates.yml`) ejecuta en smoke:
+
+- `e2e/01-navigation.spec.ts`
+- `e2e/06-video-async.spec.ts`
 
 ### Ver Resultados en GitHub
 

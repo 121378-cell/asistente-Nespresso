@@ -44,6 +44,13 @@ export interface PredefinedQueryResponse<T = unknown> {
   result: T;
 }
 
+export interface SparePartSearchResult {
+  id: string;
+  partNumber: string;
+  name: string;
+  family?: string;
+}
+
 type QueryParams = Record<string, string | number | boolean | undefined | null>;
 
 interface ApiErrorPayload {
@@ -206,6 +213,33 @@ class ApiService {
         }
       );
       return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  // Spare Parts
+  async searchSpareParts(query: string): Promise<SparePartSearchResult[]> {
+    try {
+      const response = await this.axiosInstance.get<SparePartSearchResult[]>(
+        '/spare-parts/search',
+        {
+          params: { query },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async addPartToRepair(repairId: string, partId: string, quantity: number): Promise<void> {
+    try {
+      await this.axiosInstance.post('/spare-parts/add', {
+        repairId,
+        partId,
+        quantity,
+      });
     } catch (error) {
       this.handleError(error);
     }

@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { chat, identifyMachine } from '../controllers/chatController.js';
+import {
+  chat,
+  identifyMachine,
+  identifyMachineAsync,
+  identifyMachineStatus,
+} from '../controllers/chatController.js';
 import { validateBody } from '../middleware/validate.js';
 import { chatMessageSchema, identifyMachineSchema } from '../schemas/chatSchemas.js';
 import { chatLimiter } from '../middleware/rateLimiter.js';
@@ -130,5 +135,30 @@ router.post('/', chatLimiter, validateBody(chatMessageSchema), chat);
  *         description: Server error
  */
 router.post('/identify-machine', chatLimiter, validateBody(identifyMachineSchema), identifyMachine);
+
+/**
+ * @swagger
+ * /api/chat/identify-machine/async:
+ *   post:
+ *     summary: Identify machine from image (Async)
+ *     description: Start an asynchronous job to identify Nespresso machine model from an image
+ *     tags: [Chat]
+ */
+router.post(
+  '/identify-machine/async',
+  chatLimiter,
+  validateBody(identifyMachineSchema),
+  identifyMachineAsync
+);
+
+/**
+ * @swagger
+ * /api/chat/identify-machine/status/{jobId}:
+ *   get:
+ *     summary: Check async identification status
+ *     description: Check the status of an asynchronous machine identification job
+ *     tags: [Chat]
+ */
+router.get('/identify-machine/status/:jobId', chatLimiter, identifyMachineStatus);
 
 export default router;

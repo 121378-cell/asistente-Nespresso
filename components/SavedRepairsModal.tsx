@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { SavedRepair } from '../types';
+import { SavedRepair, UsedPart } from '../types';
 import CloseIcon from './icons/CloseIcon';
 import TrashIcon from './icons/TrashIcon';
 import BookmarkIcon from './icons/BookmarkIcon';
+import ToolIcon from './icons/ToolIcon';
+import SparePartsSelector from './SparePartsSelector';
+import { apiService } from '../services/apiService';
 
 interface SavedRepairsModalProps {
   onClose: () => void;
   onLoad: (repair: SavedRepair) => void;
-  onSave: () => void;
+  onSave: (usedParts: UsedPart[]) => void;
   isSaveDisabled: boolean;
 }
 
@@ -20,13 +23,13 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
   const [repairs, setRepairs] = useState<SavedRepair[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedParts, setSelectedParts] = useState<UsedPart[]>([]);
 
   useEffect(() => {
     const loadRepairs = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const { apiService } = await import('../services/apiService');
         const data = await apiService.getAllRepairs();
         setRepairs(data);
       } catch (error: unknown) {
@@ -61,7 +64,6 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
       )
     ) {
       try {
-        const { apiService } = await import('../services/apiService');
         await apiService.deleteRepair(id);
         setRepairs(repairs.filter((r) => r.id !== id));
       } catch (error) {
@@ -87,14 +89,21 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 border-b">
+        <div className="p-6 border-b bg-blue-50 dark:bg-blue-900/20">
+          <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
+            <ToolIcon className="w-4 h-4" />
+            Recambios utilizados en esta reparación:
+          </h3>
+
+          <SparePartsSelector onPartsChange={(parts) => setSelectedParts(parts)} />
+
           <button
-            onClick={onSave}
+            onClick={() => onSave(selectedParts)}
             disabled={isSaveDisabled}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors shadow"
+            className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors shadow"
           >
             <BookmarkIcon className="w-5 h-5" />
-            Guardar Conversación Actual
+            Guardar con {selectedParts.length} recambios
           </button>
           {isSaveDisabled && (
             <p className="text-xs text-gray-500 mt-2 text-center">

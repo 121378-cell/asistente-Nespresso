@@ -21,3 +21,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Runtime/test persistence for async jobs
+data/*.json
+!data/.gitkeep
+

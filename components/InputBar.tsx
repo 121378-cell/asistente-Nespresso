@@ -3,8 +3,6 @@ import SendIcon from './icons/SendIcon';
 import PaperclipIcon from './icons/PaperclipIcon';
 import MicrophoneIcon from './icons/MicrophoneIcon';
 import StopCircleIcon from './icons/StopCircleIcon';
-import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { transcribeAudio } from '../services/geminiService';
 import CloseIcon from './icons/CloseIcon';
 
 interface InputBarProps {
@@ -12,25 +10,104 @@ interface InputBarProps {
   isLoading: boolean;
 }
 
+interface SpeechRecognitionResultLike {
+  isFinal: boolean;
+  0: {
+    transcript: string;
+  };
+}
+
+interface SpeechRecognitionEventLike {
+  resultIndex: number;
+  results: SpeechRecognitionResultLike[];
+}
+
+interface SpeechRecognitionLike {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface SpeechRecognitionCtor {
+  new (): SpeechRecognitionLike;
+}
+
 const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
   const [input, setInput] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [useGoogleSearch, setUseGoogleSearch] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { status, audioBlob, startRecording, stopRecording, reset } = useAudioRecorder();
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
-    if (audioBlob) {
-      const transcribe = async () => {
-        const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
-        const transcribedText = await transcribeAudio(audioFile);
-        setInput((prev) => (prev ? `${prev} ${transcribedText}` : transcribedText));
-        reset();
+    const browserWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionCtor;
+      webkitSpeechRecognition?: SpeechRecognitionCtor;
+    };
+    const SpeechRecognition =
+      browserWindow.SpeechRecognition || browserWindow.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'es-ES';
+
+      recognitionRef.current.onresult = (event: SpeechRecognitionEventLike) => {
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        if (finalTranscript) {
+          setInput((prev) => (prev ? `${prev} ${finalTranscript}` : finalTranscript));
+        }
       };
-      transcribe();
+
+      recognitionRef.current.onerror = (event: { error: string }) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
     }
-  }, [audioBlob, reset]);
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      alert('Tu navegador no soporta reconocimiento de voz.');
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error('Failed to start recognition:', err);
+      }
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -50,14 +127,15 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((input.trim() || file) && !isLoading && status !== 'recording') {
+    if ((input.trim() || file) && !isLoading) {
+      if (isRecording) {
+        recognitionRef.current?.stop();
+      }
       onSendMessage(input.trim(), file, useGoogleSearch);
       setInput('');
       removeFile();
     }
   };
-
-  const isRecording = status === 'recording';
 
   return (
     <div className="bg-white/80 backdrop-blur-md p-4 border-t border-gray-200">
@@ -117,12 +195,12 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
         </button>
         <button
           type="button"
-          onClick={isRecording ? stopRecording : startRecording}
+          onClick={toggleRecording}
           disabled={isLoading}
           className="flex-shrink-0 w-11 h-11 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
-          aria-label={isRecording ? 'Detener grabación de audio' : 'Grabar mensaje de audio'}
+          aria-label={isRecording ? 'Detener dictado por voz' : 'Iniciar dictado por voz'}
           aria-pressed={isRecording}
-          title={isRecording ? 'Detener grabación' : 'Grabar audio'}
+          title={isRecording ? 'Detener dictado' : 'Dictar mensaje'}
         >
           {isRecording ? (
             <StopCircleIcon className="w-6 h-6 text-red-500 animate-pulse" aria-hidden="true" />
@@ -142,10 +220,10 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
             isLoading
               ? 'Esperando respuesta...'
               : isRecording
-                ? 'Grabando... habla ahora.'
+                ? 'Escuchando... di lo que necesites.'
                 : 'Describe el problema aquí...'
           }
-          disabled={isLoading || isRecording}
+          disabled={isLoading}
           className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow duration-200 text-gray-800"
           aria-label="Escribe tu mensaje sobre reparación de cafeteras"
           aria-describedby="input-help"
@@ -156,7 +234,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
         </span>
         <button
           type="submit"
-          disabled={isLoading || isRecording || (!input.trim() && !file)}
+          disabled={isLoading || (!input.trim() && !file)}
           className="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           aria-label="Enviar mensaje"
           title="Enviar mensaje"

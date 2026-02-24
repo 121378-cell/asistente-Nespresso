@@ -1,21 +1,31 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import swaggerUi from 'swagger-ui-express';
 import repairsRouter from './routes/repairsRouter.js';
 import analyticsRouter from './routes/analyticsRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import videoRouter from './routes/videoRouter.js';
+import authRouter from './routes/authRouter.js';
+import jobsRouter from './routes/jobsRouter.js';
+import sparePartsRouter from './routes/sparePartsRouter.js';
 import { env } from './config/env.js';
+import path from 'path';
+import { PrismaClient } from '@prisma/client';
+
+const prismaClient = new PrismaClient();
 import { globalLimiter } from './middleware/rateLimiter.js';
+import { authenticate } from './middleware/auth.js';
 import { logger } from './config/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { getHttpMetricsSnapshot, httpMetricsMiddleware } from './middleware/httpMetrics.js';
-import { swaggerSpec } from './config/swagger.js';
+import { startVideoJobWorker, stopVideoJobWorker } from './workers/videoJobWorker.js';
+import { startImageJobWorker, stopImageJobWorker } from './workers/imageJobWorker.js';
+import { getVideoAsyncMetricsSnapshot } from './services/videoJobService.js';
 
 const app: Application = express();
 const PORT = env.port;
 const ALLOWED_ORIGINS = env.allowedOrigins;
+const isProduction = env.nodeEnv === 'production';
 
 if (env.trustProxy) {
   app.set('trust proxy', 1);
@@ -61,19 +71,75 @@ app.use(httpMetricsMiddleware);
 // Apply global rate limiting to all API routes
 app.use('/api/', globalLimiter);
 
-// Swagger API Documentation
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Nespresso Assistant API Docs',
-  })
-);
+const setupSwaggerDocs = async () => {
+  if (isProduction) {
+    return;
+  }
+
+  try {
+    const [{ default: swaggerUi }, { swaggerSpec }] = await Promise.all([
+      import('swagger-ui-express'),
+      import('./config/swagger.js'),
+    ]);
+
+    app.use(
+      '/api-docs',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerSpec, {
+        customCss: '.swagger-ui .topbar { display: none }',
+        customSiteTitle: 'Nespresso Assistant API Docs',
+      })
+    );
+
+    logger.info('Swagger docs endpoint enabled');
+  } catch (error) {
+    logger.warn({ err: error }, 'Swagger docs could not be initialized');
+  }
+};
+
+void setupSwaggerDocs();
 
 // Routes
-app.use('/api/repairs', repairsRouter);
-app.use('/api/analytics', analyticsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/repairs', authenticate, repairsRouter);
+app.use('/api/analytics', authenticate, analyticsRouter);
+app.use('/api/jobs', authenticate, jobsRouter);
+app.use('/api/spare-parts', sparePartsRouter);
+
+if (!isProduction) {
+  app.post('/api/admin/import-spare-parts', authenticate, async (req, res) => {
+    try {
+      const XLSX = (await import('xlsx')).default;
+      const filePath = path.resolve('../data/inventory/ZN100.xlsm');
+      const workbook = XLSX.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
+      const dataRows = data.slice(8);
+      let count = 0;
+
+      for (const row of dataRows) {
+        if (!row || row.length < 4) continue;
+        const family = String(row[1] || '').trim();
+        const partNumber = String(row[2] || '').trim();
+        const name = String(row[3] || '').trim();
+        const category = String(row[4] || '').trim();
+        if (!partNumber || !name) continue;
+
+        await prismaClient.sparePart.upsert({
+          where: { partNumber },
+          update: { name, family, category },
+          create: { partNumber, name, family, category },
+        });
+        count++;
+      }
+      res.json({ success: true, count });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+}
+
 app.use('/api/chat', chatRouter);
 app.use('/api/video', videoRouter);
 
@@ -87,10 +153,18 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // Basic observability endpoint for dashboards and alerting.
-app.get('/metrics', (req: Request, res: Response) => {
+app.get('/metrics', async (req: Request, res: Response) => {
+  let videoAsync = null;
+  try {
+    videoAsync = await getVideoAsyncMetricsSnapshot();
+  } catch (error) {
+    logger.error({ err: error, requestId: req.id }, 'Failed to collect video async metrics');
+  }
+
   res.json({
     requestId: req.id,
-    ...getHttpMetricsSnapshot(),
+    http: getHttpMetricsSnapshot(),
+    videoAsync,
   });
 });
 
@@ -110,7 +184,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
+  startVideoJobWorker();
+  startImageJobWorker();
   logger.info(
     {
       port: PORT,
@@ -119,6 +195,23 @@ app.listen(PORT, () => {
     },
     'Server started successfully'
   );
+});
+
+const shutdown = async (signal: string) => {
+  logger.info({ signal }, 'Shutting down server');
+  await stopVideoJobWorker();
+  await stopImageJobWorker();
+  server.close(() => {
+    process.exit(0);
+  });
+};
+
+process.on('SIGINT', () => {
+  void shutdown('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  void shutdown('SIGTERM');
 });
 
 export default app;

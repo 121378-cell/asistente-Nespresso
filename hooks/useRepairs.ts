@@ -1,6 +1,7 @@
 import { useAppContext } from '../context/AppContext';
-import { SavedRepair } from '../types';
+import { SavedRepair, UsedPart } from '../types';
 import { checklists } from '../data/checklistData';
+import { apiService } from '../services/apiService';
 
 /**
  * Custom hook para manejar el guardado y carga de reparaciones
@@ -19,7 +20,7 @@ export const useRepairs = () => {
   /**
    * Guardar la reparación actual
    */
-  const handleSaveRepair = async () => {
+  const handleSaveRepair = async (usedParts: UsedPart[] = []) => {
     const defaultName = `${machineModel || 'General'} - ${messages[1]?.text.substring(0, 30) || 'Reparación'}...`;
     const name = prompt('Dale un nombre a esta reparación:', defaultName);
 
@@ -30,11 +31,19 @@ export const useRepairs = () => {
         serialNumber,
         messages,
         timestamp: Date.now(),
+        usedParts,
       };
 
       try {
-        const { apiService } = await import('../services/apiService');
-        await apiService.createRepair(newRepair);
+        const savedRepair = await apiService.createRepair(newRepair);
+
+        // If we have parts, associate them
+        if (usedParts.length > 0) {
+          for (const part of usedParts) {
+            await apiService.addPartToRepair(savedRepair.id, part.id, part.quantity);
+          }
+        }
+
         alert('¡Reparación guardada con éxito!');
       } catch (error) {
         console.error('Failed to save repair:', error);

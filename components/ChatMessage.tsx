@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Role, Message } from '../types';
 import CoffeeIcon from './icons/CoffeeIcon';
 import SpeakerIcon from './icons/SpeakerIcon';
-import { generateSpeech } from '../services/geminiService';
-import { playPcmAudio } from '../utils/audioUtils';
 
 interface ChatMessageProps {
   message: Message;
@@ -12,7 +10,6 @@ interface ChatMessageProps {
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isModel = message.role === Role.MODEL;
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
   const messageClasses = `max-w-xl lg:max-w-2xl xl:max-w-3xl w-fit p-4 rounded-2xl mb-4 shadow-md ${
     isModel
@@ -35,22 +32,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   });
 
-  const handleSpeak = async () => {
-    if (isSpeaking) return;
-
-    try {
-      setIsLoadingAudio(true);
-      const base64Audio = await generateSpeech(textContent);
-      setIsLoadingAudio(false);
-      setIsSpeaking(true);
-      await playPcmAudio(base64Audio);
-    } catch (error) {
-      console.error('Failed to play audio', error);
-      alert('No se pudo reproducir el audio. Inténtalo de nuevo.');
-    } finally {
-      setIsLoadingAudio(false);
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      return;
     }
+
+    if (!window.speechSynthesis) {
+      alert('Tu navegador no soporta síntesis de voz.');
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.lang = 'es-ES';
+    utterance.rate = 1.0;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
   };
 
   // Safely check if grounding chunks exist and have length
@@ -87,15 +88,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           <div className="mt-2 flex justify-end border-t border-gray-100 dark:border-gray-600 pt-2">
             <button
               onClick={handleSpeak}
-              disabled={isSpeaking || isLoadingAudio}
+              disabled={isSpeaking}
               className={`p-1.5 rounded-full transition-colors ${isSpeaking ? 'text-blue-500 bg-blue-50 animate-pulse' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-600'}`}
               title="Leer en voz alta"
             >
-              {isLoadingAudio ? (
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-              ) : (
-                <SpeakerIcon className="w-5 h-5" />
-              )}
+              <SpeakerIcon className="w-5 h-5" />
             </button>
           </div>
         )}

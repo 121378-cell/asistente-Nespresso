@@ -46,6 +46,13 @@ export interface ChecklistItem {
   section?: string;
 }
 
+export interface UsedPart {
+  id: string;
+  partNumber: string;
+  name: string;
+  quantity: number;
+}
+
 export interface SavedRepair {
   id: string;
   name: string;
@@ -53,4 +60,5 @@ export interface SavedRepair {
   serialNumber: string | null;
   messages: Message[];
   timestamp: number;
+  usedParts?: UsedPart[];
 }
