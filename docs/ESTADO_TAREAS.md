@@ -1,6 +1,6 @@
 # Estado de tareas del proyecto
 
-Fecha de actualización: 18 de febrero de 2026
+Fecha de actualización: 24 de febrero de 2026
 
 ## Tareas realizadas
 
@@ -76,6 +76,20 @@ Fecha de actualización: 18 de febrero de 2026
 22. Planificación de Fase 2 creada en GitHub.
     - Nuevo EPIC: `#34`.
     - Backlog base: `#35`, `#36`, `#37`, `#38`, `#39`.
+23. Corrección integral de build/test para flujo async de video y reparaciones.
+    - PR `#45` mergeada en `main`.
+    - Merge commit: `ea8c109`.
+    - Cambios relevantes:
+      - Tipado y compilación frontend/backend restaurados.
+      - Coverage frontend habilitado.
+      - Estabilización de tests E2E de reparaciones.
+      - Mitigación de fallos de CI por dependencias opcionales de `rollup` en Linux.
+24. Verificación final de quality gates en GitHub Actions posterior al merge.
+    - `Frontend Lint/Test/Build`: PASS.
+    - `Backend Test/Build`: PASS.
+    - `Dependency Audit`: PASS.
+    - `E2E Smoke`: PASS.
+    - `test-e2e`: PASS.
 
 ## Tareas pendientes
 
@@ -100,8 +114,8 @@ No hay tareas pendientes del bloque de estabilización inicial.
 
 - Rama actual: `main`
 - Working tree: limpio
-- Remoto: `origin/main` actualizado hasta `1521aae`
+- Remoto: `origin/main` actualizado hasta `ea8c109`
 
 ## Próxima tarea recomendada
 
-1. Iniciar implementación de `#35` (encolado async de video y estado de job persistente).
+1. Ejecutar `#38` (observabilidad de cola/workers y runbook operativo) para cerrar trazabilidad de Fase 2 en producción.
