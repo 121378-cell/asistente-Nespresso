@@ -62,5 +62,8 @@
     "typescript": "^5.8.2",
     "vitest": "^4.0.13",
     "xlsx": "^0.18.5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.53.3"
   }
 }
