@@ -74,6 +74,8 @@ Start the development server with auto-reload:
 npm run dev
 ```
 
+Note: startup is fail-fast and validates critical environment variables from `backend/.env`.
+
 The server will start on `http://localhost:3001`
 
 ## Production
