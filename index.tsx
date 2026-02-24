@@ -7,10 +7,10 @@ import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Register service worker for PWA functionality
+// Register service worker for PWA functionality.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').catch((error) => {
+    navigator.serviceWorker.register('/sw.js').catch((error) => {
       if (process.env.NODE_ENV === 'development') {
         console.error('SW registration failed:', error);
       }
