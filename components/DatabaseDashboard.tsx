@@ -71,7 +71,7 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
 
-  const [queryResult, setQueryResult] = useState<unknown>(null);
+  const [queryResult, setQueryResult] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     loadStats();
@@ -137,9 +137,9 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setLoading(true);
       // Usar consulta predefinida segura en lugar de SQL arbitrario
       const data = await apiService.runPredefinedQuery('recent_repairs', { limit: 10 });
-      setQueryResult(getRecordValue(data, 'result') ?? null);
+      setQueryResult((getRecordValue(data, 'result') as Record<string, unknown>) ?? null);
     } catch (err: unknown) {
-      setQueryResult({ error: getErrorMessage(err) });
+      setQueryResult({ error: getErrorMessage(err) } as Record<string, unknown>);
     } finally {
       setLoading(false);
     }
@@ -411,12 +411,12 @@ const DatabaseDashboard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <div className="p-6 overflow-x-auto">
                     <pre
                       className={`text-xs font-mono p-4 rounded-lg border ${
-                        hasErrorField(queryResult)
+                        hasErrorField(queryResult as Record<string, unknown>)
                           ? 'bg-red-50 border-red-200 text-red-700'
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     >
-                      {JSON.stringify(queryResult, null, 2)}
+                      {String(JSON.stringify(queryResult, null, 2))}
                     </pre>
                   </div>
                 </div>

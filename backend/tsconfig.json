@@ -15,7 +15,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    /* Additional Checks - BL-16 */
+    /* Additional Checks - BL-15 & BL-16 */
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },

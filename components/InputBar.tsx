@@ -131,7 +131,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
       if (isRecording) {
         recognitionRef.current?.stop();
       }
-      onSendMessage(input.trim(), file, useGoogleSearch);
+      onSendMessage(input.trim(), file ?? undefined, useGoogleSearch);
       setInput('');
       removeFile();
     }

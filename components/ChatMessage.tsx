@@ -97,13 +97,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           </div>
         )}
 
-        {hasGroundingChunks && (
+        {hasGroundingChunks && message.groundingMetadata && (
           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
             <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
               Fuentes:
             </h4>
             <ul className="space-y-2">
-              {message.groundingMetadata!.groundingChunks.map((chunk, index) => {
+              {message.groundingMetadata.groundingChunks?.map((chunk, index) => {
                 if (chunk.web?.uri) {
                   return (
                     <li key={`web-${index}`} className="text-xs">
