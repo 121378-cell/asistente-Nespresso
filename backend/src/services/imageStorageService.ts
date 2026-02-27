@@ -34,7 +34,7 @@ export async function uploadImage(
     const fileName = `${folder}/${uuidv4()}.jpg`;
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(IMAGES_BUCKET)
       .upload(fileName, compressedBuffer, {
         contentType: 'image/jpeg',

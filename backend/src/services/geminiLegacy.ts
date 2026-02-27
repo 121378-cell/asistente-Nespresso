@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse, Part, Content, Type } from '@google/genai';
+import { GoogleGenAI, Part, Type } from '@google/genai';
 import { env } from '../config/env.js';
 
 /**

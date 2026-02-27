@@ -20,7 +20,7 @@ export class OllamaProvider implements LLMProvider {
     history: MessageContent[],
     message: string,
     file?: FileData,
-    useGoogleSearch?: boolean,
+    _useGoogleSearch?: boolean,
     machineModel?: string | null
   ): Promise<GenerateContentResponse> {
     try {

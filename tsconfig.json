@@ -17,8 +17,8 @@
     "noImplicitThis": false, // TODO: Phase 4
     "alwaysStrict": true, // ✅ Safe to enable
     /* Additional Checks - Enabled */
-    "noUnusedLocals": false, // TODO: Enable after fixing types
-    "noUnusedParameters": false, // TODO: Enable after fixing types
+    "noUnusedLocals": true, // ✅ BL-16: Enable
+    "noUnusedParameters": true, // ✅ BL-16: Enable
     "noImplicitReturns": false, // TODO: Phase 5
     "noFallthroughCasesInSwitch": true, // ✅ Safe to enable
     "moduleResolution": "bundler",

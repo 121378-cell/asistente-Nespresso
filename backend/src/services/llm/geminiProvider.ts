@@ -1,6 +1,5 @@
 import { GoogleGenAI, Part, Content } from '@google/genai';
 import { env } from '../../config/env.js';
-import { logger } from '../../config/logger.js';
 import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from './types.js';
 
 const SYSTEM_INSTRUCTION = `Eres un compañero experto en reparación de cafeteras Nespresso Profesional... (Mismo prompt que original)`;
