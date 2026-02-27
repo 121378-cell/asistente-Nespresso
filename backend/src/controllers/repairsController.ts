@@ -66,7 +66,13 @@ export const getAllRepairs = async (req: Request, res: Response) => {
 
     res.json(repairs);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error fetching repairs', 'Failed to fetch repairs');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error fetching repairs',
+      'Failed to fetch repairs'
+    );
   }
 };
 
@@ -117,7 +123,13 @@ export const getRepairById = async (req: Request, res: Response) => {
 
     res.json(formattedRepair);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error fetching repair', 'Failed to fetch repair');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error fetching repair',
+      'Failed to fetch repair'
+    );
   }
 };
 
@@ -187,7 +199,13 @@ export const createRepair = async (req: Request, res: Response) => {
 
     res.status(201).json(formattedRepair);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error creating repair', 'Failed to create repair');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error creating repair',
+      'Failed to create repair'
+    );
   }
 };
 
@@ -218,7 +236,13 @@ export const updateRepair = async (req: Request, res: Response) => {
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Repair not found' });
     }
-    return logAndSendInternalError(req, res, error, 'Error updating repair', 'Failed to update repair');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error updating repair',
+      'Failed to update repair'
+    );
   }
 };
 
@@ -236,7 +260,13 @@ export const deleteRepair = async (req: Request, res: Response) => {
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Repair not found' });
     }
-    return logAndSendInternalError(req, res, error, 'Error deleting repair', 'Failed to delete repair');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error deleting repair',
+      'Failed to delete repair'
+    );
   }
 };
 
@@ -272,7 +302,13 @@ export const exportPdf = async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename=repair-${id}.pdf`);
     res.send(pdfBuffer);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error exporting PDF', 'Failed to generate PDF');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error exporting PDF',
+      'Failed to generate PDF'
+    );
   }
 };
 

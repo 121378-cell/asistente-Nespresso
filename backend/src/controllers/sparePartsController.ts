@@ -23,7 +23,13 @@ export const searchParts = async (req: Request, res: Response) => {
 
     res.json(parts);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Failed to search spare parts', 'Failed to search parts');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to search spare parts',
+      'Failed to search parts'
+    );
   }
 };
 
@@ -47,6 +53,12 @@ export const addPartToRepair = async (req: Request, res: Response) => {
 
     res.json(usedPart);
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Failed to add part to repair', 'Failed to add part');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to add part to repair',
+      'Failed to add part'
+    );
   }
 };

@@ -14,9 +14,11 @@ const mockRepairsApi = async (
   page: import('@playwright/test').Page,
   initialRepairs: RepairRecord[]
 ) => {
+  await page.unroute('**/api/repairs*');
+  await page.unroute('**/api/repairs/**');
   const repairs = [...initialRepairs];
 
-  await page.route('**/api/repairs', async (route, request) => {
+  await page.route('**/api/repairs*', async (route, request) => {
     if (request.method() === 'GET') {
       await route.fulfill({
         status: 200,
@@ -44,7 +46,7 @@ const mockRepairsApi = async (
     await route.continue();
   });
 
-  await page.route('**/api/repairs/*', async (route, request) => {
+  await page.route('**/api/repairs/**', async (route, request) => {
     if (request.method() === 'DELETE') {
       const id = request.url().split('/').pop() || '';
       const index = repairs.findIndex((repair) => repair.id === id);
@@ -170,7 +172,12 @@ test.describe('Funcionalidad de Reparaciones', () => {
     await page.reload();
     await waitForAppLoad(page);
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
-    await page.getByRole('button', { name: /^cargar$/i }).click();
+    await expect(page.getByText('Carga E2E')).toBeVisible();
+    await page
+      .locator('li')
+      .filter({ hasText: 'Carga E2E' })
+      .getByRole('button', { name: /^cargar$/i })
+      .click();
 
     await expect(page.getByText(/modelo: zenius/i)).toBeVisible();
     await expect(page.getByText('Mensaje de reparación cargada')).toBeVisible();
@@ -196,7 +203,11 @@ test.describe('Funcionalidad de Reparaciones', () => {
 
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
     await expect(page.getByText('Eliminar E2E')).toBeVisible();
-    await page.getByRole('button', { name: /eliminar reparación/i }).click();
+    await page
+      .locator('li')
+      .filter({ hasText: 'Eliminar E2E' })
+      .getByTitle(/eliminar reparación/i)
+      .click();
     await expect(page.getByText('Eliminar E2E')).toHaveCount(0);
   });
 });

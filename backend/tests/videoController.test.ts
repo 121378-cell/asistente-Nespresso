@@ -159,11 +159,9 @@ describe('Video Controller', () => {
         createdAt: '2026-02-19T00:00:00.000Z',
         updatedAt: '2026-02-19T00:01:00.000Z',
       } as any);
-      const response = await request(app)
-        .post('/api/video/status')
-        .send({
-          jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
-        });
+      const response = await request(app).post('/api/video/status').send({
+        jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -180,11 +178,9 @@ describe('Video Controller', () => {
 
     it('should return 404 for unknown jobId', async () => {
       vi.mocked(refreshVideoJobStatus).mockResolvedValue(null);
-      const response = await request(app)
-        .post('/api/video/status')
-        .send({
-          jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
-        });
+      const response = await request(app).post('/api/video/status').send({
+        jobId: '4fd35841-b7ab-4381-a7d0-2be7008dcfd0',
+      });
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'Video job not found' });

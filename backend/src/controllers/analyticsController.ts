@@ -64,7 +64,13 @@ export const getStats = async (req: Request, res: Response) => {
       repairsByMonth,
     });
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error fetching stats', 'Failed to fetch statistics');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error fetching stats',
+      'Failed to fetch statistics'
+    );
   }
 };
 
@@ -126,7 +132,13 @@ export const searchRepairs = async (req: Request, res: Response) => {
       offset: Number(offset),
     });
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error searching repairs', 'Failed to search repairs');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error searching repairs',
+      'Failed to search repairs'
+    );
   }
 };
 
@@ -183,7 +195,13 @@ export const exportData = async (req: Request, res: Response) => {
       res.json(repairs);
     }
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error exporting data', 'Failed to export data');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error exporting data',
+      'Failed to export data'
+    );
   }
 };
 
@@ -207,7 +225,13 @@ export const getModels = async (req: Request, res: Response) => {
 
     res.json(models.map((m: any) => m.machineModel));
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Error fetching models', 'Failed to fetch models');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Error fetching models',
+      'Failed to fetch models'
+    );
   }
 };
 

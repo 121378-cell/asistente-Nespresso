@@ -57,7 +57,13 @@ export const generate = async (req: Request, res: Response) => {
       requestId: job.requestId,
     });
   } catch (error) {
-    return logAndSendInternalError(req, res, error, 'Failed to generate video', 'Failed to generate video');
+    return logAndSendInternalError(
+      req,
+      res,
+      error,
+      'Failed to generate video',
+      'Failed to generate video'
+    );
   }
 };
 
