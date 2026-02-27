@@ -144,7 +144,7 @@ export const createRepair = async (req: Request, res: Response) => {
     }
 
     // Create repair with messages and attachments
-    const repair = (await prisma.savedRepair.create({
+    const repair = await prisma.savedRepair.create({
       data: {
         name,
         machineModel,
@@ -154,7 +154,7 @@ export const createRepair = async (req: Request, res: Response) => {
           create: messages.map((msg) => ({
             role: msg.role,
             text: msg.text,
-            groundingMetadata: (msg.groundingMetadata as any) || undefined,
+            groundingMetadata: msg.groundingMetadata || undefined,
             ...(msg.attachment && {
               attachment: {
                 create: {
@@ -173,7 +173,7 @@ export const createRepair = async (req: Request, res: Response) => {
           },
         },
       },
-    })) as any; // Type assertion needed due to Prisma complex types
+    });
 
     // Transform to match frontend format
     const formattedRepair = {
@@ -182,19 +182,29 @@ export const createRepair = async (req: Request, res: Response) => {
       machineModel: repair.machineModel,
       serialNumber: repair.serialNumber,
       timestamp: repair.timestamp.getTime(),
-      messages: repair.messages.map((msg: any) => ({
-        role: msg.role,
-        text: msg.text,
-        ...(msg.attachment && {
-          attachment: {
-            url: msg.attachment.url,
-            type: msg.attachment.type,
-          },
-        }),
-        ...(msg.groundingMetadata && {
-          groundingMetadata: msg.groundingMetadata as any,
-        }),
-      })),
+      messages: repair.messages.map(
+        (msg: {
+          role: string;
+          text: string;
+          attachment?: { url: string; type: string } | null;
+          groundingMetadata?: unknown;
+        }) => {
+          const result: Record<string, unknown> = {
+            role: msg.role,
+            text: msg.text,
+          };
+          if (msg.attachment) {
+            result.attachment = {
+              url: msg.attachment.url,
+              type: msg.attachment.type,
+            };
+          }
+          if (msg.groundingMetadata && typeof msg.groundingMetadata === 'object') {
+            result.groundingMetadata = msg.groundingMetadata;
+          }
+          return result;
+        }
+      ),
     };
 
     res.status(201).json(formattedRepair);
@@ -232,8 +242,13 @@ export const updateRepair = async (req: Request, res: Response) => {
     });
 
     res.json(repair);
-  } catch (error: any) {
-    if (error.code === 'P2025') {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as Record<string, unknown>).code === 'P2025'
+    ) {
       return res.status(404).json({ error: 'Repair not found' });
     }
     return logAndSendInternalError(
@@ -256,8 +271,13 @@ export const deleteRepair = async (req: Request, res: Response) => {
     });
 
     res.json({ message: 'Repair deleted successfully' });
-  } catch (error: any) {
-    if (error.code === 'P2025') {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as Record<string, unknown>).code === 'P2025'
+    ) {
       return res.status(404).json({ error: 'Repair not found' });
     }
     return logAndSendInternalError(

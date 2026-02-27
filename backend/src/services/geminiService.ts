@@ -32,7 +32,7 @@ export async function generateResponse(
   });
 
   if (!file && !useGoogleSearch) {
-    const cached = await getCachedResponse(cacheKey);
+    const cached = await getCachedResponse<GenerateContentResponse>(cacheKey);
     if (cached) {
       logger.info({ cacheKey, provider: env.llmProvider }, 'Cache hit for AI response');
       return cached;

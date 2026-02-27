@@ -3,15 +3,15 @@ import path from 'path';
 import crypto from 'crypto';
 import { logger } from '../config/logger.js';
 
-interface CacheEntry {
-  response: any;
+interface CacheEntry<T = unknown> {
+  response: T;
   expiresAt: number;
 }
 
 const CACHE_DIR = path.resolve(process.cwd(), 'backend', 'data', 'cache');
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1_000; // 24 hours
 
-export const getCacheKey = (prompt: string, context?: any): string => {
+export const getCacheKey = (prompt: string, context?: unknown): string => {
   const data = JSON.stringify({ prompt, context });
   return crypto.createHash('sha256').update(data).digest('hex');
 };
@@ -20,11 +20,11 @@ const ensureCacheDir = async () => {
   await fs.mkdir(CACHE_DIR, { recursive: true });
 };
 
-export const getCachedResponse = async (key: string): Promise<any | null> => {
+export const getCachedResponse = async <T = unknown>(key: string): Promise<T | null> => {
   try {
     const filePath = path.join(CACHE_DIR, `${key}.json`);
     const content = await fs.readFile(filePath, 'utf-8');
-    const entry: CacheEntry = JSON.parse(content);
+    const entry: CacheEntry<T> = JSON.parse(content);
 
     if (Date.now() > entry.expiresAt) {
       await fs.unlink(filePath);
@@ -37,9 +37,9 @@ export const getCachedResponse = async (key: string): Promise<any | null> => {
   }
 };
 
-export const setCachedResponse = async (
+export const setCachedResponse = async <T = unknown>(
   key: string,
-  response: any,
+  response: T,
   ttlMs: number = DEFAULT_TTL_MS
 ): Promise<void> => {
   try {

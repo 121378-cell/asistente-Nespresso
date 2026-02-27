@@ -76,7 +76,7 @@ export async function generateVideo(
   prompt: string,
   image: { imageBytes: string; mimeType: string },
   aspectRatio: '16:9' | '9:16'
-): Promise<any> {
+): Promise<unknown> {
   try {
     const apiKey = env.geminiApiKey;
     if (!apiKey) {
@@ -106,7 +106,7 @@ export async function generateVideo(
 /**
  * Check status of video generation operation
  */
-export async function checkVideoStatus(operationData: any): Promise<any> {
+export async function checkVideoStatus(operationData: { name: string }): Promise<unknown> {
   try {
     const apiKey = env.geminiApiKey;
     if (!apiKey) {
@@ -115,9 +115,8 @@ export async function checkVideoStatus(operationData: any): Promise<any> {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const operation = await ai.operations.getVideosOperation({
-      operation: operationData,
-    });
+    // Type assertion required because Gemini SDK types are not fully typed
+    const operation = await ai.operations.get(operationData as never);
 
     return operation;
   } catch (error) {

@@ -16,7 +16,7 @@ interface GenerateVideoRequest {
 
 interface CheckVideoStatusRequest {
   jobId?: string;
-  operation?: any;
+  operation?: unknown;
 }
 
 // POST /api/video/generate - Generate video from image and prompt
@@ -106,8 +106,8 @@ export const status = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'jobId or operation data is required' });
     }
 
-    const result = await checkVideoStatus(operation);
-    res.json({ ...result, deprecated: true });
+    const result = await checkVideoStatus(operation as { name: string });
+    res.json({ ...(result as Record<string, unknown>), deprecated: true });
   } catch (error) {
     return logAndSendInternalError(
       req,

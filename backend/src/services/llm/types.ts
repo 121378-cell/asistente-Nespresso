@@ -8,9 +8,22 @@ export interface FileData {
   data: string; // base64
 }
 
+export interface GroundingChunk {
+  web?: {
+    uri?: string;
+    title?: string;
+  };
+}
+
+export interface GroundingMetadata {
+  groundingChunks?: GroundingChunk[];
+  groundingSupports?: unknown[];
+  webSearchQueries?: string[];
+}
+
 export interface GenerateContentResponse {
   text: string;
-  groundingMetadata?: any;
+  groundingMetadata?: GroundingMetadata;
 }
 
 export interface LLMProvider {

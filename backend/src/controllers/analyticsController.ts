@@ -38,7 +38,7 @@ export const getStats = async (req: Request, res: Response) => {
     });
 
     const repairsByMonthMap = new Map<string, number>();
-    allRepairs.forEach((r: any) => {
+    allRepairs.forEach((r: { timestamp: Date }) => {
       try {
         const date = new Date(r.timestamp);
         const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
@@ -57,10 +57,12 @@ export const getStats = async (req: Request, res: Response) => {
       totalRepairs,
       totalMessages,
       recentRepairs,
-      repairsByModel: repairsByModel.map((r: any) => ({
-        model: r.machineModel || 'Sin modelo',
-        count: r._count.machineModel,
-      })),
+      repairsByModel: repairsByModel.map(
+        (r: { machineModel: string | null; _count: { machineModel: number } }) => ({
+          model: r.machineModel || 'Sin modelo',
+          count: r._count.machineModel,
+        })
+      ),
       repairsByMonth,
     });
   } catch (error) {
@@ -79,7 +81,7 @@ export const searchRepairs = async (req: Request, res: Response) => {
   try {
     const { query, model, startDate, endDate, limit = 50, offset = 0 } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     // Búsqueda por texto
     if (query) {
@@ -97,13 +99,10 @@ export const searchRepairs = async (req: Request, res: Response) => {
 
     // Filtro por fecha
     if (startDate || endDate) {
-      where.timestamp = {};
-      if (startDate) {
-        where.timestamp.gte = new Date(startDate as string);
-      }
-      if (endDate) {
-        where.timestamp.lte = new Date(endDate as string);
-      }
+      const timestampFilter: Record<string, Date> = {};
+      if (startDate) timestampFilter.gte = new Date(startDate as string);
+      if (endDate) timestampFilter.lte = new Date(endDate as string);
+      where.timestamp = timestampFilter;
     }
 
     const [repairs, total] = await Promise.all([
@@ -147,12 +146,13 @@ export const exportData = async (req: Request, res: Response) => {
   try {
     const { format = 'json', model, startDate, endDate } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (model) where.machineModel = model;
     if (startDate || endDate) {
-      where.timestamp = {};
-      if (startDate) where.timestamp.gte = new Date(startDate as string);
-      if (endDate) where.timestamp.lte = new Date(endDate as string);
+      const timestampFilter: Record<string, Date> = {};
+      if (startDate) timestampFilter.gte = new Date(startDate as string);
+      if (endDate) timestampFilter.lte = new Date(endDate as string);
+      where.timestamp = timestampFilter;
     }
 
     const repairs = await prisma.savedRepair.findMany({
@@ -173,17 +173,26 @@ export const exportData = async (req: Request, res: Response) => {
         ['ID', 'Nombre', 'Modelo', 'Número de Serie', 'Fecha', 'Mensajes'].join(','),
       ];
 
-      repairs.forEach((repair: any) => {
-        const row = [
-          repair.id,
-          `"${repair.name.replace(/"/g, '""')}"`,
-          repair.machineModel || '',
-          repair.serialNumber || '',
-          repair.timestamp.toISOString(),
-          repair.messages.length,
-        ].join(',');
-        csvRows.push(row);
-      });
+      repairs.forEach(
+        (repair: {
+          id: string;
+          name: string;
+          machineModel: string | null;
+          serialNumber: string | null;
+          timestamp: Date;
+          messages: unknown[];
+        }) => {
+          const row = [
+            repair.id,
+            `"${repair.name.replace(/"/g, '""')}"`,
+            repair.machineModel || '',
+            repair.serialNumber || '',
+            repair.timestamp.toISOString(),
+            repair.messages.length,
+          ].join(',');
+          csvRows.push(row);
+        }
+      );
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename=repairs-${Date.now()}.csv`);
@@ -223,7 +232,7 @@ export const getModels = async (req: Request, res: Response) => {
       },
     });
 
-    res.json(models.map((m: any) => m.machineModel));
+    res.json(models.map((m: { machineModel: string | null }) => m.machineModel));
   } catch (error) {
     return logAndSendInternalError(
       req,
