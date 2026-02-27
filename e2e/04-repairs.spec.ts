@@ -155,6 +155,7 @@ test.describe('Funcionalidad de Reparaciones', () => {
   });
 
   test('debe cargar una reparación existente', async ({ page }) => {
+    // Configurar mock con datos (sobrescribe el mock vacío del beforeEach)
     await mockRepairsApi(page, [
       {
         id: 'repair-loaded',
@@ -169,8 +170,7 @@ test.describe('Funcionalidad de Reparaciones', () => {
       },
     ]);
 
-    await page.reload();
-    await waitForAppLoad(page);
+    // Navegar al modal sin recargar (el mock ya está configurado)
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
     await expect(page.getByText('Carga E2E')).toBeVisible();
     await page
@@ -184,6 +184,12 @@ test.describe('Funcionalidad de Reparaciones', () => {
   });
 
   test('debe eliminar una reparación', async ({ page }) => {
+    // Configurar confirm antes de cualquier interacción
+    await page.addInitScript(() => {
+      window.confirm = () => true;
+    });
+
+    // Configurar mock con datos (sobrescribe el mock vacío del beforeEach)
     await mockRepairsApi(page, [
       {
         id: 'repair-delete',
@@ -195,12 +201,7 @@ test.describe('Funcionalidad de Reparaciones', () => {
       },
     ]);
 
-    await page.addInitScript(() => {
-      window.confirm = () => true;
-    });
-    await page.reload();
-    await waitForAppLoad(page);
-
+    // Navegar directamente sin recargar
     await page.getByRole('button', { name: /reparaciones guardadas/i }).click();
     await expect(page.getByText('Eliminar E2E')).toBeVisible();
     await page
