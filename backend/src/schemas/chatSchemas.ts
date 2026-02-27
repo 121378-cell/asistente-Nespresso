@@ -1,9 +1,31 @@
 import { z } from 'zod';
 
 /**
+ * Schema para validar metadata de grounding (Google Search)
+ */
+const groundingMetadataSchema = z
+  .object({
+    groundingChunks: z
+      .array(
+        z.object({
+          web: z
+            .object({
+              uri: z.string().optional(),
+              title: z.string().optional(),
+            })
+            .optional(),
+        })
+      )
+      .optional(),
+    groundingSupports: z.array(z.unknown()).optional(),
+    webSearchQueries: z.array(z.string()).optional(),
+  })
+  .optional();
+
+/**
  * Schema para validar un mensaje en el historial
  */
-const messageSchema = z.object({
+export const messageSchema = z.object({
   role: z.enum(['USER', 'MODEL']),
   text: z.string(),
   attachment: z
@@ -12,7 +34,7 @@ const messageSchema = z.object({
       type: z.string(),
     })
     .optional(),
-  groundingMetadata: z.any().optional(),
+  groundingMetadata: groundingMetadataSchema,
 });
 
 /**

@@ -8,15 +8,16 @@ export interface FileData {
   data: string; // base64
 }
 
-export interface GroundingChunk {
-  web?: {
-    uri?: string;
-    title?: string;
-  };
-}
-
+/**
+ * Metadata de grounding para respuestas con Google Search
+ */
 export interface GroundingMetadata {
-  groundingChunks?: GroundingChunk[];
+  groundingChunks?: Array<{
+    web?: {
+      uri?: string;
+      title?: string;
+    };
+  }>;
   groundingSupports?: unknown[];
   webSearchQueries?: string[];
 }
