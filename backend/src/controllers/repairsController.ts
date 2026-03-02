@@ -2,38 +2,16 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { generateRepairPdf } from '../services/reportService.js';
 import { logAndSendInternalError } from '../utils/errorResponse.js';
+import { Message, GroundingMetadata } from '../types/api.js';
 
 const prisma = new PrismaClient();
 
-// Type definitions matching frontend types
-interface FileAttachment {
-  url: string;
-  type: string;
-}
-
-interface GroundingChunk {
-  web?: {
-    uri: string;
-    title: string;
-  };
-}
-
-interface GroundingMetadata {
-  groundingChunks: GroundingChunk[];
-}
-
-interface MessageInput {
-  role: 'USER' | 'MODEL';
-  text: string;
-  attachment?: FileAttachment;
-  groundingMetadata?: GroundingMetadata;
-}
-
+// Type definitions matching canonical API contract
 interface CreateRepairInput {
   name: string;
   machineModel: string | null;
   serialNumber: string | null;
-  messages: MessageInput[];
+  messages: Message[];
   timestamp: number;
 }
 
@@ -44,7 +22,7 @@ interface StoredMessage {
     url: string;
     type: string;
   } | null;
-  groundingMetadata?: unknown;
+  groundingMetadata?: GroundingMetadata | null;
 }
 
 // GET /api/repairs - Get all saved repairs (without full messages)

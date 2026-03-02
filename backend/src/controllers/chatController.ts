@@ -3,11 +3,8 @@ import { generateResponse, identifyMachineFromImage } from '../services/geminiSe
 import { logger } from '../config/logger.js';
 import { createImageJob, getImageJob } from '../services/imageJobService.js';
 import { logAndSendInternalError } from '../utils/errorResponse.js';
-
-interface MessageInput {
-  role: 'user' | 'model';
-  text: string;
-}
+import type { Message } from '../types/api.js';
+import type { MessageContent } from '../services/llm/types.js';
 
 interface FileInput {
   mimeType: string;
@@ -15,7 +12,7 @@ interface FileInput {
 }
 
 interface ChatRequest {
-  history: MessageInput[];
+  history: Message[];
   message: string;
   file?: FileInput;
   useGoogleSearch?: boolean;
@@ -25,6 +22,12 @@ interface ChatRequest {
 interface IdentifyMachineRequest {
   image: string; // base64
 }
+
+// Helper para convertir Message del contrato API a MessageContent del servicio
+const toMessageContent = (msg: Message): MessageContent => ({
+  role: msg.role.toLowerCase() as 'user' | 'model',
+  text: msg.text,
+});
 
 // POST /api/chat - Generate chat response
 export const chat = async (req: Request, res: Response) => {
@@ -41,7 +44,14 @@ export const chat = async (req: Request, res: Response) => {
     }
 
     // Call Gemini service
-    const response = await generateResponse(history, message, file, useGoogleSearch, machineModel);
+    const historyForLlm = history.map(toMessageContent);
+    const response = await generateResponse(
+      historyForLlm,
+      message,
+      file,
+      useGoogleSearch,
+      machineModel
+    );
 
     // Extract response data
     const text = response.text ?? '';
