@@ -86,3 +86,31 @@ model Attachment {
   message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
+
+model KnowledgeDocument {
+  id          String           @id @default(uuid())
+  title       String
+  sourceType  String           // pdf | text
+  rawText     String           @db.Text
+  metadata    Json?
+  chunkCount  Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  chunks      KnowledgeChunk[]
+
+  @@index([createdAt])
+}
+
+model KnowledgeChunk {
+  id          String            @id @default(uuid())
+  documentId  String
+  document    KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex  Int
+  content     String            @db.Text
+  tokenCount  Int
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+
+  @@index([documentId])
+  @@index([chunkIndex])
+}

@@ -15,12 +15,14 @@ export const useRepairs = () => {
     serialNumber,
     setSerialNumber,
     setShowChecklist,
+    usedParts,
   } = useAppContext();
 
   /**
    * Guardar la reparación actual
    */
-  const handleSaveRepair = async (usedParts: UsedPart[] = []) => {
+  const handleSaveRepair = async (partsOverride: UsedPart[] = []) => {
+    const partsToSave = partsOverride.length > 0 ? partsOverride : usedParts;
     const defaultName = `${machineModel || 'General'} - ${messages[1]?.text.substring(0, 30) || 'Reparación'}...`;
     const name = prompt('Dale un nombre a esta reparación:', defaultName);
 
@@ -31,15 +33,15 @@ export const useRepairs = () => {
         serialNumber,
         messages,
         timestamp: Date.now(),
-        usedParts,
+        usedParts: partsToSave,
       };
 
       try {
         const savedRepair = await apiService.createRepair(newRepair);
 
         // If we have parts, associate them
-        if (usedParts.length > 0) {
-          for (const part of usedParts) {
+        if (partsToSave.length > 0) {
+          for (const part of partsToSave) {
             await apiService.addPartToRepair(savedRepair.id, part.id, part.quantity);
           }
         }

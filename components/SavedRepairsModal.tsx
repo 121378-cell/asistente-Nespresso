@@ -12,6 +12,8 @@ interface SavedRepairsModalProps {
   onLoad: (repair: SavedRepair) => void;
   onSave: (usedParts: UsedPart[]) => void;
   isSaveDisabled: boolean;
+  selectedParts: UsedPart[];
+  onSelectedPartsChange: (parts: UsedPart[]) => void;
 }
 
 const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
@@ -19,11 +21,12 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
   onLoad,
   onSave,
   isSaveDisabled,
+  selectedParts,
+  onSelectedPartsChange,
 }) => {
   const [repairs, setRepairs] = useState<SavedRepair[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedParts, setSelectedParts] = useState<UsedPart[]>([]);
 
   useEffect(() => {
     const loadRepairs = async () => {
@@ -95,7 +98,10 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
             Recambios utilizados en esta reparación:
           </h3>
 
-          <SparePartsSelector onPartsChange={(parts) => setSelectedParts(parts)} />
+          <SparePartsSelector
+            initialParts={selectedParts}
+            onPartsChange={(parts) => onSelectedPartsChange(parts)}
+          />
 
           <button
             onClick={() => onSave(selectedParts)}

@@ -22,6 +22,7 @@ import CameraIcon from './components/icons/CameraIcon';
 import CameraIdentificationModal from './components/CameraIdentificationModal';
 import { DatabaseDashboard } from './components/DatabaseDashboard';
 import JobsDashboard from './components/JobsDashboard';
+import SparePartsDropdown from './components/SparePartsDropdown';
 
 const App: React.FC = () => {
   const {
@@ -33,6 +34,8 @@ const App: React.FC = () => {
     addMessage,
     chatContainerRef,
     isOnline,
+    usedParts,
+    setUsedParts,
   } = useAppContext();
 
   const { handleSendMessage } = useChat();
@@ -154,6 +157,7 @@ const App: React.FC = () => {
             >
               <BookmarkIcon className="w-6 h-6" />
             </button>
+            <SparePartsDropdown selectedParts={usedParts} onSelectedPartsChange={setUsedParts} />
             <button
               onClick={() => setShowVeoModal(true)}
               className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 font-semibold rounded-full hover:bg-purple-200 transition-colors shadow-sm"
@@ -225,6 +229,8 @@ const App: React.FC = () => {
           onSave={handleSaveRepair}
           onLoad={handleLoadRepair}
           isSaveDisabled={isSaveDisabled}
+          selectedParts={usedParts}
+          onSelectedPartsChange={setUsedParts}
         />
       )}
 

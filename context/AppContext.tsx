@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useRef, useEffect } from 'react';
 import { Message } from '../types';
+import { UsedPart } from '../types';
 import { db, LocalMessage } from '../src/db';
 
 // Define el tipo del contexto
@@ -11,6 +12,7 @@ interface AppContextType {
   isLoading: boolean;
   isWaitingForModel: boolean;
   showChecklist: boolean;
+  usedParts: UsedPart[];
   isOnline: boolean;
   initialUserQuery: {
     message: string;
@@ -27,6 +29,7 @@ interface AppContextType {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsWaitingForModel: React.Dispatch<React.SetStateAction<boolean>>;
   setShowChecklist: React.Dispatch<React.SetStateAction<boolean>>;
+  setUsedParts: React.Dispatch<React.SetStateAction<UsedPart[]>>;
   setInitialUserQuery: React.Dispatch<
     React.SetStateAction<{
       message: string;
@@ -46,6 +49,28 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+const USED_PARTS_STORAGE_KEY = 'used_parts_current_repair';
+
+const loadUsedPartsFromStorage = (): UsedPart[] => {
+  try {
+    const raw = localStorage.getItem(USED_PARTS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (item): item is UsedPart =>
+        !!item &&
+        typeof item.id === 'string' &&
+        typeof item.partNumber === 'string' &&
+        typeof item.name === 'string' &&
+        typeof item.quantity === 'number'
+    );
+  } catch {
+    return [];
+  }
+};
+
 // Provider component
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -54,6 +79,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isWaitingForModel, setIsWaitingForModel] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [usedParts, setUsedParts] = useState<UsedPart[]>(() => loadUsedPartsFromStorage());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [initialUserQuery, setInitialUserQuery] = useState<{
     message: string;
@@ -99,6 +125,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(USED_PARTS_STORAGE_KEY, JSON.stringify(usedParts));
+    } catch (error) {
+      console.error('Failed to persist used parts locally:', error);
+    }
+  }, [usedParts]);
+
   // Función helper para agregar un mensaje
   const addMessage = async (message: Message) => {
     setMessages((prev) => [...prev, message]);
@@ -127,6 +161,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setSerialNumber(null);
     setIsWaitingForModel(false);
     setShowChecklist(false);
+    setUsedParts([]);
     setInitialUserQuery(null);
 
     // Clear local messages too on reset
@@ -134,6 +169,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await db.messages.clear();
     } catch (error) {
       console.error('Failed to clear local messages:', error);
+    }
+
+    try {
+      localStorage.removeItem(USED_PARTS_STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear local used parts:', error);
     }
   };
 
@@ -145,6 +186,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isLoading,
     isWaitingForModel,
     showChecklist,
+    usedParts,
     isOnline,
     initialUserQuery,
     chatContainerRef,
@@ -157,6 +199,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setIsLoading,
     setIsWaitingForModel,
     setShowChecklist,
+    setUsedParts,
     setInitialUserQuery,
     setMachineInfo,
     resetConversation,

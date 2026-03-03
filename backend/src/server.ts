@@ -8,6 +8,7 @@ import videoRouter from './routes/videoRouter.js';
 import authRouter from './routes/authRouter.js';
 import jobsRouter from './routes/jobsRouter.js';
 import sparePartsRouter from './routes/sparePartsRouter.js';
+import knowledgeRouter from './routes/knowledgeRouter.js';
 import { env } from './config/env.js';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
@@ -112,6 +113,7 @@ app.use('/api/repairs', authenticate, repairsRouter);
 app.use('/api/analytics', authenticate, analyticsRouter);
 app.use('/api/jobs', authenticate, jobsRouter);
 app.use('/api/spare-parts', sparePartsRouter);
+app.use('/api/knowledge', authenticate, knowledgeRouter);
 
 if (!isProduction) {
   app.post('/api/admin/import-spare-parts', authenticate, async (req, res) => {

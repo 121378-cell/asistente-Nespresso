@@ -29,6 +29,10 @@ const SparePartsSelector: React.FC<SparePartsSelectorProps> = ({
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    setSelectedParts(initialParts);
+  }, [initialParts]);
+
+  useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (query.trim().length > 2) {
         setIsSearching(true);

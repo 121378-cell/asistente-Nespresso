@@ -56,10 +56,12 @@ export const chat = async (req: Request, res: Response) => {
     // Extract response data
     const text = response.text ?? '';
     const groundingMetadata = response.groundingMetadata;
+    const knowledgeSources = response.knowledgeSources ?? [];
 
     res.json({
       text,
       groundingMetadata: groundingMetadata ?? null,
+      knowledgeSources,
     });
   } catch (error) {
     return logAndSendInternalError(

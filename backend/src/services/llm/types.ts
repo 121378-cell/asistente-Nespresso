@@ -8,6 +8,14 @@ export interface FileData {
   data: string; // base64
 }
 
+export interface KnowledgeSource {
+  documentId: string;
+  documentTitle: string;
+  chunkId: string;
+  chunkIndex: number;
+  score: number;
+}
+
 /**
  * Metadata de grounding para respuestas con Google Search
  */
@@ -25,6 +33,7 @@ export interface GroundingMetadata {
 export interface GenerateContentResponse {
   text: string;
   groundingMetadata?: GroundingMetadata;
+  knowledgeSources?: KnowledgeSource[];
 }
 
 export interface LLMProvider {

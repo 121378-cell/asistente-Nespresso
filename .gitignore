@@ -22,6 +22,9 @@ coverage/
 backend/test-results.json
 backend/data/*.json
 !backend/data/.gitkeep
+backend/data/knowledge-pdfs/*
+!backend/data/knowledge-pdfs/.gitkeep
+!backend/data/knowledge-pdfs/README.md
 backend/backend/data/*.json
 
 # Backup files
