@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { generateRepairPdf } from '../services/reportService.js';
 import { logAndSendInternalError } from '../utils/errorResponse.js';
-import { Message, GroundingMetadata } from '../types/api.js';
+import { Message } from '../types/api.js';
 
 const prisma = new PrismaClient();
 
@@ -15,15 +15,12 @@ interface CreateRepairInput {
   timestamp: number;
 }
 
-interface StoredMessage {
-  role: string;
-  text: string;
-  attachment?: {
-    url: string;
-    type: string;
-  } | null;
-  groundingMetadata?: GroundingMetadata | null;
-}
+const toPrismaJson = (
+  value: unknown
+): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined => {
+  if (value === undefined) return undefined;
+  return value as Prisma.InputJsonValue;
+};
 
 // GET /api/repairs - Get all saved repairs (without full messages)
 export const getAllRepairs = async (req: Request, res: Response) => {
@@ -82,7 +79,7 @@ export const getRepairById = async (req: Request, res: Response) => {
       machineModel: repair.machineModel,
       serialNumber: repair.serialNumber,
       timestamp: repair.timestamp.getTime(),
-      messages: repair.messages.map((msg: StoredMessage) => ({
+      messages: repair.messages.map((msg) => ({
         role: msg.role,
         text: msg.text,
         ...(msg.attachment && {
@@ -132,7 +129,7 @@ export const createRepair = async (req: Request, res: Response) => {
           create: messages.map((msg) => ({
             role: msg.role,
             text: msg.text,
-            groundingMetadata: msg.groundingMetadata || undefined,
+            groundingMetadata: toPrismaJson(msg.groundingMetadata),
             ...(msg.attachment && {
               attachment: {
                 create: {

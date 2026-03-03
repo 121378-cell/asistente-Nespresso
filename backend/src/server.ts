@@ -28,6 +28,7 @@ const app: Application = express();
 const PORT = env.port;
 const ALLOWED_ORIGINS = env.allowedOrigins;
 const isProduction = env.nodeEnv === 'production';
+const LOCAL_ORIGIN_REGEX = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 if (env.trustProxy) {
   app.set('trust proxy', 1);
@@ -39,7 +40,11 @@ app.disable('x-powered-by');
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      if (
+        !origin ||
+        ALLOWED_ORIGINS.includes(origin) ||
+        (!isProduction && LOCAL_ORIGIN_REGEX.test(origin))
+      ) {
         callback(null, true);
         return;
       }

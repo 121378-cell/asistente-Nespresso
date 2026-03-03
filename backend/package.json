@@ -5,6 +5,12 @@
   "scripts": {
     "predev": "node scripts/verifyEnv.mjs",
     "dev": "tsx watch src/server.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:reset": "prisma migrate reset",
+    "prisma:studio": "prisma studio",
     "build": "tsc",
     "prestart": "node scripts/verifyEnv.mjs",
     "start": "node dist/server.js",

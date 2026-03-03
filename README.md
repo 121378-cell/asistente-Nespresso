@@ -213,6 +213,18 @@ npm run dev
 ### Base de Datos
 
 ```bash
+# PostgreSQL local con Docker (recomendado para desarrollo)
+npm run db:up
+
+# Aplicar esquema Prisma a la base local
+npm --prefix backend run prisma:push
+
+# (Opcional) ver logs de PostgreSQL
+npm run db:logs
+
+# (Opcional) detener base local
+npm run db:down
+
 cd backend
 
 # Ver base de datos (interfaz gráfica)

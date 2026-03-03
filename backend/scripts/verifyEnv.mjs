@@ -38,11 +38,16 @@ if (nodeEnv === 'test') {
 }
 
 const requiredVars = ['DATABASE_URL', 'JWT_SECRET'];
-const optionalAnyGroup = [['SUPABASE_SERVICE_KEY', 'SUPABASE_SERVICE_ROLE_KEY']];
+const optionalAnyGroup = [];
 const llmProvider = (env.LLM_PROVIDER || 'gemini').toLowerCase();
 
 if (llmProvider === 'gemini') {
   requiredVars.push('GEMINI_API_KEY');
+}
+
+// Supabase credentials are only required when Supabase storage is explicitly configured.
+if (env.SUPABASE_URL) {
+  optionalAnyGroup.push(['SUPABASE_SERVICE_KEY', 'SUPABASE_SERVICE_ROLE_KEY']);
 }
 
 const missing = [];
