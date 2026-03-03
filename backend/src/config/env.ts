@@ -25,8 +25,10 @@ const envSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
-  LLM_PROVIDER: z.enum(['gemini', 'ollama']).default('gemini'),
+  LLM_PROVIDER: z.enum(['gemini', 'ollama', 'groq']).default('gemini'),
   OLLAMA_MODEL: z.string().default('llama3'),
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().default('llama-3.1-8b-instant'),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -49,8 +51,16 @@ if (parsed.NODE_ENV === 'production') {
   const missingVars: string[] = [];
   if (!parsed.DATABASE_URL || isPlaceholderSecret(parsed.DATABASE_URL))
     missingVars.push('DATABASE_URL');
-  if (!parsed.GEMINI_API_KEY || isPlaceholderSecret(parsed.GEMINI_API_KEY))
-    missingVars.push('GEMINI_API_KEY');
+  if (parsed.LLM_PROVIDER === 'gemini') {
+    if (!parsed.GEMINI_API_KEY || isPlaceholderSecret(parsed.GEMINI_API_KEY)) {
+      missingVars.push('GEMINI_API_KEY');
+    }
+  }
+  if (parsed.LLM_PROVIDER === 'groq') {
+    if (!parsed.GROQ_API_KEY || isPlaceholderSecret(parsed.GROQ_API_KEY)) {
+      missingVars.push('GROQ_API_KEY');
+    }
+  }
   if (!parsed.SUPABASE_URL) missingVars.push('SUPABASE_URL');
   if (!supabaseServiceKey || isPlaceholderSecret(supabaseServiceKey))
     missingVars.push('SUPABASE_SERVICE_KEY');
@@ -72,11 +82,13 @@ export const env = {
   logLevel: parsed.LOG_LEVEL,
   databaseUrl: parsed.DATABASE_URL || '',
   geminiApiKey: parsed.GEMINI_API_KEY || '',
+  groqApiKey: parsed.GROQ_API_KEY || '',
   supabaseUrl: parsed.SUPABASE_URL || '',
   supabaseServiceKey,
   jwtSecret: parsed.JWT_SECRET,
   llmProvider: parsed.LLM_PROVIDER,
   ollamaModel: parsed.OLLAMA_MODEL,
+  groqModel: parsed.GROQ_MODEL,
 };
 
 export type AppEnv = typeof env;

@@ -44,6 +44,9 @@ const llmProvider = (env.LLM_PROVIDER || 'gemini').toLowerCase();
 if (llmProvider === 'gemini') {
   requiredVars.push('GEMINI_API_KEY');
 }
+if (llmProvider === 'groq') {
+  requiredVars.push('GROQ_API_KEY');
+}
 
 // Supabase credentials are only required when Supabase storage is explicitly configured.
 if (env.SUPABASE_URL) {

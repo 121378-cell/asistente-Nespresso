@@ -4,6 +4,7 @@ import { getCacheKey, getCachedResponse, setCachedResponse } from './cacheServic
 import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from './llm/types.js';
 import { GeminiProvider } from './llm/geminiProvider.js';
 import { OllamaProvider } from './llm/ollamaProvider.js';
+import { GroqProvider } from './llm/groqProvider.js';
 
 // Re-export specific Google features
 export { identifyMachineFromImage, generateVideo, checkVideoStatus } from './geminiLegacy.js';
@@ -12,6 +13,9 @@ export { identifyMachineFromImage, generateVideo, checkVideoStatus } from './gem
 const getProvider = (): LLMProvider => {
   if (env.llmProvider === 'ollama') {
     return new OllamaProvider(env.ollamaModel);
+  }
+  if (env.llmProvider === 'groq') {
+    return new GroqProvider(env.groqModel);
   }
   return new GeminiProvider();
 };
