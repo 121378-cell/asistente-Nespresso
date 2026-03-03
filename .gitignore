@@ -22,6 +22,7 @@ coverage/
 backend/test-results.json
 backend/data/*.json
 !backend/data/.gitkeep
+backend/backend/data/*.json
 
 # Backup files
 *.backup
