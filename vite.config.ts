@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      hmr: {
+        host: process.env.VITE_HMR_HOST || 'localhost',
+      },
     },
     plugins: [
       react(),

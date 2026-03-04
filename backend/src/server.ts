@@ -214,6 +214,7 @@ const server = app.listen(PORT, () => {
       port: PORT,
       env: env.nodeEnv,
       allowedOrigins: ALLOWED_ORIGINS,
+      llmProvider: env.llmProvider,
     },
     'Server started successfully'
   );
