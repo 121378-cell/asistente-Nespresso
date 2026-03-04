@@ -18,12 +18,12 @@ export class GeminiProvider implements LLMProvider {
     const ai = new GoogleGenAI({ apiKey });
     // Determine model based on task complexity and inputs
     const modelName = useGoogleSearch
-      ? 'gemini-2.5-flash'
+      ? 'gemini-2.0-flash'
       : file?.mimeType.startsWith('image/')
-        ? 'gemini-2.5-flash'
+        ? 'gemini-2.0-flash'
         : file?.mimeType.startsWith('video/')
-          ? 'gemini-2.5-pro'
-          : 'gemini-2.5-pro';
+          ? 'gemini-1.5-pro'
+          : 'gemini-2.0-flash';
 
     const parts: Part[] = [{ text: message }];
     if (file) {

@@ -1,6 +1,9 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { PDFParse } from 'pdf-parse';
+import { createRequire } from 'module';
 import { KnowledgeSource } from './llm/types.js';
+
+const require = createRequire(import.meta.url);
+const pdf = require('pdf-parse');
 
 const prisma = new PrismaClient();
 
@@ -95,15 +98,15 @@ const decodePdfBase64 = (pdfBase64: string): Buffer => {
 };
 
 const parsePdf = async (pdfBuffer: Buffer): Promise<ParsedPdfResult> => {
-  const parser = new PDFParse({ data: pdfBuffer });
   try {
-    const parsed = await parser.getText();
+    const data = await pdf(pdfBuffer);
     return {
-      text: normalizeText(parsed.text || ''),
-      pageCount: parsed.total || 0,
+      text: normalizeText(data.text || ''),
+      pageCount: data.numpages || 0,
     };
-  } finally {
-    await parser.destroy();
+  } catch (error) {
+    console.error('Error parsing PDF:', error);
+    throw new Error('No se pudo procesar el archivo PDF');
   }
 };
 
