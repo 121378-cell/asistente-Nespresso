@@ -73,7 +73,7 @@ export async function generateResponse(
 
     // Map history to backend format
     const historyData = history.map((msg) => ({
-      role: msg.role,
+      role: msg.role === 'user' ? 'USER' : 'MODEL',
       text: msg.text,
     }));
 
