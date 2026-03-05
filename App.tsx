@@ -20,9 +20,11 @@ import SavedRepairsModal from './components/SavedRepairsModal';
 import Checklist from './components/Checklist';
 import CameraIcon from './components/icons/CameraIcon';
 import CameraIdentificationModal from './components/CameraIdentificationModal';
+import CreateReportModal from './components/CreateReportModal';
 import { DatabaseDashboard } from './components/DatabaseDashboard';
 import JobsDashboard from './components/JobsDashboard';
 import SparePartsDropdown from './components/SparePartsDropdown';
+import FileIcon from './components/icons/FileIcon';
 
 const App: React.FC = () => {
   const {
@@ -53,10 +55,12 @@ const App: React.FC = () => {
     showSavedRepairsModal,
     showDatabaseDashboard,
     showCameraModal,
+    showCreateReportModal,
     setShowVeoModal,
     setShowSavedRepairsModal,
     setShowDatabaseDashboard,
     setShowCameraModal,
+    setShowCreateReportModal,
   } = useModals();
 
   const [showJobsDashboard, setShowJobsDashboard] = React.useState(false);
@@ -157,6 +161,14 @@ const App: React.FC = () => {
             >
               <BookmarkIcon className="w-6 h-6" />
             </button>
+            <button
+              onClick={() => setShowCreateReportModal(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              title="Crear un nuevo parte de trabajo"
+            >
+              <FileIcon className="w-5 h-5" />
+              <span className="hidden lg:inline text-xs">CREAR PARTE</span>
+            </button>
             <SparePartsDropdown selectedParts={usedParts} onSelectedPartsChange={setUsedParts} />
             <button
               onClick={() => setShowVeoModal(true)}
@@ -236,6 +248,16 @@ const App: React.FC = () => {
 
       {showDatabaseDashboard && (
         <DatabaseDashboard onClose={() => setShowDatabaseDashboard(false)} />
+      )}
+
+      {showCreateReportModal && (
+        <CreateReportModal
+          onClose={() => setShowCreateReportModal(false)}
+          onIdentify={({ model, serialNumber }) => {
+            onModelIdentified(model, serialNumber);
+            setShowCreateReportModal(false);
+          }}
+        />
       )}
 
       {showJobsDashboard && <JobsDashboard onClose={() => setShowJobsDashboard(false)} />}

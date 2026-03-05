@@ -1,0 +1,15 @@
+{
+  "response": {
+    "text": "Me presento. Soy un compañero experto en reparación de cafeteras Nespresso Profesional. Estoy aquí para ayudarte con cualquier problema o pregunta que tengas relacionada con la reparación y el mantenimiento de estas cafeteras. ¿En qué puedo ayudarte hoy?",
+    "knowledgeSources": [
+      {
+        "documentId": "35c1153c-0f06-4a20-9a85-6191f5a5c95c",
+        "documentTitle": "Electricidad y Electronica",
+        "chunkId": "e13ee83c-cf9b-4d80-be6c-ac0c7500e8fd",
+        "chunkIndex": 89,
+        "score": 2
+      }
+    ]
+  },
+  "expiresAt": 1772801658376
+}
