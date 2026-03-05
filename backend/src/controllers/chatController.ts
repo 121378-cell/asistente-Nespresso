@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateResponse, identifyMachineFromImage } from '../services/geminiService.js';
+import { generateResponse, identifyMachineFromImage } from '../services/aiService.js';
 import { logger } from '../config/logger.js';
 import { createImageJob, getImageJob } from '../services/imageJobService.js';
 import { logAndSendInternalError } from '../utils/errorResponse.js';

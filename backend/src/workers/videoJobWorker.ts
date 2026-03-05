@@ -1,4 +1,4 @@
-import { checkVideoStatus, generateVideo } from '../services/geminiService.js';
+import { checkVideoStatus, generateVideo } from '../services/aiService.js';
 import {
   claimNextQueuedVideoJob,
   claimVideoJob,

@@ -2,23 +2,20 @@ import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { getCacheKey, getCachedResponse, setCachedResponse } from './cacheService.js';
 import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from './llm/types.js';
-import { GeminiProvider } from './llm/geminiProvider.js';
 import { OllamaProvider } from './llm/ollamaProvider.js';
 import { GroqProvider } from './llm/groqProvider.js';
 import { retrieveRelevantKnowledge } from './knowledgeService.js';
 
-// Re-export specific Google features
-export { identifyMachineFromImage, generateVideo, checkVideoStatus } from './geminiLegacy.js';
-
-// Factory Implementation
+/**
+ * Factory to get the configured LLM provider.
+ * Default is now Groq if Gemini is removed.
+ */
 const getProvider = (): LLMProvider => {
   if (env.llmProvider === 'ollama') {
     return new OllamaProvider(env.ollamaModel);
   }
-  if (env.llmProvider === 'groq') {
-    return new GroqProvider(env.groqModel);
-  }
-  return new GeminiProvider();
+  // Groq is the primary provider now
+  return new GroqProvider(env.groqModel);
 };
 
 export async function generateResponse(
@@ -28,7 +25,9 @@ export async function generateResponse(
   useGoogleSearch?: boolean,
   machineModel?: string | null
 ): Promise<GenerateContentResponse> {
-  const knowledge = !file ? await retrieveRelevantKnowledge(message) : { contextText: '', sources: [] };
+  const knowledge = !file
+    ? await retrieveRelevantKnowledge(message)
+    : { contextText: '', sources: [] };
   const effectiveMessage = knowledge.contextText
     ? `Contexto de documentación técnica (RAG):
 ${knowledge.contextText}
@@ -42,7 +41,7 @@ Pregunta del usuario:
 ${message}`
     : message;
 
-  // Cache key includes provider to avoid mixing local/cloud responses
+  // Cache key includes provider to avoid mixing local responses
   const cacheKey = getCacheKey(effectiveMessage, {
     history: history.slice(-2),
     machineModel,
@@ -81,3 +80,17 @@ ${message}`
     throw error;
   }
 }
+
+// Identification and Video generation fallbacks since Gemini is gone
+// Note: In a real scenario, these should be implemented with Groq/Ollama vision models or similar
+export const identifyMachineFromImage = async (_image: string) => {
+  throw new Error('Machine identification via image requires Gemini (currently disabled)');
+};
+
+export const generateVideo = async (_prompt: string, _image?: any, _aspectRatio?: any) => {
+  throw new Error('Video generation requires Gemini (currently disabled)');
+};
+
+export const checkVideoStatus = async (_operation: string | { name: string }) => {
+  throw new Error('Video status check requires Gemini (currently disabled)');
+};

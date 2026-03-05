@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { generateResponse } from '../services/geminiService';
+import { generateResponse } from '../services/aiService';
 import { Message, Role } from '../types';
 import { fileToDataURL } from '../utils/fileUtils';
 

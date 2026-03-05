@@ -1,5 +1,5 @@
 import { useAppContext } from '../context/AppContext';
-import { generateResponse } from '../services/geminiService';
+import { generateResponse } from '../services/aiService';
 import { Message, Role } from '../types';
 import { parseSerialNumber } from '../utils/machineUtils';
 import { checklists } from '../data/checklistData';

@@ -110,7 +110,7 @@ void setupSwaggerDocs();
 // Routes
 const devAuth = isProduction
   ? authenticate
-  : (req: Request, res: Response, next: NextFunction) => next();
+  : (_req: Request, _res: Response, next: NextFunction) => next();
 
 app.use('/api/auth', authRouter);
 app.use('/api/repairs', devAuth, repairsRouter);

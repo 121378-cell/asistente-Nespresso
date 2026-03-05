@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { identifyMachineFromImage } from '../services/geminiService';
+import { identifyMachineFromImage } from '../services/aiService';
 import { parseSerialNumber } from '../utils/machineUtils';
 import CloseIcon from './icons/CloseIcon';
 import CameraIcon from './icons/CameraIcon';

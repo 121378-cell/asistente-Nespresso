@@ -1,4 +1,4 @@
-import { identifyMachineFromImage } from '../services/geminiService.js';
+import { identifyMachineFromImage } from '../services/aiService.js';
 import {
   claimNextQueuedImageJob,
   markImageJobCompleted,

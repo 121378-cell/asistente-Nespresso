@@ -20,12 +20,11 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES).optional(),
   TRUST_PROXY: z.string().optional(),
   DATABASE_URL: z.string().optional(),
-  GEMINI_API_KEY: z.string().optional(),
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
-  LLM_PROVIDER: z.enum(['gemini', 'ollama', 'groq']).default('gemini'),
+  LLM_PROVIDER: z.enum(['ollama', 'groq']).default('groq'),
   OLLAMA_MODEL: z.string().default('llama3'),
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().default('llama-3.1-8b-instant'),
@@ -51,11 +50,6 @@ if (parsed.NODE_ENV === 'production') {
   const missingVars: string[] = [];
   if (!parsed.DATABASE_URL || isPlaceholderSecret(parsed.DATABASE_URL))
     missingVars.push('DATABASE_URL');
-  if (parsed.LLM_PROVIDER === 'gemini') {
-    if (!parsed.GEMINI_API_KEY || isPlaceholderSecret(parsed.GEMINI_API_KEY)) {
-      missingVars.push('GEMINI_API_KEY');
-    }
-  }
   if (parsed.LLM_PROVIDER === 'groq') {
     if (!parsed.GROQ_API_KEY || isPlaceholderSecret(parsed.GROQ_API_KEY)) {
       missingVars.push('GROQ_API_KEY');
@@ -81,7 +75,6 @@ export const env = {
   trustProxy: toBool(parsed.TRUST_PROXY, parsed.NODE_ENV === 'production'),
   logLevel: parsed.LOG_LEVEL,
   databaseUrl: parsed.DATABASE_URL || '',
-  geminiApiKey: parsed.GEMINI_API_KEY || '',
   groqApiKey: parsed.GROQ_API_KEY || '',
   supabaseUrl: parsed.SUPABASE_URL || '',
   supabaseServiceKey,

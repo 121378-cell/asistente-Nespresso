@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
-import { checkVideoStatus } from './geminiService.js';
+import { checkVideoStatus } from './aiService.js';
 import { logger } from '../config/logger.js';
 
 export type VideoJobStatus = 'queued' | 'running' | 'failed' | 'completed';

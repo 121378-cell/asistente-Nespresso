@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { checkVideoStatus } from '../services/geminiService.js';
+import { checkVideoStatus } from '../services/aiService.js';
 import { logger } from '../config/logger.js';
 import { createVideoJob, refreshVideoJobStatus } from '../services/videoJobService.js';
 import { logAndSendInternalError } from '../utils/errorResponse.js';
