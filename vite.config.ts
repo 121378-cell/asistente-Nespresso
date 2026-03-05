@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
       hmr: {
-        host: process.env.VITE_HMR_HOST || 'localhost',
+        host: '127.0.0.1',
       },
     },
     plugins: [
