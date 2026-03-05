@@ -24,10 +24,12 @@ const envSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
-  LLM_PROVIDER: z.enum(['ollama', 'groq']).default('groq'),
+  LLM_PROVIDER: z.enum(['ollama', 'groq', 'kimi']).default('groq'),
   OLLAMA_MODEL: z.string().default('llama3'),
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().default('llama-3.1-8b-instant'),
+  KIMI_API_KEY: z.string().optional(),
+  KIMI_MODEL: z.string().default('moonshot-v1-8k'),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -82,6 +84,8 @@ export const env = {
   llmProvider: parsed.LLM_PROVIDER,
   ollamaModel: parsed.OLLAMA_MODEL,
   groqModel: parsed.GROQ_MODEL,
+  kimiApiKey: parsed.KIMI_API_KEY || '',
+  kimiModel: parsed.KIMI_MODEL,
 };
 
 export type AppEnv = typeof env;

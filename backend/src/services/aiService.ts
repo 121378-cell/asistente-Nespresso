@@ -4,6 +4,7 @@ import { getCacheKey, getCachedResponse, setCachedResponse } from './cacheServic
 import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from './llm/types.js';
 import { OllamaProvider } from './llm/ollamaProvider.js';
 import { GroqProvider } from './llm/groqProvider.js';
+import { KimiProvider } from './llm/kimiProvider.js';
 import { retrieveRelevantKnowledge } from './knowledgeService.js';
 
 /**
@@ -13,6 +14,9 @@ import { retrieveRelevantKnowledge } from './knowledgeService.js';
 const getProvider = (): LLMProvider => {
   if (env.llmProvider === 'ollama') {
     return new OllamaProvider(env.ollamaModel);
+  }
+  if (env.llmProvider === 'kimi') {
+    return new KimiProvider(env.kimiModel);
   }
   // Groq is the primary provider now
   return new GroqProvider(env.groqModel);
