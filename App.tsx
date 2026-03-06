@@ -167,7 +167,7 @@ const App: React.FC = () => {
               title="Crear un nuevo parte de trabajo"
             >
               <FileIcon className="w-5 h-5" />
-              <span className="hidden lg:inline text-xs">CREAR PARTE</span>
+              <span className="text-xs">CREAR PARTE</span>
             </button>
             <SparePartsDropdown selectedParts={usedParts} onSelectedPartsChange={setUsedParts} />
             <button

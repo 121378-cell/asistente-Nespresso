@@ -46,17 +46,18 @@ echo - Frontend: http://localhost:3000
 echo - Backend: http://localhost:3001
 echo.
 
-:: Configure HMR to use 127.0.0.1 to avoid WebSocket errors on Windows
+:: Force 127.0.0.1 to avoid Windows localhost/IPv6 issues
 set VITE_HMR_HOST=127.0.0.1
+set HOST=127.0.0.1
 
 :: Lanzamos en ventanas separadas con títulos claros
 start "Nespresso-API" cmd /c "echo Iniciando API... && npm --prefix backend run dev"
-start "Nespresso-Web" cmd /c "echo Iniciando Web... && npm run dev"
+start "Nespresso-Web" cmd /c "echo Iniciando Web... && npm run dev -- --force"
 
 echo.
 echo ==========================================
 echo   LISTO: Revisa las nuevas ventanas
 echo ==========================================
-echo Nota: Si ves errores de WebSocket, refresca el navegador.
+echo Nota: Si ves errores de WebSocket, refresca el navegador (Ctrl+F5).
 timeout /t 10
 exit
