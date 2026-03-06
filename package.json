@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "db:up": "docker compose -f docker-compose.local.yml up -d",
     "db:down": "docker compose -f docker-compose.local.yml down",
     "db:logs": "docker compose -f docker-compose.local.yml logs -f postgres",
