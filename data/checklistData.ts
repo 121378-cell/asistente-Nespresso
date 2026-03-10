@@ -31,6 +31,10 @@ export const zeniusChecklist: ChecklistItem[] = [
     id: 'z_mant_3',
     section: '* Manteniment generic',
     text: 'Revisar pressio (minm 19bar) durant 15 segons',
+    requiresValue: true,
+    unit: 'bar',
+    min: 19,
+    max: 22,
   },
   { id: 'z_mant_4', section: '* Manteniment generic', text: 'Neteja boca sortida café' },
   {
@@ -61,6 +65,10 @@ export const zeniusChecklist: ChecklistItem[] = [
     id: 'z_func_4',
     section: '* Comprovacions en funcionament',
     text: 'Temperatura café 86º +-3ºC',
+    requiresValue: true,
+    unit: 'ºC',
+    min: 83,
+    max: 89,
   },
   { id: 'z_func_5', section: '* Comprovacions en funcionament', text: 'Apagada automatic 12h' },
   {
@@ -98,6 +106,10 @@ export const geminiChecklist: ChecklistItem[] = [
     id: 'g3',
     section: 'Hidráulica',
     text: 'Vapor (Solo CS223): Presión constante y purga de boquilla.',
+    requiresValue: true,
+    unit: 'bar',
+    min: 2.5,
+    max: 3.5,
   },
   {
     id: 'g4',
@@ -124,6 +136,24 @@ export const geminiChecklist: ChecklistItem[] = [
     id: 'g9',
     section: 'Software',
     text: 'Menú Técnico: Comprobar última descalcificación en menú Care.',
+  },
+  {
+    id: 'g10',
+    section: 'Térmico',
+    text: 'Temperatura café Cabezal 1',
+    requiresValue: true,
+    unit: 'ºC',
+    min: 83,
+    max: 89,
+  },
+  {
+    id: 'g11',
+    section: 'Térmico',
+    text: 'Temperatura café Cabezal 2',
+    requiresValue: true,
+    unit: 'ºC',
+    min: 83,
+    max: 89,
   },
 ];
 
@@ -158,6 +188,10 @@ export const momentoChecklist: ChecklistItem[] = [
     id: 'm7',
     section: 'Hidráulica',
     text: 'Verificar fugas en el caudalímetro (Error 1xxx común).',
+    requiresValue: true,
+    unit: 'ml/min',
+    min: 150,
+    max: 250,
   },
   {
     id: 'm8',
@@ -168,6 +202,10 @@ export const momentoChecklist: ChecklistItem[] = [
     id: 'm9',
     section: 'Térmico',
     text: 'Temperatura: Estabilidad térmica (Thermoblok inteligente).',
+    requiresValue: true,
+    unit: 'ºC',
+    min: 84,
+    max: 88,
   },
 ];
 

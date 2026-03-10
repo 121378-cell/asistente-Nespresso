@@ -25,6 +25,8 @@ import { DatabaseDashboard } from './components/DatabaseDashboard';
 import JobsDashboard from './components/JobsDashboard';
 import SparePartsDropdown from './components/SparePartsDropdown';
 import FileIcon from './components/icons/FileIcon';
+import SaveIcon from './components/icons/SaveIcon';
+import PWAPrompt from './components/PWAPrompt';
 
 const App: React.FC = () => {
   const {
@@ -169,6 +171,19 @@ const App: React.FC = () => {
               <FileIcon className="w-5 h-5" />
               <span className="text-xs">CREAR PARTE</span>
             </button>
+            <button
+              onClick={() => handleSaveRepair()}
+              disabled={isSaveDisabled}
+              className={`flex items-center gap-2 px-3 py-2 font-bold rounded-lg transition-colors shadow-sm ${
+                isSaveDisabled
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+              title="Guardar el parte actual en la base de datos"
+            >
+              <SaveIcon className="w-5 h-5" />
+              <span className="text-xs">GUARDAR PARTE</span>
+            </button>
             <SparePartsDropdown selectedParts={usedParts} onSelectedPartsChange={setUsedParts} />
             <button
               onClick={() => setShowVeoModal(true)}
@@ -261,6 +276,7 @@ const App: React.FC = () => {
       )}
 
       {showJobsDashboard && <JobsDashboard onClose={() => setShowJobsDashboard(false)} />}
+      <PWAPrompt />
     </div>
   );
 };

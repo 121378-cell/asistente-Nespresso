@@ -219,6 +219,15 @@ class ApiService {
   }
 
   // Spare Parts
+  async getAllSpareParts(): Promise<SparePartSearchResult[]> {
+    try {
+      const response = await this.axiosInstance.get<SparePartSearchResult[]>('/spare-parts');
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   async searchSpareParts(query: string): Promise<SparePartSearchResult[]> {
     try {
       const response = await this.axiosInstance.get<SparePartSearchResult[]>(

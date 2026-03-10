@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChecklistItem } from '../types';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ToolIcon from './icons/ToolIcon';
 import CloseIcon from './icons/CloseIcon';
 import DocumentTextIcon from './icons/DocumentTextIcon';
+import SaveIcon from './icons/SaveIcon';
+import MicrophoneIcon from './icons/MicrophoneIcon';
+import SignatureModal from './SignatureModal';
+import { useRepairs } from '../hooks/useRepairs';
 
 interface ChecklistProps {
   machineModel: string;
@@ -19,10 +23,13 @@ interface ChecklistMeta {
   startTime?: string;
   endTime?: string;
   extraibles?: boolean;
+  manualValues?: Record<string, string>;
+  signature?: string;
 }
 
 const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items, onClose }) => {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [manualValues, setManualValues] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState('');
   const [finalNotes, setFinalNotes] = useState('');
   const [technicianName, setTechnicianName] = useState('');
@@ -30,6 +37,58 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
   const [endTime, setEndTime] = useState('');
   const [extraibles, setExtraibles] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  const [activeDictation, setActiveDictation] = useState<'notes' | 'finalNotes' | null>(null);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
+
+  const { handleSaveRepair } = useRepairs();
+
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'es-ES';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (activeDictation === 'notes') {
+          setNotes((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          saveMeta({ notes: notes + ' ' + transcript });
+        } else if (activeDictation === 'finalNotes') {
+          setFinalNotes((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          saveMeta({ finalNotes: finalNotes + ' ' + transcript });
+        }
+        setActiveDictation(null);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setActiveDictation(null);
+      };
+
+      recognitionRef.current.onend = () => {
+        setActiveDictation(null);
+      };
+    }
+  }, [activeDictation, notes, finalNotes]);
+
+  const startDictation = (field: 'notes' | 'finalNotes') => {
+    if (!recognitionRef.current) {
+      alert('Tu navegador no soporta reconocimiento de voz.');
+      return;
+    }
+
+    if (activeDictation === field) {
+      recognitionRef.current.stop();
+    } else {
+      setActiveDictation(field);
+      recognitionRef.current.start();
+    }
+  };
 
   const storageKey = `checklist_${serialNumber}`;
   const metaKey = `checklist_meta_${serialNumber}`;
@@ -61,6 +120,8 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
         setStartTime(meta.startTime || '');
         setEndTime(meta.endTime || '');
         setExtraibles(meta.extraibles || false);
+        setManualValues(meta.manualValues || {});
+        setSignature(meta.signature || null);
       } else {
         // Set default start time if new
         const now = new Date();
@@ -81,6 +142,15 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
     }
   };
 
+  const handleSignatureSave = (dataUrl: string) => {
+    setSignature(dataUrl);
+    saveMeta({ signature: dataUrl });
+    setShowSignatureModal(false);
+
+    // Trigger the actual save
+    handleSaveRepair();
+  };
+
   const handleCheckboxChange = (id: string) => {
     const newCheckedState = { ...checkedItems, [id]: !checkedItems[id] };
     setCheckedItems(newCheckedState);
@@ -89,6 +159,27 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
     } catch (error) {
       console.error('Failed to save checklist state:', error);
     }
+  };
+
+  const handleManualValueChange = (id: string, value: string) => {
+    const newManualValues = { ...manualValues, [id]: value };
+    setManualValues(newManualValues);
+    saveMeta({ manualValues: newManualValues });
+  };
+
+  const getValueValidationClass = (item: ChecklistItem, value: string) => {
+    if (!value || !item.requiresValue) return 'border-gray-300';
+
+    const numValue = parseFloat(value.replace(',', '.'));
+    if (isNaN(numValue)) return 'border-gray-300';
+
+    const isOutOfRange =
+      (item.min !== undefined && numValue < item.min) ||
+      (item.max !== undefined && numValue > item.max);
+
+    return isOutOfRange
+      ? 'border-red-500 bg-red-50 text-red-900 focus:ring-red-500'
+      : 'border-green-500 bg-green-50 text-green-900 focus:ring-green-500';
   };
 
   const handleTechnicianChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,11 +232,14 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
       // Add Item Rows
       sectionItems.forEach((item) => {
         const isChecked = !!checkedItems[item.id];
+        const manualValue = manualValues[item.id] || '';
+        const valueSuffix = item.unit ? ` ${item.unit}` : '';
+
         rowsHTML += `
                 <tr>
                     <td>${item.text}</td>
                     <td style="text-align:center;">${isChecked ? 'OK' : ''}</td>
-                    <td></td>
+                    <td>${manualValue}${manualValue ? valueSuffix : ''}</td>
                 </tr>
             `;
       });
@@ -202,6 +296,18 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
                         ${finalNotes}
                     </td>
                 </tr>
+                ${
+                  signature
+                    ? `
+                <tr>
+                    <td colspan="3" style="text-align: center;">
+                        <strong>FIRMA DEL CLIENTE:</strong><br/>
+                        <img src="${signature}" width="200" height="100" />
+                    </td>
+                </tr>
+                `
+                    : ''
+                }
             </table>
         </body>
         </html>
@@ -321,9 +427,18 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
       </div>
 
       <div className="mb-4 bg-blue-50 p-3 rounded border border-blue-100">
-        <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
-          Descripción Avaria / Notas Iniciales
-        </label>
+        <div className="flex justify-between items-center mb-1">
+          <label className="block text-xs font-bold text-blue-800 uppercase">
+            Descripción Avaria / Notas Iniciales
+          </label>
+          <button
+            onClick={() => startDictation('notes')}
+            className={`p-1 rounded-full transition-colors ${activeDictation === 'notes' ? 'bg-red-100 text-red-600 animate-pulse' : 'text-blue-600 hover:bg-blue-100'}`}
+            title="Dictar notas"
+          >
+            <MicrophoneIcon className="w-4 h-4" />
+          </button>
+        </div>
         <textarea
           value={notes}
           onChange={(e) => handleNotesChange(e, 'notes')}
@@ -351,12 +466,33 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
                           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                         />
                       </div>
-                      <div className="ml-3 text-sm">
+                      <div className="ml-3 text-sm flex-1 flex items-center justify-between">
                         <span
                           className={`font-medium text-gray-800 ${checkedItems[item.id] ? 'text-green-700' : ''}`}
                         >
                           {item.text}
                         </span>
+
+                        {item.requiresValue && (
+                          <div
+                            className="flex items-center gap-2 ml-4"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="text"
+                              value={manualValues[item.id] || ''}
+                              onChange={(e) => handleManualValueChange(item.id, e.target.value)}
+                              placeholder="Valor..."
+                              className={`w-20 p-1 text-xs border rounded outline-none transition-colors ${getValueValidationClass(
+                                item,
+                                manualValues[item.id] || ''
+                              )}`}
+                            />
+                            {item.unit && (
+                              <span className="text-xs text-gray-500 font-bold">{item.unit}</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       {checkedItems[item.id] && (
                         <span className="ml-auto text-xs font-bold text-green-600 px-2">OK</span>
@@ -371,10 +507,19 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
       </div>
 
       <div className="mt-6 bg-gray-50 p-4 rounded-md border border-gray-200">
-        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-          <DocumentTextIcon className="w-5 h-5 text-gray-500" />
-          Resolución Final / Piezas Cambiadas
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label className="flex items-center gap-2 text-sm font-bold text-gray-700">
+            <DocumentTextIcon className="w-5 h-5 text-gray-500" />
+            Resolución Final / Piezas Cambiadas
+          </label>
+          <button
+            onClick={() => startDictation('finalNotes')}
+            className={`p-1 rounded-full transition-colors ${activeDictation === 'finalNotes' ? 'bg-red-100 text-red-600 animate-pulse' : 'text-gray-500 hover:bg-gray-200'}`}
+            title="Dictar resolución"
+          >
+            <MicrophoneIcon className="w-4 h-4" />
+          </button>
+        </div>
         <textarea
           value={finalNotes}
           onChange={(e) => handleNotesChange(e, 'finalNotes')}
@@ -382,6 +527,20 @@ const Checklist: React.FC<ChecklistProps> = ({ machineModel, serialNumber, items
           className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700 placeholder-gray-400 min-h-[80px]"
         />
       </div>
+
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={() => setShowSignatureModal(true)}
+          className="flex items-center gap-3 px-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95"
+        >
+          <SaveIcon className="w-6 h-6" />
+          GUARDAR PARTE FINALIZADO
+        </button>
+      </div>
+
+      {showSignatureModal && (
+        <SignatureModal onClose={() => setShowSignatureModal(false)} onSave={handleSignatureSave} />
+      )}
     </div>
   );
 };

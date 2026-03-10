@@ -1,6 +1,6 @@
 {
   "response": {
-    "text": "Me presento. Soy un compañero experto en reparación de cafeteras Nespresso Profesional. Estoy aquí para ayudarte con cualquier problema o pregunta que tengas relacionada con la reparación y el mantenimiento de estas cafeteras. ¿En qué puedo ayudarte hoy?",
+    "text": "Me alegra conocerlo. Soy un experto en reparación de cafeteras Nespresso Profesional. Mi experiencia y conocimientos técnicos me permiten diagnosticar y resolver problemas con eficacia. Estoy listo para ayudarlo con cualquier pregunta o problema relacionado con sus cafeteras Nespresso. ¿En qué puedo ayudarlo hoy?",
     "knowledgeSources": [
       {
         "documentId": "35c1153c-0f06-4a20-9a85-6191f5a5c95c",
@@ -11,5 +11,5 @@
       }
     ]
   },
-  "expiresAt": 1772801658376
+  "expiresAt": 1773123757938
 }

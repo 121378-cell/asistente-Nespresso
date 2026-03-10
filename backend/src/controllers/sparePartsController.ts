@@ -33,6 +33,23 @@ export const searchParts = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllParts = async (_req: Request, res: Response) => {
+  try {
+    const parts = await prisma.sparePart.findMany({
+      orderBy: { name: 'asc' },
+    });
+    res.json(parts);
+  } catch (error) {
+    return logAndSendInternalError(
+      _req,
+      res,
+      error,
+      'Failed to fetch all spare parts',
+      'Failed to fetch parts'
+    );
+  }
+};
+
 export const addPartToRepair = async (req: Request, res: Response) => {
   try {
     const { repairId, partId, quantity } = req.body;

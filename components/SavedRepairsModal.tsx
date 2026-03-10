@@ -6,6 +6,8 @@ import BookmarkIcon from './icons/BookmarkIcon';
 import ToolIcon from './icons/ToolIcon';
 import SparePartsSelector from './SparePartsSelector';
 import { apiService } from '../services/apiService';
+import { db, LocalRepair } from '../src/db';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 interface SavedRepairsModalProps {
   onClose: () => void;
@@ -24,29 +26,44 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
   selectedParts,
   onSelectedPartsChange,
 }) => {
-  const [repairs, setRepairs] = useState<SavedRepair[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const localRepairs = useLiveQuery(() => db.repairs.orderBy('timestamp').reverse().toArray());
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadRepairs = async () => {
+    const syncWithApi = async () => {
       try {
         setIsLoading(true);
-        setError(null);
-        const data = await apiService.getAllRepairs();
-        setRepairs(data);
+        const remoteRepairs = await apiService.getAllRepairs();
+
+        // Sync remote repairs to local DB
+        for (const remote of remoteRepairs) {
+          const existing = await db.repairs.where('id').equals(remote.id).first();
+          if (!existing) {
+            await db.repairs.add({
+              ...remote,
+              isSynced: true,
+            } as LocalRepair);
+          } else {
+            // Update existing if needed (timestamp comparison could be used)
+            await db.repairs.update(existing.localId!, {
+              ...remote,
+              isSynced: true,
+            });
+          }
+        }
       } catch (error: unknown) {
-        console.error('Failed to load repairs from API:', error);
-        setError(
-          'No se pudieron cargar las reparaciones. Asegúrate de que el backend esté funcionando.'
-        );
-        setRepairs([]);
+        console.warn('Could not sync with API, using local data only:', error);
+        // Don't show error to user if we have local data
+        if (!localRepairs || localRepairs.length === 0) {
+          setError('Modo offline: No hay datos locales y el servidor no responde.');
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadRepairs();
+    syncWithApi();
   }, []);
 
   useEffect(() => {
@@ -60,18 +77,25 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (repair: LocalRepair) => {
     if (
       window.confirm(
-        '¿Estás seguro de que quieres eliminar esta reparación guardada? Esta acción no se puede deshacer.'
+        '¿Estás seguro de que quieres eliminar esta reparación? Esta acción no se puede deshacer.'
       )
     ) {
       try {
-        await apiService.deleteRepair(id);
-        setRepairs(repairs.filter((r) => r.id !== id));
+        // 1. Delete locally
+        if (repair.localId !== undefined) {
+          await db.repairs.delete(repair.localId);
+        }
+
+        // 2. Try to delete remotely if it was synced
+        if (repair.id && repair.isSynced) {
+          await apiService.deleteRepair(repair.id);
+        }
       } catch (error) {
         console.error('Failed to delete repair:', error);
-        alert('Hubo un error al eliminar la reparación.');
+        // Even if remote delete fails, local is gone, so UI will update
       }
     }
   };
@@ -86,7 +110,12 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold text-gray-800">Reparaciones Guardadas</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold text-gray-800">Reparaciones Guardadas</h2>
+            {isLoading && (
+              <span className="text-xs text-blue-500 animate-pulse">Sincronizando...</span>
+            )}
+          </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
             <CloseIcon className="w-6 h-6" />
           </button>
@@ -119,18 +148,15 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {isLoading ? (
+          {!localRepairs && isLoading ? (
             <div className="text-center py-10">
               <p className="text-gray-500">Cargando reparaciones...</p>
             </div>
-          ) : error ? (
+          ) : error && (!localRepairs || localRepairs.length === 0) ? (
             <div className="text-center py-10">
               <p className="text-red-600">{error}</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Verifica que el backend esté funcionando en http://localhost:3001
-              </p>
             </div>
-          ) : repairs.length === 0 ? (
+          ) : !localRepairs || localRepairs.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-gray-500">No tienes ninguna reparación guardada todavía.</p>
               <p className="text-sm text-gray-400 mt-2">
@@ -139,15 +165,25 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
             </div>
           ) : (
             <ul className="space-y-3">
-              {repairs.map((repair) => (
+              {localRepairs.map((repair) => (
                 <li
-                  key={repair.id}
+                  key={repair.localId || repair.id}
                   className="p-3 bg-gray-50 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex-1 overflow-hidden mr-2">
-                    <p className="font-semibold text-gray-800 truncate" title={repair.name}>
-                      {repair.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-800 truncate" title={repair.name}>
+                        {repair.name}
+                      </p>
+                      {!repair.isSynced && (
+                        <span
+                          className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200"
+                          title="Pendiente de sincronizar"
+                        >
+                          Local
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500 flex items-center gap-2">
                       <span>{repair.machineModel || 'Sin modelo'}</span>
                       {repair.serialNumber && (
@@ -161,13 +197,13 @@ const SavedRepairsModal: React.FC<SavedRepairsModalProps> = ({
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
-                      onClick={() => onLoad(repair)}
+                      onClick={() => onLoad(repair as any)}
                       className="px-3 py-1 text-sm bg-white border border-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-50"
                     >
                       Cargar
                     </button>
                     <button
-                      onClick={() => handleDelete(repair.id)}
+                      onClick={() => handleDelete(repair)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full"
                       title="Eliminar reparación"
                     >

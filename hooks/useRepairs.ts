@@ -2,6 +2,7 @@ import { useAppContext } from '../context/AppContext';
 import { SavedRepair, UsedPart } from '../types';
 import { checklists } from '../data/checklistData';
 import { apiService } from '../services/apiService';
+import { db, LocalRepair } from '../src/db';
 
 /**
  * Custom hook para manejar el guardado y carga de reparaciones
@@ -23,34 +24,68 @@ export const useRepairs = () => {
    */
   const handleSaveRepair = async (partsOverride: UsedPart[] = []) => {
     const partsToSave = partsOverride.length > 0 ? partsOverride : usedParts;
-    const defaultName = `${machineModel || 'General'} - ${messages[1]?.text.substring(0, 30) || 'Reparación'}...`;
+
+    // Intentar recuperar metadatos del checklist si existen para el número de serie actual
+    let checklistMeta = null;
+    if (serialNumber) {
+      const savedMeta = localStorage.getItem(`checklist_meta_${serialNumber}`);
+      if (savedMeta) {
+        checklistMeta = JSON.parse(savedMeta);
+      }
+    }
+
+    const defaultName = `${machineModel || 'General'} - ${serialNumber || 'Sin S/N'} - ${new Date().toLocaleDateString()}`;
     const name = prompt('Dale un nombre a esta reparación:', defaultName);
 
     if (name) {
-      const newRepair = {
+      const timestamp = Date.now();
+      const repairData: Omit<SavedRepair, 'id'> = {
         name,
         machineModel,
         serialNumber,
         messages,
-        timestamp: Date.now(),
+        timestamp,
         usedParts: partsToSave,
-      };
+        // Extendemos el objeto con los metadatos si existen
+        ...(checklistMeta ? { metadata: checklistMeta } : {}),
+      } as any; // Cast as any to include metadata which is not in SavedRepair type yet
 
+      // 1. Guardar localmente primero (Offline First)
+      let localId: number | undefined;
       try {
-        const savedRepair = await apiService.createRepair(newRepair);
+        localId = await db.repairs.add({
+          ...repairData,
+          isSynced: false,
+        } as LocalRepair);
+        console.log('Reparación guardada localmente con ID:', localId);
+      } catch (dbError) {
+        console.error('Error al guardar en IndexedDB:', dbError);
+      }
 
-        // If we have parts, associate them
+      // 2. Intentar sincronizar con el backend
+      try {
+        const savedRepair = await apiService.createRepair(repairData);
+
+        // Si tenemos piezas, asociarlas en el backend
         if (partsToSave.length > 0) {
           for (const part of partsToSave) {
             await apiService.addPartToRepair(savedRepair.id, part.id, part.quantity);
           }
         }
 
-        alert('¡Reparación guardada con éxito!');
+        // 3. Si la sincronización tuvo éxito, actualizar el registro local
+        if (localId !== undefined) {
+          await db.repairs.update(localId, {
+            id: savedRepair.id,
+            isSynced: true,
+          });
+        }
+
+        alert('¡Parte de trabajo guardado y sincronizado con éxito!');
       } catch (error) {
-        console.error('Failed to save repair:', error);
+        console.warn('Backend no disponible, la reparación se sincronizará más tarde:', error);
         alert(
-          'Hubo un error al guardar la reparación. Asegúrate de que el backend esté funcionando.'
+          'Reparación guardada localmente. Se sincronizará automáticamente cuando haya conexión.'
         );
       }
     }
@@ -59,7 +94,7 @@ export const useRepairs = () => {
   /**
    * Cargar una reparación existente
    */
-  const handleLoadRepair = (repair: SavedRepair) => {
+  const handleLoadRepair = (repair: SavedRepair | LocalRepair) => {
     if (!repair) return;
 
     // Verificar que los mensajes sean válidos
@@ -86,8 +121,9 @@ export const useRepairs = () => {
 
   /**
    * Verificar si el botón de guardar debe estar deshabilitado
+   * Se permite guardar si hay mensajes (chat) o si se ha identificado una máquina (flujo de parte)
    */
-  const isSaveDisabled = messages.length < 3;
+  const isSaveDisabled = messages.length < 3 && !machineModel;
 
   return {
     handleSaveRepair,

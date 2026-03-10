@@ -87,8 +87,39 @@ ${message}`
 
 // Identification and Video generation fallbacks since Gemini is gone
 // Note: In a real scenario, these should be implemented with Groq/Ollama vision models or similar
-export const identifyMachineFromImage = async (_image: string) => {
-  throw new Error('Machine identification via image requires Gemini (currently disabled)');
+export const identifyMachineFromImage = async (image: string) => {
+  try {
+    const prompt = `Identifica el modelo de máquina Nespresso Profesional en la imagen. 
+Responde ÚNICAMENTE en formato JSON:
+{
+  "model": "Nombre del modelo (Zenius ZN 100 PRO, Gemini CS 203/223, Nespresso Momento)",
+  "serialNumber": "Número de serie si es visible, de lo contrario null"
+}`;
+
+    // Force Ollama with llava model for identification
+    const provider = new OllamaProvider('llava');
+    const response = await provider.generateResponse([], prompt, {
+      mimeType: 'image/jpeg',
+      data: image,
+    });
+
+    const text = response.text || '';
+    const jsonMatch = text.match(/\{.*\}/s);
+    if (!jsonMatch) {
+      logger.warn({ text }, 'No JSON found in Ollama vision response');
+      return { model: 'Desconocido', serialNumber: null };
+    }
+
+    const json = JSON.parse(jsonMatch[0]);
+    return {
+      model: json.model || 'Desconocido',
+      serialNumber: json.serialNumber || null,
+    };
+  } catch (error) {
+    logger.error({ err: error }, 'Error identifying machine via Ollama vision');
+    // Fallback to unknown if Ollama fails
+    return { model: 'Desconocido', serialNumber: null };
+  }
 };
 
 export const generateVideo = async (_prompt: string, _image?: any, _aspectRatio?: any) => {

@@ -6,7 +6,7 @@
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["node", "vite-plugin-pwa/react", "vite-plugin-pwa/client"],
     /* Gradual Strict Mode Adoption - Phase 1 */
     "strict": false, // Will enable incrementally
     "noImplicitAny": true, // ✅ Phase 1: Catch implicit any

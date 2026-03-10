@@ -20,10 +20,21 @@ async function main() {
 
     // Headers are at row 7 (index 7)
     // Row 8 (index 8) is the first data row
-    // Row 7 structure: [null, "Família", "Id de Producto", "Producto", "ABC Recambios", ...]
-
     const dataRows = data.slice(8);
     let count = 0;
+
+    // Ensure MachineModel exists
+    const machineModelName = 'Zenius ZN 100 PRO';
+    const machineModel = await prisma.machineModel.upsert({
+      where: { name: machineModelName },
+      update: {},
+      create: {
+        name: machineModelName,
+        family: 'Professional',
+      },
+    });
+
+    console.log(`Associated with Machine Model: ${machineModel.name}`);
 
     for (const row of dataRows) {
       if (!row || row.length < 4) continue;
@@ -41,18 +52,26 @@ async function main() {
           name,
           family,
           category,
+          machineModels: {
+            connect: { id: machineModel.id },
+          },
         },
         create: {
           partNumber,
           name,
           family,
           category,
+          machineModels: {
+            connect: { id: machineModel.id },
+          },
         },
       });
       count++;
     }
 
-    console.log(`Successfully imported ${count} spare parts.`);
+    console.log(
+      `Successfully imported ${count} spare parts and associated them with ${machineModelName}.`
+    );
   } catch (error) {
     console.error('Error during import:', error);
   } finally {

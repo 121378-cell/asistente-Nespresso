@@ -32,8 +32,18 @@ model SparePart {
   family      String?
   category    String?        // ABC Category
   repairs     UsedSparePart[]
+  machineModels MachineModel[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+}
+
+model MachineModel {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  family      String?
+  spareParts  SparePart[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model UsedSparePart {

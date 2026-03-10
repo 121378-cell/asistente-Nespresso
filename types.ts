@@ -102,4 +102,8 @@ export interface ChecklistItem {
   id: string;
   text: string;
   section?: string;
+  requiresValue?: boolean;
+  unit?: string;
+  min?: number;
+  max?: number;
 }
