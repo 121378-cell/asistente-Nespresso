@@ -1,8 +1,5 @@
 import { env } from '../../config/env.js';
 import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from './types.js';
-
-// Node 20 has native fetch, but we can use node-fetch as fallback if needed
-// For now, let's keep native fetch but add more logging for debugging
 import { logger } from '../../config/logger.js';
 
 const SYSTEM_INSTRUCTION =
@@ -10,7 +7,9 @@ const SYSTEM_INSTRUCTION =
 
 interface GroqChatMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content:
+    | string
+    | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }>;
 }
 
 interface GroqChatResponse {
@@ -40,8 +39,13 @@ export class GroqProvider implements LLMProvider {
       throw new Error('GROQ_API_KEY required');
     }
 
-    if (file) {
-      throw new Error('Groq provider does not support file attachments in this integration');
+    // Usar modelo de visión si hay un archivo o si el modelo solicitado es de visión
+    let activeModel = this.modelName;
+    const isVisionModel =
+      activeModel.includes('vision') || (file && file.mimeType.startsWith('image/'));
+
+    if (file && file.mimeType.startsWith('image/') && !isVisionModel) {
+      activeModel = 'llama-3.2-11b-vision-preview';
     }
 
     let systemPrompt = SYSTEM_INSTRUCTION;
@@ -54,39 +58,60 @@ export class GroqProvider implements LLMProvider {
       content: msg.text,
     }));
 
+    // Construir contenido del mensaje de usuario (soporte multimoda)
+    let userContent: any;
+    if (file && file.mimeType.startsWith('image/')) {
+      userContent = [
+        { type: 'text', text: message },
+        {
+          type: 'image_url',
+          image_url: {
+            url: `data:${file.mimeType};base64,${file.data}`,
+          },
+        },
+      ];
+    } else {
+      userContent = message;
+    }
+
     const messages: GroqChatMessage[] = [
       { role: 'system', content: systemPrompt },
       ...historyMessages,
-      { role: 'user', content: message },
+      { role: 'user', content: userContent },
     ];
 
-    logger.debug({ model: this.modelName, messageLength: message.length }, 'Calling Groq API');
+    logger.debug({ model: activeModel, hasImage: !!file }, 'Calling Groq API');
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: this.modelName,
-        messages,
-        temperature: 0.3,
-      }),
-    });
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: activeModel,
+          messages,
+          temperature: 0.3,
+        }),
+      });
 
-    const raw = (await response.json()) as GroqChatResponse | { error?: { message?: string } };
+      const raw = (await response.json()) as GroqChatResponse | { error?: { message?: string } };
 
-    if (!response.ok) {
-      const errorMsg =
-        'error' in raw && raw.error?.message
-          ? raw.error.message
-          : `Groq API error (${response.status})`;
-      logger.error({ status: response.status, error: raw }, 'Groq API responded with error');
-      throw new Error(errorMsg);
+      if (!response.ok) {
+        const errorMsg =
+          'error' in raw && raw.error?.message
+            ? raw.error.message
+            : `Groq API error (${response.status})`;
+        logger.error({ status: response.status, error: raw }, 'Groq API responded with error');
+        throw new Error(errorMsg);
+      }
+
+      const text = (raw as GroqChatResponse).choices?.[0]?.message?.content?.trim() || '';
+      return { text };
+    } catch (error) {
+      logger.error({ err: error }, 'Failed to fetch from Groq');
+      throw error;
     }
-
-    const text = (raw as GroqChatResponse).choices?.[0]?.message?.content?.trim() || '';
-    return { text };
   }
 }

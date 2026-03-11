@@ -5,11 +5,12 @@ import { LLMProvider, MessageContent, FileData, GenerateContentResponse } from '
 import { OllamaProvider } from './llm/ollamaProvider.js';
 import { GroqProvider } from './llm/groqProvider.js';
 import { KimiProvider } from './llm/kimiProvider.js';
+import { DeepSeekProvider } from './llm/deepseekProvider.js';
 import { retrieveRelevantKnowledge } from './knowledgeService.js';
 
 /**
  * Factory to get the configured LLM provider.
- * Default is now Groq if Gemini is removed.
+ * Default is now DeepSeek for technical reasoning.
  */
 const getProvider = (): LLMProvider => {
   if (env.llmProvider === 'ollama') {
@@ -17,6 +18,9 @@ const getProvider = (): LLMProvider => {
   }
   if (env.llmProvider === 'kimi') {
     return new KimiProvider(env.kimiModel);
+  }
+  if (env.llmProvider === 'deepseek') {
+    return new DeepSeekProvider(env.deepseekApiKey, env.deepseekModel);
   }
   // Groq is the primary provider now
   return new GroqProvider(env.groqModel);
@@ -96,8 +100,8 @@ Responde ÚNICAMENTE en formato JSON:
   "serialNumber": "Número de serie si es visible, de lo contrario null"
 }`;
 
-    // Force Ollama with llava model for identification
-    const provider = new OllamaProvider('llava');
+    // USAMOS GROQ PARA VISIÓN (Ultra rápido en Render)
+    const provider = new GroqProvider('llama-3.2-11b-vision-preview');
     const response = await provider.generateResponse([], prompt, {
       mimeType: 'image/jpeg',
       data: image,
@@ -106,7 +110,7 @@ Responde ÚNICAMENTE en formato JSON:
     const text = response.text || '';
     const jsonMatch = text.match(/\{.*\}/s);
     if (!jsonMatch) {
-      logger.warn({ text }, 'No JSON found in Ollama vision response');
+      logger.warn({ text }, 'No JSON found in Groq vision response');
       return { model: 'Desconocido', serialNumber: null };
     }
 
@@ -116,8 +120,8 @@ Responde ÚNICAMENTE en formato JSON:
       serialNumber: json.serialNumber || null,
     };
   } catch (error) {
-    logger.error({ err: error }, 'Error identifying machine via Ollama vision');
-    // Fallback to unknown if Ollama fails
+    logger.error({ err: error }, 'Error identifying machine via Groq vision');
+    // Fallback to unknown if Groq fails
     return { model: 'Desconocido', serialNumber: null };
   }
 };

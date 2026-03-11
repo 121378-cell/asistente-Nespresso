@@ -41,10 +41,12 @@ app.disable('x-powered-by');
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Relaxed CORS for development to allow mobile access via IP
       if (
+        !isProduction ||
         !origin ||
         ALLOWED_ORIGINS.includes(origin) ||
-        (!isProduction && LOCAL_ORIGIN_REGEX.test(origin))
+        LOCAL_ORIGIN_REGEX.test(origin)
       ) {
         callback(null, true);
         return;

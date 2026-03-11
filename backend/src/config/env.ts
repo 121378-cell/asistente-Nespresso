@@ -24,12 +24,14 @@ const envSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   JWT_SECRET: z.string().default('your-secret-key-change-me-in-production'),
-  LLM_PROVIDER: z.enum(['ollama', 'groq', 'kimi']).default('groq'),
+  LLM_PROVIDER: z.enum(['ollama', 'groq', 'kimi', 'deepseek']).default('deepseek'),
   OLLAMA_MODEL: z.string().default('llama3'),
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().default('llama-3.1-8b-instant'),
   KIMI_API_KEY: z.string().optional(),
   KIMI_MODEL: z.string().default('moonshot-v1-8k'),
+  DEEPSEEK_API_KEY: z.string().optional(),
+  DEEPSEEK_MODEL: z.string().default('deepseek-chat'),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -86,6 +88,8 @@ export const env = {
   groqModel: parsed.GROQ_MODEL,
   kimiApiKey: parsed.KIMI_API_KEY || '',
   kimiModel: parsed.KIMI_MODEL,
+  deepseekApiKey: parsed.DEEPSEEK_API_KEY || '',
+  deepseekModel: parsed.DEEPSEEK_MODEL,
 };
 
 export type AppEnv = typeof env;
